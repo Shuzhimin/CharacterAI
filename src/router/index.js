@@ -4,7 +4,7 @@ import UserHome from '@/components/UserHome';
 import Welcome from '@/components/Welcome';
 import MainPage from '@/components/MainPage';
 import Dialogue from '@/components/Dialogue';
-import Chat from '@/components/Chat';
+import Create from '@/components/Create';
 
 Vue.use(VueRouter)
 
@@ -17,7 +17,7 @@ const routes = [
       { path: '/welcome', component: Welcome },
       { path: '/mainpage', component: MainPage },
       { path: '/dialogue', component: Dialogue },
-      { path: '/chat', component: Chat }
+      { path: '/create', component: Create }
     ]
   }
 ]

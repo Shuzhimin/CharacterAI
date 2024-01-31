@@ -121,8 +121,8 @@ export default {
             },
             {
               id: 1013,
-              authName: '对话框',
-              path: '/chat'
+              authName: '创建角色',
+              path: '/create'
             }
           ]
         }
