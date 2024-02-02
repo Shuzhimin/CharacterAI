@@ -12,7 +12,7 @@ db = client.CharacterAI
 #   - 输出：{
 #     "bot_names":  list
 #     }
-async def get_bot_name():
+def get_bot_name():
     table_info = db.character_info
     res=table_info.find({}, {'bot_name': 1})
     res1=list(res)
@@ -27,7 +27,7 @@ async def get_bot_name():
   #   "user_name": str,
   #   "user_info": str
   #   }
-async def get_usr_bot_info(bot_name):
+def get_usr_bot_info(bot_name):
     table=db.character_info
     res=table.find({'bot_name':bot_name})
     #处理游标
@@ -45,7 +45,7 @@ async def get_usr_bot_info(bot_name):
 #   - 输出：{
 #     "success": success / fail
 #     }
-async def delete_bot(bot_name):
+def delete_bot(bot_name):
     table=db.character_info
     x=table.delete_one({'bot_name':bot_name})
     # 检查删除是否成功
