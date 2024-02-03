@@ -15,3 +15,7 @@ AI虚拟角色养成系统
     最后可以看一下fastapi是怎么组织一个大型项目的
    - https://fastapi.tiangolo.com/tutorial/bigger-applications/
 5. [https://fastapi.tiangolo.com/tutorial/dependencies/] 依赖注入同样是非常重要的部分，但是这一部分比较多，不用一口气看完，或者先浏览一遍，等开发需要的时候再来看
+
+# 部署
+## 后端部署
+1. on the project root dir, `uvicorn app.main:app --host 0.0.0.0 --reload`

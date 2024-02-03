@@ -47,7 +47,7 @@ async def query_character_info(character_info: Character = Depends(get_info)):
 
 @app.put('/chat')
 async def query_character_info(content: str, chat_history: List[Dict] = [], character_info: Character = Depends(get_info)):
-    zhipuai.api_key = "...." 待填
+    zhipuai.api_key = "...." 
     chat_history.append({
         "role": "user",
         "content": content
