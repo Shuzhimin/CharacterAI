@@ -89,6 +89,15 @@ async def update_character_info(character_info: Character):
         account_collection.update_one({'bot_name': character_info.bot_name}, {'$set': {'bot_info': character_info.bot_info, 'user_name': character_info.user_name, 'user_info': character_info.user_info}})
     return True
 
+@app.get('/character/query')
+async def query_character_info(bot_name: str):
+    with MongoClient('mongodb://localhost:27017/', port=27017) as client:
+        db = client['CharacterAI']
+        account_collection = db['character_info']
+        info_list = account_collection.find({'bot_name': bot_name})[0]
+        character_info = Character(**info_list)
+        return character_info
+
 @app.post('/character/create')
 async def create_character_info(character_info:Character):
     with MongoClient('mongodb://localhost:27017/', port=27017) as client:
@@ -122,6 +131,3 @@ async def query_character_info(content :str, chat_history :list[Dict] = [], char
     })
     return {"content" :response[content]}
     
-
-if __name__ == "__main__":
-    uvicorn.run('.run2.pyapp', host='127.0.0.1', port=8000, reload=True, workers=1)
