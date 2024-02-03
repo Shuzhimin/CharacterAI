@@ -3,8 +3,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-from connect_db import main
-from connect_db.main import get_bot_name,get_usr_bot_info,delete_bot
+from db import main
+from db.main import get_bot_name,get_usr_bot_info,delete_bot
 
 app = FastAPI()
 
