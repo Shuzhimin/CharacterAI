@@ -12,7 +12,7 @@ const routes = [
   {
     path: '/',
     component: UserHome,
-    redirect: '/welcome',
+    redirect: '/mainpage',
     children: [
       { path: '/welcome', component: Welcome },
       { path: '/mainpage', component: MainPage },

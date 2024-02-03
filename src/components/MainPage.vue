@@ -1,22 +1,33 @@
 <template>
   <div>
-    <el-row>
-      <el-menu>
-        <el-col :span="6" v-for="(item, index) in character_list" style="">
-          <el-menu-item style="width: 100%; height: 100%">
-            <div>
-              <el-image :src="item.img_url" style="width: 100%; height: 100%">
 
-              </el-image>
-              <p>{{item.label}}</p>
-            </div>
-          </el-menu-item>
+    <el-card>
+      <el-row>
+        <el-input
+          v-model="character_name"
+          style="padding-left: 20px;padding-right: 20px; padding-top: 20px;width: 50%;"
+          placeholder="请输入角色名"
+          clearable>
+          <el-button slot="append" icon="el-icon-search"></el-button>
+        </el-input>
+        <el-menu style="padding-top: 20px">
+          <el-col :span="6" v-for="(item, index) in character_list" style="">
+            <el-menu-item style="width: 100%; height: 100%">
+              <div>
+                <el-image :src="item.img_url" style="width: 100%; height: 100%">
 
-        </el-col>
-      </el-menu>
+                </el-image>
+                <p>{{item.label}}</p>
+              </div>
+            </el-menu-item>
+
+          </el-col>
+        </el-menu>
 
 
-    </el-row>
+      </el-row>
+    </el-card>
+
 
   </div>
 </template>
@@ -63,12 +74,32 @@ export default {
           label: 'test7',
           description: 'test7'
         },
-      ]
+      ],
+      character_name: ''
     }
   }
 };
 </script>
 
 <style scoped>
-
+/*搜索组件最外层div */
+.input_box {
+  width: 300px;
+  margin-right: 15px;
+  border-radius: 95px
+}
+/*搜索input框 */
+:deep(.el-input__inner) {
+  /*background-color: transparent;!*覆盖原背景颜色，设置成透明 *!*/
+  border-radius: 95px;
+  /*-moz-border-radius-topright: 95px;*/
+  /*border: 0;*/
+  box-shadow: 0 0 0 0px;
+}
+/*搜索button按钮 */
+:deep(.el-input-group__append) {
+  border-radius: 95px;
+  border: 0;
+  box-shadow: 0 0 0 0px;
+}
 </style>

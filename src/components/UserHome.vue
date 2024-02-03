@@ -63,7 +63,27 @@
             :collapse-transition="false"
             :router="true"
             :default-active="activePath" >
-          <!--  一级菜单  -->
+<!--          &lt;!&ndash;  一级菜单  &ndash;&gt;-->
+<!--          <div v-for="(item, index) in menulist.childrens">-->
+<!--            <template slot="title">-->
+<!--              &lt;!&ndash; 图标 &ndash;&gt;-->
+<!--              <i :class="iconsObj[item.id]"></i>-->
+<!--              &lt;!&ndash; 文本 &ndash;&gt;-->
+<!--              <span>{{item.authName}}</span>-->
+<!--            </template>-->
+<!--            &lt;!&ndash; 二级菜单 &ndash;&gt;-->
+<!--            <el-menu-item-->
+<!--              :index="item.path"-->
+<!--              :key="item.id"-->
+<!--              @click="saveNavState(item.path)">-->
+<!--              <template slot="title">-->
+<!--                &lt;!&ndash; 图标 &ndash;&gt;-->
+<!--                <i class="el-icon-menu"></i>-->
+<!--                &lt;!&ndash; 文本 &ndash;&gt;-->
+<!--                <span>{{ item.authName }}</span>-->
+<!--              </template>-->
+<!--            </el-menu-item>-->
+<!--          </div>-->
           <el-submenu :index="item.id+''" v-for="item in menulist" :key="item.id">
             <!-- 一级菜单模板区域 -->
             <template slot="title">
