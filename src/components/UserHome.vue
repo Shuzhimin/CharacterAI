@@ -142,7 +142,7 @@ export default {
             {
               id: 1013,
               authName: '创建角色',
-              path: '/create'
+              path: '/createrole'
             }
           ]
         }

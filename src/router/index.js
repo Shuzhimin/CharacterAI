@@ -5,7 +5,7 @@ import Welcome from '@/components/Welcome';
 import MainPage from '@/components/MainPage';
 import Dialogue from '@/components/Dialogue';
 import Create from '@/components/Create';
-
+import CreateRole from '@/components/CreateRole';
 Vue.use(VueRouter)
 
 const routes = [
@@ -17,7 +17,7 @@ const routes = [
       { path: '/welcome', component: Welcome },
       { path: '/mainpage', component: MainPage },
       { path: '/dialogue', component: Dialogue },
-      { path: '/create', component: Create }
+      { path: '/createrole', component: CreateRole }
     ]
   }
 ]
