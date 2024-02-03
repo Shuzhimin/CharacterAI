@@ -17,7 +17,8 @@ def get_bot_name():
     res=table_info.find({}, {'bot_name': 1})
     res1=list(res)
     bot_name_list = [doc['bot_name'] for doc in res1]
-    return bot_name_list
+    return {"bot_name_list": bot_name_list
+    }
 
 #- 2、根据角色姓名(bot_name)返回角色信息 @app.get(/character/query')
   # - 输入：bot_name: str
@@ -37,7 +38,11 @@ def get_usr_bot_info(bot_name):
     bot_info=first_doc["bot_info"]
     user_name = first_doc['user_name']
     user_info=first_doc["user_info"]
-    return bot_name,bot_info,user_name,user_info
+    return {"bot_name":bot_name,
+            "bot_info":bot_info,
+            "user_name":user_name,
+            "user_info":user_info
+            }
 
 
 # - 3、根据角色姓名(bot_name)删除该角色信息 @app.get('character/delete')
@@ -50,9 +55,9 @@ def delete_bot(bot_name):
     x=table.delete_one({'bot_name':bot_name})
     # 检查删除是否成功
     if x.deleted_count > 0:
-        return ("success")
+        return {"success":True}
     else:
-        return ("fail")
+        return {"success":False}
 
 
 # 关闭数据库连接
