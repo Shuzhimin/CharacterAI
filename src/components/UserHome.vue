@@ -261,7 +261,8 @@ export default {
   }
 }
 .el-main {
-  background-color: #eaedf1;
+  //background-color: #eaedf1;
+  background-color: #212529;
   height: 100%;
 }
 .home-container {

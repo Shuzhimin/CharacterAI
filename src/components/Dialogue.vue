@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%">
+  <div style="height: 100%; background-color: #242949">
     <el-card style="height: 100%; min-height: 100%">
       <el-container style="height: 100%">
         <el-header>Header</el-header>
@@ -79,6 +79,7 @@ export default {
 }
 .el-card {
   background-color: #212529;
+  border: 0;
 }
 /*搜索组件最外层div */
 .el-input {
