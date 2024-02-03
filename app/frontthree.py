@@ -20,7 +20,7 @@ app.add_middleware(
 # 获取机器人名称列表
 @app.get('/names/query')
 async def get_bot_names():
-    return [get_bot_name()]
+    return get_bot_name()
 
 # 获取机器人信息
 @app.get('/character/query')
