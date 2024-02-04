@@ -47,7 +47,7 @@ async def chat(
         content: str,
         character_info: Character = Depends(operate_database.query_character_info_all),
 ):
-    zhipuai.api_key = "08b8a083c0c726db05b87cfeadae2e67.JyrabMXTMGB7voOi"
+    zhipuai.api_key = "your_api_key"
     character_info.chat_history.append(Record(role="user", content=content))
     # 用户话语信息入库
     await operate_database.storage_chat_history(character_info)
