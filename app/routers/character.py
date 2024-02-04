@@ -1,22 +1,9 @@
 from fastapi import Depends, HTTPException, APIRouter
-from pydantic import BaseModel
 import zhipuai
 from app.db import operate_database
+from app.model import Character, Record
 
 router = APIRouter()
-
-
-class Record(BaseModel):
-    role: str
-    content: str
-
-
-class Character(BaseModel):
-    bot_name: str
-    bot_info: str
-    user_name: str
-    user_info: str
-    chat_history: list[dict]
 
 
 # 创建机器人信息
@@ -59,10 +46,10 @@ async def chat(
         content: str,
         character_info: Character = Depends(operate_database.query_character_info_all),
 ):
-    zhipuai.api_key = "08b8a083c0c726db05b87cfeadae2e67.JyrabMXTMGB7voOi"
-    character_info.chat_history.append(Record(role="user", content=content).model_dump())
+    zhipuai.api_key = "your_api_key"
+    character_info.chat_history.append(Record(role="user", content=content))
     # 用户话语信息入库
-    await operate_database.storage_chat_history("user", character_info)
+    await operate_database.storage_chat_history(character_info)
     response = zhipuai.model_api.invoke(
         model="characterglm",
         meta={
@@ -71,17 +58,20 @@ async def chat(
             "bot_info": character_info.bot_info,
             "bot_name": character_info.bot_name,
         },
-        prompt={"chat_history": character_info.chat_history[-1]['content']},
+        prompt={"chat_history": character_info.chat_history[-1].content},
     )
-    ass_content = response['data']['choices'][0]['content']
-    ass_content = eval(ass_content).replace('\n', '')
-    response['data']['choices'][0]['content'] = ass_content
-    character_info.chat_history.append(
-        Record(role="assistant", content=response['data']['choices'][0]['content']).model_dump())
-    # 机器人回复信息入库
-    await operate_database.storage_chat_history("assistant", character_info)
-    return {
-        "success": response['success'],
-        "content": response['data']['choices'][0]['content'],
-        "chat_history": character_info.chat_history
-    }
+    if 'data' in response:
+        ass_content = response['data']['choices'][0]['content']
+        ass_content = eval(ass_content).replace('\n', '')
+        response['data']['choices'][0]['content'] = ass_content
+        character_info.chat_history.append(
+            Record(role="assistant", content=response['data']['choices'][0]['content']))
+        # 机器人回复信息入库
+        await operate_database.storage_chat_history("assistant", character_info)
+        return {
+            "success": response['success'],
+            "content": response['data']['choices'][0]['content'],
+            "chat_history": character_info.chat_history
+        }
+    else:
+        raise Exception("Unexpected response structure: 'data' key not found")
