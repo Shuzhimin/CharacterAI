@@ -47,10 +47,12 @@ async def chat(
         content: str,
         character_info: Character = Depends(operate_database.query_character_info_all),
 ):
-    zhipuai.api_key = "your_api_key"
+    zhipuai.api_key = "...."
     character_info.chat_history.append(Record(role="user", content=content))
     # 用户话语信息入库
     await operate_database.storage_chat_history(character_info)
+    prompt_list = [eval(json.dumps(record.model_dump(), ensure_ascii=False)) for record in
+                   character_info.chat_history[-2:]]
     response = zhipuai.model_api.invoke(
         model="characterglm",
         meta={
@@ -59,10 +61,10 @@ async def chat(
             "bot_info": character_info.bot_info,
             "bot_name": character_info.bot_name,
         },
-        prompt={"chat_history": json.dumps((character_info.chat_history[-1]).model_dump())}
+        prompt=prompt_list
     )
-    print("prompt:",character_info.chat_history[-1])
-    print("response:",response)
+    print("prompt:", prompt_list)
+    print("response:", response)
     ass_content = response['data']['choices'][0]['content']
     ass_content = eval(ass_content).replace('\n', '')
     response['data']['choices'][0]['content'] = ass_content

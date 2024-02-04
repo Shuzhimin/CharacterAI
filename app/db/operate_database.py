@@ -9,8 +9,11 @@ collection = db["character_info"]
 async def query_character_info_all(bot_name: str):
     info_list = collection.find_one({'bot_name': bot_name})
     # 解包字典, 生成Character对象
-    character_info = Character(**info_list)
-    return character_info
+    if info_list:
+        character_info = Character(**info_list)
+        return character_info
+    else:
+        return None
 
 
 async def update_character_info(character_info: Character):
