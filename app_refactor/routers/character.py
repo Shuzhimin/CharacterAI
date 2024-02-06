@@ -4,6 +4,7 @@ import zhipuai
 from app_refactor.db import operate_database
 from app_refactor.model import Character, Record
 from app_refactor.dependencies import query_character_info_all
+from app_refactor.db.main import get_bot_name, get_usr_bot_info, delete_bot
 
 router = APIRouter()
 
@@ -79,3 +80,21 @@ async def chat(
         "content": response["data"]["choices"][0]["content"],
         "chat_history": character_info.chat_history,
     }
+
+
+# 获取机器人名称列表
+@router.get("/names/query")
+async def get_bot_names():
+    return get_bot_name()
+
+
+# 获取机器人信息
+# @app.get("/character/query")
+# async def get_character(bot_name: str):
+#     return get_usr_bot_info(bot_name)
+
+
+# 删除机器人
+@router.delete("/character/delete")
+async def delete_character(bot_name: str):
+    return delete_bot(bot_name)
