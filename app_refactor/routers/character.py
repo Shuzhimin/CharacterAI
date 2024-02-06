@@ -1,8 +1,9 @@
 import json
 from fastapi import Depends, HTTPException, APIRouter
 import zhipuai
-from app.db import operate_database
-from app.model import Character, Record
+from app_refactor.db import operate_database
+from app_refactor.model import Character, Record
+from app_refactor.dependencies import query_character_info_all
 
 router = APIRouter()
 
@@ -36,23 +37,23 @@ async def query_character_info(bot_name: str):
     if character_info:
         return {"character_info": character_info}
     else:
-        raise HTTPException(
-            status_code=404, detail=f"'{bot_name}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"'{bot_name}' not found")
 
 
 # 聊天
 @router.post("/character/chat")
 async def chat(
-        content: str,
-        character_info: Character = Depends(operate_database.query_character_info_all),
+    content: str,
+    character_info: Character = Depends(query_character_info_all),
 ):
     zhipuai.api_key = "...."
     character_info.chat_history.append(Record(role="user", content=content))
     # 用户话语信息入库
     await operate_database.storage_chat_history(character_info)
-    prompt_list = [eval(json.dumps(record.model_dump(), ensure_ascii=False)) for record in
-                   character_info.chat_history[-2:]]
+    prompt_list = [
+        eval(json.dumps(record.model_dump(), ensure_ascii=False))
+        for record in character_info.chat_history[-2:]
+    ]
     response = zhipuai.model_api.invoke(
         model="characterglm",
         meta={
@@ -61,19 +62,20 @@ async def chat(
             "bot_info": character_info.bot_info,
             "bot_name": character_info.bot_name,
         },
-        prompt=prompt_list
+        prompt=prompt_list,
     )
     print("prompt:", prompt_list)
     print("response:", response)
-    ass_content = response['data']['choices'][0]['content']
-    ass_content = eval(ass_content).replace('\n', '')
-    response['data']['choices'][0]['content'] = ass_content
+    ass_content = response["data"]["choices"][0]["content"]
+    ass_content = eval(ass_content).replace("\n", "")
+    response["data"]["choices"][0]["content"] = ass_content
     character_info.chat_history.append(
-        Record(role="assistant", content=response['data']['choices'][0]['content']))
+        Record(role="assistant", content=response["data"]["choices"][0]["content"])
+    )
     # 机器人回复信息入库
     await operate_database.storage_chat_history(character_info)
     return {
-        "success": response['success'],
-        "content": response['data']['choices'][0]['content'],
-        "chat_history": character_info.chat_history
+        "success": response["success"],
+        "content": response["data"]["choices"][0]["content"],
+        "chat_history": character_info.chat_history,
     }

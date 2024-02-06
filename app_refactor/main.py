@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import character
+from app_refactor.routers import character
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
@@ -17,4 +17,4 @@ app.add_middleware(
 
 if __name__ == "__main__":
 
-    uvicorn.run(app)
+    uvicorn.run(app, host="0.0.0.0")
