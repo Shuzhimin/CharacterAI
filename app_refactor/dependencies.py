@@ -3,6 +3,7 @@
 
 from pymongo import MongoClient
 from app_refactor.models import Character
+from app_refactor.database.proxy import DatabaseProxy
 
 client = MongoClient("mongodb://localhost:27017/", port=27017)
 db = client["CharacterAI"]
@@ -17,3 +18,7 @@ async def query_character_info_all(bot_name: str):
         return character_info
     else:
         return None
+
+
+def database_proxy() -> DatabaseProxy:
+    return DatabaseProxy()
