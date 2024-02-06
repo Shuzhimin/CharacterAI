@@ -1,9 +1,9 @@
 # 2024/2/6
 # zhangzhong
 
-from app_refactor.common.conf import conf
+from app.common.conf import conf
 import zhipuai
-from app_refactor.models import Character
+from app.models import Character
 import json
 
 

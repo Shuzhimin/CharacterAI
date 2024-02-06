@@ -1,10 +1,10 @@
 from fastapi import Depends, HTTPException, APIRouter
-from app_refactor.database.proxy import DatabaseProxy
-from app_refactor.models import Character, ChatRecord
+from app.database.proxy import DatabaseProxy
+from app.models import Character, ChatRecord
 from typing import Annotated
-from app_refactor.dependencies import database_proxy
+from app.dependencies import database_proxy
 from typing import Any
-import app_refactor.common.glm as glm
+import app.common.glm as glm
 
 router = APIRouter()
 

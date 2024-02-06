@@ -1,9 +1,9 @@
 # 2024/2/6
 # zhangzhong
 
-from app_refactor.database.proxy import DatabaseProxy
-from app_refactor.models import Character, ChatRecord
-from app_refactor.common.conf import conf
+from app.database.proxy import DatabaseProxy
+from app.models import Character, ChatRecord
+from app.common.conf import conf
 from pymongo import MongoClient
 
 

@@ -1,7 +1,7 @@
 # 2024/1/31
 # zhangzhong
 
-from app_refactor.common.conf import Conf
+from app.common.conf import Conf
 
 conf_file = "conf.toml"
 

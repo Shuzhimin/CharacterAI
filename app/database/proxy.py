@@ -1,9 +1,9 @@
 # 2024/2/6
 # zhangzhong
 
-from app_refactor.models import Character, ChatRecord
-import app_refactor.database.mongo as mongo
-from app_refactor.common.error import Error
+from app.models import Character, ChatRecord
+import app.database.mongo as mongo
+from app.common.error import Error
 
 
 # CRUD: Create, Read, Update, Delete

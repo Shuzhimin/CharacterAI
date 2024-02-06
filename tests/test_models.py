@@ -1,6 +1,6 @@
 # 2024/2/6
 # zhangzhong
-from app_refactor.models import ChatRecord, Character
+from app.models import ChatRecord, Character
 from pydantic import ValidationError
 
 
