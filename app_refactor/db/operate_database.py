@@ -1,9 +1,10 @@
 from pymongo import MongoClient
-from app.model import Character
+from app_refactor.models import Character
+from app_refactor.common.conf import conf
 
-client = MongoClient("mongodb://localhost:27017/", port=27017)
-db = client["CharacterAI"]
-collection = db["character_info"]
+client = MongoClient(**conf.get_mongo_setting())
+db = client[conf.get_mongo_database()]
+collection = db[conf.get_mongo_character_collname()]
 
 
 async def query_character_info_all(bot_name: str):

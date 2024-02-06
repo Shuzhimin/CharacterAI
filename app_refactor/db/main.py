@@ -1,10 +1,11 @@
 from pymongo import MongoClient
+from app_refactor.common.conf import conf
 
 # 创建MongoDB客户端
-client = MongoClient("localhost", 27017)
+client = MongoClient(**conf.get_mongo_setting())
 
 # 连接到你的数据库
-db = client.CharacterAI
+db = client[conf.get_mongo_database()]
 
 
 # - 1、获取所有创建角色姓名 @app.get(/names/query')
@@ -13,7 +14,7 @@ db = client.CharacterAI
 #     "bot_names":  list
 #     }
 def get_bot_name():
-    table_info = db.character_info
+    table_info = db[conf.get_mongo_character_collname()]
     res = table_info.find({}, {"bot_name": 1})
     res1 = list(res)
     bot_name_list = [doc["bot_name"] for doc in res1]
@@ -29,7 +30,7 @@ def get_bot_name():
 #   "user_info": str
 #   }
 def get_usr_bot_info(bot_name):
-    table = db.character_info
+    table = db[conf.get_mongo_character_collname()]
     res = table.find({"bot_name": bot_name})
     # 处理游标
     first_doc = next(res)
@@ -52,7 +53,7 @@ def get_usr_bot_info(bot_name):
 #     "success": success / fail
 #     }
 def delete_bot(bot_name):
-    table = db.character_info
+    table = db[conf.get_mongo_character_collname()]
     x = table.delete_one({"bot_name": bot_name})
     # 检查删除是否成功
     if x.deleted_count > 0:
