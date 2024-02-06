@@ -37,7 +37,7 @@ class Conf:
                 raise Exception(f"配置文件中缺少{key}字段")
 
     def get_mongo_setting(self) -> dict:
-        mongo_setting = self.mongo.dict()
+        mongo_setting = self.mongo.model_dump()
         mongo_setting.pop("database")
         mongo_setting.pop("collections")
         return mongo_setting
