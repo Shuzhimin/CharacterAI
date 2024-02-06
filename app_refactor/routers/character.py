@@ -27,11 +27,11 @@ async def get_bot_names(
 async def query_character_info(
     bot_name: str,
     db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
-) -> dict[str, dict[str, Any]]:
+) -> dict[str, str]:
     error, character = db.get_character_by_botname(botname=bot_name)
     if not error.ok() or character is None:
         raise HTTPException(status_code=404, detail=f"'{bot_name}' not found")
-    return character.model_dump()
+    return character.dump_character_info_without_chat_history()
 
 
 # 删除机器人

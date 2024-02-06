@@ -19,3 +19,11 @@ class Character(BaseModel):
 
     def dump_chat_history(self) -> list[dict[str, str]]:
         return [record.model_dump() for record in self.chat_history]
+
+    def dump_character_info_without_chat_history(self) -> dict[str, str]:
+        return {
+            "bot_name": self.bot_name,
+            "bot_info": self.bot_info,
+            "user_name": self.user_name,
+            "user_info": self.user_info,
+        }
