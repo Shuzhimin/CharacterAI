@@ -9,16 +9,7 @@ conf_file = "conf.toml"
 def test_basic_conf() -> None:
     conf = Conf.new(file=conf_file)
 
-    mongo = conf.mongo
-    assert mongo.host == "localhost"
-    assert mongo.port == 27017
-    assert mongo.username == "username"
-    assert mongo.password == "password"
-    assert mongo.authSource == "admin"
-
-
-def test_mongo_setting() -> None:
-    conf = Conf.new(file=conf_file)
+    # mongo
     assert conf.get_mongo_setting() == {
         "host": "localhost",
         "port": 27017,
@@ -26,3 +17,12 @@ def test_mongo_setting() -> None:
         "password": "password",
         "authSource": "admin",
     }
+    assert conf.get_mongo_database() == "character_ai"
+    assert conf.get_mongo_character_collname() == "character"
+
+    # zhipuai
+    assert conf.get_zhipuai_key() == ""
+
+    # fastapi
+    assert conf.get_fastapi_host() == "localhost"
+    assert conf.get_fastapi_port() == 8000

@@ -20,6 +20,15 @@ class MongoConf(BaseModel):
     collections: Collections = Field(..., description="集合")
 
 
+class FastAPIConf(BaseModel):
+    host: str = Field(..., description="主机")
+    port: int = Field(..., description="端口")
+
+
+class ZhipuAIConf(BaseModel):
+    api_key: str = Field(..., description="zhipuai API Key")
+
+
 class Conf:
     @staticmethod
     def new(file: str) -> "Conf":
@@ -29,9 +38,11 @@ class Conf:
     def __init__(self, conf: dict[str, Any]):
         self.check_conf(conf=conf)
         self.mongo = MongoConf(**conf["mongo"])
+        self.zhipuai = ZhipuAIConf(**conf["zhipuai"])
+        self.fastapi = FastAPIConf(**conf["fastapi"])
 
     def check_conf(self, conf: dict[str, Any]) -> None:
-        keys: list[str] = ["mongo"]
+        keys: list[str] = ["mongo", "fastapi", "zhipuai"]
         for key in keys:
             if key not in conf:
                 raise Exception(f"配置文件中缺少{key}字段")
@@ -48,8 +59,14 @@ class Conf:
     def get_mongo_character_collname(self) -> str:
         return self.mongo.collections.character
 
+    def get_fastapi_host(self) -> str:
+        return self.fastapi.host
+
+    def get_fastapi_port(self) -> int:
+        return self.fastapi.port
+
     def get_zhipuai_key(self) -> str:
-        return ""
+        return self.zhipuai.api_key
 
 
 conf = Conf.new(file="deploy/conf.toml")
