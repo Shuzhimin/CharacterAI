@@ -45,5 +45,8 @@ class Conf:
     def get_mongo_database(self) -> str:
         return self.mongo.database
 
+    def get_mongo_character_collname(self) -> str:
+        return self.mongo.collections.character
+
 
 conf = Conf.new(file="deploy/conf.toml")
