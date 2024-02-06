@@ -2,7 +2,7 @@ import json
 from fastapi import Depends, HTTPException, APIRouter
 import zhipuai
 from app_refactor.db import operate_database
-from app_refactor.model import Character, Record
+from app_refactor.models import Character, ChatRecord
 from app_refactor.dependencies import query_character_info_all
 from app_refactor.db.main import get_bot_name, get_usr_bot_info, delete_bot
 
@@ -48,7 +48,7 @@ async def chat(
     character_info: Character = Depends(query_character_info_all),
 ):
     zhipuai.api_key = "...."
-    character_info.chat_history.append(Record(role="user", content=content))
+    character_info.chat_history.append(ChatRecord(role="user", content=content))
     # 用户话语信息入库
     await operate_database.storage_chat_history(character_info)
     prompt_list = [
@@ -71,7 +71,7 @@ async def chat(
     ass_content = eval(ass_content).replace("\n", "")
     response["data"]["choices"][0]["content"] = ass_content
     character_info.chat_history.append(
-        Record(role="assistant", content=response["data"]["choices"][0]["content"])
+        ChatRecord(role="assistant", content=response["data"]["choices"][0]["content"])
     )
     # 机器人回复信息入库
     await operate_database.storage_chat_history(character_info)

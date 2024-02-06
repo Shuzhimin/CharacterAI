@@ -2,7 +2,7 @@
 # zhangzhong
 
 from pymongo import MongoClient
-from app_refactor.model import Character
+from app_refactor.models import Character
 
 client = MongoClient("mongodb://localhost:27017/", port=27017)
 db = client["CharacterAI"]

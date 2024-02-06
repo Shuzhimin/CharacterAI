@@ -1,8 +1,12 @@
 from pydantic import BaseModel
+from typing import Literal, Any
 
 
-class Record(BaseModel):
-    role: str
+type Role = Literal["user", "assistant"]
+
+
+class ChatRecord(BaseModel):
+    role: Role
     content: str
 
 
@@ -11,7 +15,7 @@ class Character(BaseModel):
     bot_info: str
     user_name: str
     user_info: str
-    chat_history: list[Record]
+    chat_history: list[ChatRecord]
 
-    def dump_chat_history(self):
+    def dump_chat_history(self) -> list[dict[str, str]]:
         return [record.model_dump() for record in self.chat_history]
