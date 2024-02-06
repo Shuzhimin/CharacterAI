@@ -2,7 +2,7 @@
 # zhangzhong
 
 from app_refactor.models import Character, ChatRecord
-import app_refactor.database.operate_database as mongo
+import app_refactor.database.mongo as mongo
 from app_refactor.common.error import Error
 
 

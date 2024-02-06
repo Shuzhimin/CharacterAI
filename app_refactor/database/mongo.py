@@ -8,7 +8,6 @@ db = client[conf.get_mongo_database()]
 collection = db[conf.get_mongo_character_collname()]
 
 
-# 复制重构！
 def create_character(character: Character) -> Error:
     result = collection.find_one(filter={"bot_name": character.bot_name})
     if result is None:
