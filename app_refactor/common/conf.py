@@ -48,5 +48,8 @@ class Conf:
     def get_mongo_character_collname(self) -> str:
         return self.mongo.collections.character
 
+    def get_zhipuai_key(self) -> str:
+        return ""
+
 
 conf = Conf.new(file="deploy/conf.toml")
