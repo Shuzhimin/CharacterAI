@@ -1,4 +1,4 @@
-zhipuai
+zhipuai < 2.0
 pytest
 pymongo
 fastapi

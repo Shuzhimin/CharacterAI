@@ -1,9 +1,8 @@
 from pymongo import MongoClient
-from pydantic import BaseModel
-from app_refactor.models import Character, ChatRecord
+from app_refactor.models import Character
 from app_refactor.common.conf import conf
 
-bots = [
+bots: list[Character] = [
     Character(
         bot_name="刘雪峰",
         bot_info="刘雪峰，是一位在科技领域备受瞩目的女工程师。她在人工智能和机器学习领域取得了卓越成就。刘雪峰的研究推动了多项创新技术的发展，为科技行业带来新的变革。她热衷于分享知识，常参与科技社区，是众多工程师仰望的楷模。在团队协作中，刘雪峰喜欢强调团队的力量，强调共同努力取得成功。",
@@ -44,5 +43,6 @@ bots = [
 client = MongoClient(**conf.get_mongo_setting())
 db = client[conf.get_mongo_database()]
 collection = db[conf.get_mongo_character_collname()]
+collection.drop()
 for bot in bots:
-    collection.insert_one(bot.model_dump())
+    collection.insert_one(document=bot.model_dump())

@@ -3,7 +3,6 @@ from app_refactor.database.proxy import DatabaseProxy
 from app_refactor.models import Character, ChatRecord
 from typing import Annotated
 from app_refactor.dependencies import database_proxy
-from app_refactor.common.error import Error
 from typing import Any
 import app_refactor.common.glm as glm
 
