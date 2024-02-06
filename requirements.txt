@@ -1,0 +1,5 @@
+zhipuai
+pytest
+pymongo
+fastapi
+uvicorn
