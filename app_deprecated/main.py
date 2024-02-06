@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import character
+from app_deprecated.routers import character
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
