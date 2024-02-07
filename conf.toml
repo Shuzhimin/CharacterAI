@@ -1,0 +1,15 @@
+[mongo]
+host = 'localhost'
+port = 27017
+username = 'username'
+password = 'password'
+authSource = 'admin'
+database = 'character_ai'
+collections.character = 'character'
+
+[zhipuai]
+api_key = ''
+
+[fastapi]
+host = 'localhost'
+port = 8000

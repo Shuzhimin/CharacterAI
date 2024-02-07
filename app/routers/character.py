@@ -1,79 +1,86 @@
-import json
 from fastapi import Depends, HTTPException, APIRouter
-import zhipuai
-from app.db import operate_database
-from app.model import Character, Record
+from app.database.proxy import DatabaseProxy
+from app.models import Character, ChatRecord
+from typing import Annotated
+from app.dependencies import database_proxy
+from typing import Any
+import app.common.glm as glm
 
 router = APIRouter()
 
 
-# 创建机器人信息
-@router.post("/character/create")
-async def create_character_info(character_info: Character):
-    if operate_database.create_character_info(character_info):
-        return {"success": True}
-    else:
-        raise HTTPException(
-            status_code=404, detail=f"create '{character_info.bot_name}' failed"
-        )
-
-
-# 根据机器人名称更新机器人信息
-@router.post("/character/update")
-async def update_character_info(character_info: Character):
-    if operate_database.update_character_info(character_info):
-        return {"success": True}
-    else:
-        raise HTTPException(
-            status_code=404, detail=f"update '{character_info.bot_name}' failed"
-        )
+# 获取机器人名称列表
+@router.get(path="/names/query")
+async def get_bot_names(
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)]
+) -> dict[str, list[str]]:
+    error, characters = db.get_all_characters()
+    # if not error.ok() or characters is None:
+    #     # TODO: do some logging
+    #     pass
+    return {"bot_names": [character.bot_name for character in characters]}
 
 
 # 根据机器人名称查询机器人信息
-@router.get("/character/query")
-async def query_character_info(bot_name: str):
-    character_info = await operate_database.query_character_info_all(bot_name)
-    if character_info:
-        return {"character_info": character_info}
-    else:
-        raise HTTPException(
-            status_code=404, detail=f"'{bot_name}' not found"
-        )
+@router.get(path="/character/query")
+async def query_character_info(
+    bot_name: str,
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+) -> dict[str, str]:
+    error, character = db.get_character_by_botname(botname=bot_name)
+    if not error.ok() or character is None:
+        raise HTTPException(status_code=404, detail=f"'{bot_name}' not found")
+    return character.dump_character_info_without_chat_history()
+
+
+# 删除机器人
+@router.delete(path="/character/delete")
+async def delete_character(
+    bot_name: str, db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)]
+) -> dict[str, bool]:
+    return {"success": db.delete_character_by_botname(botname=bot_name).ok()}
+
+
+# 根据机器人名称更新机器人信息
+@router.post(path="/character/update")
+async def update_character_info(
+    character: Character,
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+) -> dict[str, bool]:
+    return {"success": db.update_character(character=character).ok()}
+
+
+# 创建机器人信息
+@router.post(path="/character/create")
+async def create_character(
+    character: Character,
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+) -> dict[str, bool]:
+    return {"success": db.create_character(character=character).ok()}
 
 
 # 聊天
-@router.post("/character/chat")
+@router.post(path="/character/chat")
 async def chat(
-        content: str,
-        character_info: Character = Depends(operate_database.query_character_info_all),
-):
-    zhipuai.api_key = "...."
-    character_info.chat_history.append(Record(role="user", content=content))
-    # 用户话语信息入库
-    await operate_database.storage_chat_history(character_info)
-    prompt_list = [eval(json.dumps(record.model_dump(), ensure_ascii=False)) for record in
-                   character_info.chat_history[-2:]]
-    response = zhipuai.model_api.invoke(
-        model="characterglm",
-        meta={
-            "user_info": character_info.user_info,
-            "user_name": character_info.user_name,
-            "bot_info": character_info.bot_info,
-            "bot_name": character_info.bot_name,
-        },
-        prompt=prompt_list
-    )
-    print("prompt:", prompt_list)
-    print("response:", response)
-    ass_content = response['data']['choices'][0]['content']
-    ass_content = eval(ass_content).replace('\n', '')
-    response['data']['choices'][0]['content'] = ass_content
-    character_info.chat_history.append(
-        Record(role="assistant", content=response['data']['choices'][0]['content']))
-    # 机器人回复信息入库
-    await operate_database.storage_chat_history(character_info)
+    bot_name: str,
+    content: str,
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+) -> dict[str, Any]:
+    error, character = db.get_character_by_botname(botname=bot_name)
+    if not error.ok() or character is None:
+        return {
+            "success": "fail",
+            "content": "character not found",
+            "chat_history": [],
+        }
+
+    character.chat_history.append(ChatRecord(role="user", content=content))
+    response = glm.invoke_character_glm_api(character=character)
+    content = glm.get_content_from_response(response=response)
+    character.chat_history.append(ChatRecord(role="assistant", content=content))
+    db.update_character(character=character)
     return {
-        "success": response['success'],
-        "content": response['data']['choices'][0]['content'],
-        "chat_history": character_info.chat_history
+        "success": response["success"],
+        "content": response["data"]["choices"][0]["content"],
+        "chat_history": character.dump_chat_history(),
     }

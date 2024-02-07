@@ -2,13 +2,14 @@ from fastapi import FastAPI
 from app.routers import character
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from app.common.conf import conf
 
 app = FastAPI()
-app.include_router(character.router)
+app.include_router(router=character.router)
 
 # 允许跨域请求
 app.add_middleware(
-    CORSMiddleware,
+    middleware_class=CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -16,5 +17,4 @@ app.add_middleware(
 )
 
 if __name__ == "__main__":
-
-    uvicorn.run(app)
+    uvicorn.run(app=app, host=conf.get_fastapi_host(), port=conf.get_fastapi_port())
