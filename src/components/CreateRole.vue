@@ -1,5 +1,6 @@
 <template>
   <div>
+<!--    发生过-->
     <div class="color"></div>
     <div class="color"></div>
     <div class="color"></div>
