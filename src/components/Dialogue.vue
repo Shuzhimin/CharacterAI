@@ -2,7 +2,10 @@
   <div style="height: 100%; background-color: #242949">
     <el-card style="height: 100%; min-height: 100%">
       <el-container style="height: 100%">
-        <el-header>Header</el-header>
+        <el-header>
+          <el-button @click="editRole">修改角色</el-button>
+          <el-button @click="confirmDeleteRole">删除</el-button>
+        </el-header>
         <el-main>
           <div v-for="(item, index) in history_message" class="msgCss" :style="{textAlign: item.align}">
             <el-row style="padding-top: 20px">
@@ -36,24 +39,46 @@
 export default {
   name: 'Dialogue',
   data() {
-    return{
+    return {
       input_message: '',
       history_message: [
         {
           content: '我是你的专属AI角色，请跟我聊天吧！',
           owner: 'bot',
           avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
-        },{
+        }, {
           content: '你好，很高兴认识你，你能告诉我中国有哪些有名的小吃吗？',
           owner: 'user',
           avatar_url: '',
-        },{
+        }, {
           content: '中国的小吃有很多，例如胡辣汤、油条、粽子等。',
           owner: 'bot',
           avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
         },
       ]
     }
+  },
+  methods: {
+    editRole() {
+      // 编辑角色的逻辑
+    },
+    deleteRole() {
+      // 删除角色的逻辑
+    },
+    confirmDeleteRole() {
+      this.$confirm('您确定要删除当前角色吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          // 用户点击了确定按钮，执行删除角色的逻辑
+          this.deleteRole();
+        })
+        .catch(() => {
+          // 用户点击了取消按钮，不执行任何操作
+        });
+    },
   }
 };
 </script>
@@ -63,6 +88,8 @@ export default {
   background-color: #242949;
   height: 10%;
   border-radius: 10px;
+  display: flex;
+  justify-content: flex-end;
 }
 .el-main {
   height: 70%;
