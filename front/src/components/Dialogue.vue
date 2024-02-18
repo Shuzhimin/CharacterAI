@@ -49,6 +49,7 @@
             v-model="input_message"
             style=""
             placeholder="请输入"
+            @keyup.enter.native="sendMessage"
             clearable>
             <el-button slot="append" icon="el-icon-s-promotion button-icon" @click="sendMessage"></el-button>
           </el-input>
@@ -107,6 +108,7 @@ export default {
         avatar_url: '',
       }
       this.history_message.push(mess)
+      this.input_message = ''
       setTimeout(()=>{
         let response = {
           content: '这是一条自动应答',
@@ -154,6 +156,7 @@ export default {
 }
 .el-footer {
   height: 20%;
+  padding-bottom: 20px;
   background-color: #212529;
   display: flex;
   justify-content: center; /* 水平居中 */
