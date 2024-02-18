@@ -111,7 +111,7 @@
       <!--   右侧内容主体   -->
       <el-main>
         <!--    路由占位符    -->
-        <router-view></router-view>
+        <router-view :value="activePath" @updateParentValue="handleUpdate"></router-view>
       </el-main>
     </el-container>
   </el-container>
@@ -232,6 +232,9 @@ export default {
       window.sessionStorage.setItem('name',res.data.name)
       window.sessionStorage.setItem('status',res.data.status)
       window.sessionStorage.setItem('email',res.data.email)
+    },
+    handleUpdate(newVal) {
+      this.activePath = newVal; // 更新父组件的值为子组件传递的新值
     }
   }
 }

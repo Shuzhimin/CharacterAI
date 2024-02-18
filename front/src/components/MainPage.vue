@@ -12,7 +12,7 @@
         </el-input>
         <el-menu style="padding-top: 20px">
           <el-col :span="6" v-for="(item, index) in character_list" style="">
-            <el-menu-item style="width: 100%; height: 100%">
+            <el-menu-item style="width: 100%; height: 100%" @click="selectRole(item)">
               <div>
                 <el-image :src="item.img_url" style="width: 100%; height: 100%">
 
@@ -76,6 +76,16 @@ export default {
         },
       ],
       character_name: ''
+    }
+  },
+  methods: {
+    selectRole(roleMess){
+      console.log(roleMess)
+      localStorage.setItem('roleMess_label', roleMess.label)
+      localStorage.setItem('roleMess_img_url', roleMess.img_url)
+      localStorage.setItem('roleMess_id', roleMess.id)
+      localStorage.setItem('roleMess_description', roleMess.description)
+      this.$router.push('/dialogue')
     }
   }
 };
