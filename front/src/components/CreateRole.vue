@@ -1,20 +1,11 @@
 <template>
   <div>
-    <div class="color"></div>
-    <div class="color"></div>
-    <div class="color"></div>
-    <div class="box">
-      <div class="square" style="--i:0;"></div>
-      <div class="square" style="--i:1;"></div>
-      <div class="square" style="--i:2;"></div>
-      <div class="square" style="--i:3;"></div>
-      <div class="square" style="--i:4;"></div>
-      <div class="content">
+    <div class="content">
       <!-- 页面内容 -->
       <div>
-        <el-form :model="createForm" label-position="top" style="max-width: 400px; margin: 0 auto;">
+        <el-form :model="createForm" label-position="top" style="max-width: 400px; margin: 0 auto; ">
           <el-form-item label="创建角色名称" :prop="'bot_name'" required>
-            <el-input v-model="createForm.bot_name"></el-input>
+            <el-input v-model="createForm.bot_name" class="content"></el-input>
           </el-form-item>
           <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>
             <el-input v-model="createForm.bot_info" class="bot_info_input" :rows="4" type="textarea"
@@ -22,13 +13,13 @@
                       placeholder="请输入身份背景"></el-input>
             <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>
           </el-form-item>
-          <el-form-item label="人物角色头像生成">
+          <el-form-item label="人物角色头像生成" class="a">
             <el-button @click="generateCharacterAvatar">一键生成角色头像</el-button>
             <el-image v-if="characterAvatarUrl" :src="characterAvatarUrl"
                       style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>
           </el-form-item>
           <el-form-item label="对话人物名称" :prop="'user_name'" required>
-            <el-input v-model="createForm.user_name"></el-input>
+            <el-input v-model="createForm.user_name" class="a"></el-input>
           </el-form-item>
           <el-form-item label="对话人物身份背景" :prop="'user_info'" required>
             <el-input v-model="createForm.user_info" class="user_info_input" :rows="4" type="textarea"
@@ -36,7 +27,7 @@
                       placeholder="请输入身份背景"></el-input>
             <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ user_infoLength }}/100</span>
           </el-form-item>
-          <el-form-item label="对话人物头像生成">
+          <el-form-item label="对话人物头像生成" class="a">
             <el-button @click="generateDialogueAvatar">一键生成对话人物头像</el-button>
             <el-image v-if="dialogueAvatarUrl" :src="dialogueAvatarUrl"
                       style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>
@@ -47,11 +38,26 @@
         </el-form>
       </div>
     </div>
+    <div class="color"></div>
+    <div class="color"></div>
+    <div class="color"></div>
+    <div class="box">
+      <div class="square" style="--i:0;"></div>
+      <div class="square" style="--i:1;"></div>
+      <div class="square" style="--i:2;"></div>
+      <div class="square" style="--i:3;"></div>
+      <div class="square" style="--i:4;"></div>
     </div>
   </div>
 </template>
 
 <script>
+import {
+  simulateAvatar,
+  simulateCharacterAvatar,
+  simulateCreateCharacter,
+  simulateDialogueAvatar
+} from '@/api/createrole'; // 假设 api.js 存放在 src 目录下
 export default {
   data() {
     return {
@@ -61,6 +67,7 @@ export default {
         user_name: '',
         user_info: ''
       },
+      createdCharacterId: '', // 用于保存创建的角色 ID
       characterAvatarUrl: '', // 存储生成的角色头像 URL
       dialogueAvatarUrl: '' // 存储生成的对话人物头像 URL
     }
@@ -74,39 +81,44 @@ export default {
     }
   },
   methods: {
+
     handleCreate() {
       // 处理创建角色的逻辑，可以发送请求给后端进行处理
-      console.log('创建角色信息：', this.createForm);
-      // 清空表单数据
-      this.createForm = {
-        bot_name: '',
-        bot_info: '',
-        user_name: '',
-        user_info: ''
-      };
-      // 提示创建成功
-      this.$message.success('创建角色成功');
-      // 弹出提示框
-      this.showSuccessMessageBox();
+      // 调用模拟接口函数，并传入角色信息
+      const response1 = simulateCreateCharacter(this.createForm);
+      this.createdCharacterId = response1.data.characterId; // 保存角色 ID
+      // 输出模拟的响应数据到控制台，可以根据需要进行后续处理
+      console.log('创建角色信息：', response1);
+
+      if (response1.success) {
+        // 提示创建成功
+        // this.$message.success('创建角色成功');
+        // 弹出提示框
+        this.showSuccessMessageBox();
+      }
     },
     generateCharacterAvatar() {
-      // 发送请求给后端，根据角色信息生成头像
-      // 模拟请求
+      const response2 = simulateAvatar(this.createForm);
+      this.characterAvatarUrl = response2.data.AvatarUrl;
+      console.log('创建角色头像生成：', response2);
       // 假设后端接口返回头像 URL
       setTimeout(() => {
-        this.characterAvatarUrl = 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300'; // 替换为实际的头像 URL
+        this.characterAvatarUrl
       }, 1000);
+
     },
     generateDialogueAvatar() {
-      // 发送请求给后端，根据对话人物信息生成头像
-      // 模拟请求
+      const response3 = simulateAvatar(this.createForm);
+      this.dialogueAvatarUrl = response3.data.AvatarUrl;
+      console.log('对话头像生成：', response3);
       // 假设后端接口返回头像 URL
       setTimeout(() => {
-        this.dialogueAvatarUrl = 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300'; // 替换为实际的头像 URL
+        this.dialogueAvatarUrl
       }, 1000);
     },
+
     showSuccessMessageBox() {
-      this.$confirm('创建角色成功，您可以选择与创建角色对话或回到首页查看角色', '创建成功', {
+      this.$confirm(`角色创建成功，您的角色 ID 是 ${this.createdCharacterId}，可以选择与创建角色对话或回到首页查看角色`, '创建成功', {
         confirmButtonText: '与创建角色对话',
         cancelButtonText: '回到首页查看角色',
         type: 'success'
@@ -120,6 +132,14 @@ export default {
         console.log('回到首页查看角色');
         // 跳转到首页的页面
         this.$router.push('/mainpage');
+      }).finally(() => {
+        // 清空表单数据
+        this.createForm = {
+          bot_name: '',
+          bot_info: '',
+          user_name: '',
+          user_info: ''
+        };
       });
     }
   }
@@ -138,6 +158,7 @@ export default {
 /*  width: 100%; !* 设置输入框宽度为100% *!*/
 /*  height: 150px; !* 设置输入框的高度 *!*/
 /*}*/
+
 button {
   background-color: #4CAF50; /* 设置按钮背景颜色为绿色 */
   color: white; /* 设置按钮文字颜色为白色 */
@@ -242,4 +263,5 @@ button:hover {
   width: 60px;
   height: 60px;
 }
+
 </style>
