@@ -3,3 +3,4 @@ pytest
 pymongo
 fastapi
 uvicorn
+psycopg[binary,pool]
