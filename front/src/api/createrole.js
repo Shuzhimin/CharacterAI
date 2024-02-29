@@ -4,7 +4,7 @@ export function simulateCreateCharacter(createForm) {
     success: true,
     message: '角色创建成功',
     data: {
-      // 可以根据需要添加模拟的返回数据
+      // 模拟的返回数据
       characterId: '1',
       createForm,
     }
@@ -12,7 +12,7 @@ export function simulateCreateCharacter(createForm) {
   return responseData1;
 }
 
-export function simulateAvatar(createForm) {
+export function simulateAvatar(avatarDescription) {
   // 模拟处理数据并返回响应
   const responseData2 = {
     success: true,
