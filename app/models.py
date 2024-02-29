@@ -33,8 +33,8 @@ class Character(BaseModel):
 
 
 class User(BaseModel):
-    uid: int = Field(default=..., description="用户id")
-    username: str = Field(default=..., description="用户名")
+    id: int = Field(default=..., description="用户id")
+    name: str = Field(default=..., description="用户名")
     password: str = Field(default=..., description="密码")
     avatar_url: str = Field(default=..., description="头像url")
     role: str = Field(default=..., description="角色")
@@ -44,10 +44,10 @@ class User(BaseModel):
 
 
 class CharacterV2(BaseModel):
-    cid: int = Field(default=..., description="机器人id")
-    character_name: str = Field(default=..., description="机器人名称")
-    character_info: str = Field(default=..., description="机器人信息")
-    character_class: str = Field(default=..., description="机器人类型")
+    id: int = Field(default=..., description="机器人id")
+    name: str = Field(default=..., description="机器人名称")
+    info: str = Field(default=..., description="机器人信息")
+    category: str = Field(default=..., description="机器人类型")
     avatar_url: str = Field(default=..., description="头像url")
     create_time: datetime = Field(default=..., description="创建时间")
     update_time: datetime = Field(default=..., description="更新时间")
@@ -56,8 +56,8 @@ class CharacterV2(BaseModel):
 
 
 class Chat(BaseModel):
-    chat_id: int = Field(default=..., description="聊天id")
+    id: int = Field(default=..., description="聊天id")
     cid: int = Field(default=..., description="机器人id")
     uid: int = Field(default=..., description="用户id")
-    chat_history: list[ChatRecord] = Field(default=..., description="聊天记录")
+    history: list[ChatRecord] = Field(default=..., description="聊天记录")
     status: str = Field(default=..., description="状态")
