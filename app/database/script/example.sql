@@ -1,53 +1,53 @@
 -- create user
 CREATE TABLE
-    USER(
+    account (
         uid SERIAL PRIMARY KEY,
         username VARCHAR(16) UNIQUE NOT NULL,
-        PASSWORD VARCHAR(64) NOT NULL, -- password也是关键字
+        passwd VARCHAR(64) NOT NULL, -- password也是关键字
         avatar_url VARCHAR(256),
-        ROLE VARCHAR(16) NOT NULL, -- role也是关键字？？？我就用
+        who VARCHAR(16) NOT NULL, -- role也是关键字？？？我就用
         create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        status VARCHAR(16) NOT NULL,
+        update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        status VARCHAR(16) NOT NULL -- 最后一个参数不能有逗号。。。
     );
 
 -- create character
 CREATE TABLE
-    CHARACTER(
-        cid SERIAL PRIMARY KEY,
-        character_name VARCHAR(16) UNIQUE NOT NULL,
-        character_info VARCHAR(256),
-        character_class VARCHAR(16) NOT NULL,
+    bot (
+        bot_id SERIAL PRIMARY KEY,
+        bot_name VARCHAR(16) UNIQUE NOT NULL,
+        bot_info VARCHAR(256),
+        bot_class VARCHAR(16) NOT NULL,
         avatar_url VARCHAR(256),
         status VARCHAR(16) NOT NULL,
-        ATTRIBUTE VARCHAR(8) NOT NULL,
+        attr VARCHAR(8) NOT NULL,
         create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     );
 
 -- create user_character
 CREATE TABLE
-    USER_CHARACTER (
+    user_bot (
         uid INT NOT NULL,
         cid INT NOT NULL,
         PRIMARY KEY (uid, cid),
-        FOREIGN KEY (uid) REFERENCES USER(uid),
-        FOREIGN KEY (cid) REFERENCES CHARACTER(cid),
+        FOREIGN KEY (uid) REFERENCES account (uid),
+        FOREIGN KEY (cid) REFERENCES bot (cid),
     );
 
 -- chat_record type
 -- https://www.postgresql.org/docs/16/rowtypes.html
-CREATE TYPE CHAT_RECORD AS (
-    ROLE VARCHAR(16),
-    CONTENT VARCHAR(256), -- content也是关键字 你怎么那么多关键字呢？？？
+CREATE TYPE chat_record AS (
+    who VARCHAR(16),
+    message VARCHAR(256), -- content也是关键字 你怎么那么多关键字呢？？？
     create_time TIMESTAMP,
-    status VARCHAR(16),
+    -- status VARCHAR(16),
 );
 
 -- create chat
 CREATE TABLE
-    CHAT (
-        sid SERIAL PRIMARY KEY,
+    chat (
+        chat_id SERIAL PRIMARY KEY,
         uid INT NOT NULL,
         cid INT NOT NULL,
         status VARCHAR(16) NOT NULL,

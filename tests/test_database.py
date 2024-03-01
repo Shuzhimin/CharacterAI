@@ -86,3 +86,7 @@ def test_database_proxy() -> None:
     error, character = db.get_character_by_botname(botname=bot_name)
     assert not error.ok()
     assert character is None
+
+
+def test_postgres() -> None:
+    pass

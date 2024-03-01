@@ -43,6 +43,21 @@ class User(BaseModel):
     status: str = Field(default=..., description="状态")
 
 
+class UserParams(BaseModel):
+    uids: list[int] = Field(description="用户id")
+    usernames: list[str] = Field(description="用户名")
+    roles: list[str] = Field(description="角色")
+    status: list[str] = Field(description="状态")
+    create_time_range: list[datetime] = Field(description="创建时间范围")
+    update_time_range: list[datetime] = Field(description="更新时间范围")
+
+    def to_where_clause(self) -> str:
+        return ""
+
+    def is_empty(self) -> bool:
+        return True
+
+
 class CharacterV2(BaseModel):
     id: int = Field(default=..., description="机器人id")
     name: str = Field(default=..., description="机器人名称")

@@ -85,8 +85,16 @@ class Conf:
     def get_zhipuai_key(self) -> str:
         return self.zhipuai.api_key
 
-    def get_postgres_setting(self) -> dict:
-        return self.postgres.model_dump()
+    def get_postgres_connection_string(self) -> str:
+        return " ".join(
+            [
+                f"host={self.postgres.host}",
+                f"port={self.postgres.port}",
+                f"user={self.postgres.username}",
+                f"password={self.postgres.password}",
+                f"dbname={self.postgres.database}",
+            ]
+        )
 
 
 conf = Conf.new(file="deploy/conf.toml")
