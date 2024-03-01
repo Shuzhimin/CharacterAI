@@ -3,6 +3,8 @@
 
 # https://www.prisma.io/dataguide/postgresql/create-and-delete-databases-and-tables
 # create thress database
+# use \dt to show all tables
+# user \d <table> to show the info of table
 import psycopg
 from app.common.conf import conf
 
@@ -11,19 +13,19 @@ with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
 
         # first drop table if exists
         # 为了维持外键的约束，必须倒着删
-        cur.execute(query="DROP TABLE IF EXISTS chat")
-        cur.execute(query="DROP TABLE IF EXISTS user_bot")
-        cur.execute(query="DROP TABLE IF EXISTS bot")
+        cur.execute(query="DROP TABLE IF EXISTS chats")
+        cur.execute(query="DROP TABLE IF EXISTS user_character")
+        cur.execute(query="DROP TABLE IF EXISTS characters")
         # 可能是版本的问题，因为psycopy会使用本地的libpq版本，所以可能会出现一些问题
         # 和docker里面的版本不一致
         # 原来如此，user是postgres的关键字，那这样的话很多单词都不能用了
         # https://stackoverflow.com/questions/17266784/syntax-error-at-or-near-user-when-adding-postgres-constraint
         # https://www.postgresql.org/docs/current/sql-keywords-appendix.html
-        cur.execute(query="DROP TABLE IF EXISTS account")
+        cur.execute(query="DROP TABLE IF EXISTS users")
 
         cur.execute(
             query="""
-                CREATE TABLE account (
+                CREATE TABLE users (
                     uid SERIAL PRIMARY KEY,
                     username VARCHAR(50) NOT NULL UNIQUE,
                     passwd VARCHAR(50) NOT NULL,
@@ -39,11 +41,11 @@ with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
         cur.execute(
             query="""
                 CREATE TABLE
-                    bot (
-                        bot_id SERIAL PRIMARY KEY,
-                        bot_name VARCHAR(16) NOT NULL,
-                        bot_info VARCHAR(256) NOT NULL,
-                        bot_class VARCHAR(16) NOT NULL,
+                    characters (
+                        cid SERIAL PRIMARY KEY,
+                        character_name VARCHAR(16) NOT NULL,
+                        character_info VARCHAR(256) NOT NULL,
+                        character_class VARCHAR(16) NOT NULL,
                         avatar_url VARCHAR(256),
                         status VARCHAR(16) NOT NULL,
                         attr VARCHAR(8) NOT NULL,
@@ -56,12 +58,12 @@ with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
         cur.execute(
             query="""
                 CREATE TABLE
-                    user_bot (
+                    user_character (
                         uid INT NOT NULL,
-                        bot_id INT NOT NULL,
-                        PRIMARY KEY (uid, bot_id),
-                        FOREIGN KEY (uid) REFERENCES account (uid),
-                        FOREIGN KEY (bot_id) REFERENCES bot (bot_id)
+                        cid INT NOT NULL,
+                        PRIMARY KEY (uid, cid),
+                        FOREIGN KEY (uid) REFERENCES users (uid),
+                        FOREIGN KEY (cid) REFERENCES characters (cid)
                     )
             """
         )
@@ -81,14 +83,14 @@ with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
 
         cur.execute(
             query="""
-                CREATE TABLE chat (
+                CREATE TABLE chats (
                     chat_id SERIAL PRIMARY KEY,
                     uid INT NOT NULL,
-                    bot_id INT NOT NULL,
+                    cid INT NOT NULL,
                     status VARCHAR(16) NOT NULL,
                     chat_history CHAT_RECORD[],
-                    FOREIGN KEY (uid) REFERENCES account (uid),
-                    FOREIGN KEY (bot_id) REFERENCES bot (bot_id)
+                    FOREIGN KEY (uid) REFERENCES users (uid),
+                    FOREIGN KEY (cid) REFERENCES characters (cid)
                 )
             """
         )

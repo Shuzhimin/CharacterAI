@@ -1,6 +1,6 @@
 -- create user
 CREATE TABLE
-    account (
+    users (
         uid SERIAL PRIMARY KEY,
         username VARCHAR(16) UNIQUE NOT NULL,
         passwd VARCHAR(64) NOT NULL, -- password也是关键字
@@ -13,7 +13,7 @@ CREATE TABLE
 
 -- create character
 CREATE TABLE
-    bot (
+    characters (
         bot_id SERIAL PRIMARY KEY,
         bot_name VARCHAR(16) UNIQUE NOT NULL,
         bot_info VARCHAR(256),
@@ -31,8 +31,8 @@ CREATE TABLE
         uid INT NOT NULL,
         cid INT NOT NULL,
         PRIMARY KEY (uid, cid),
-        FOREIGN KEY (uid) REFERENCES account (uid),
-        FOREIGN KEY (cid) REFERENCES bot (cid),
+        FOREIGN KEY (uid) REFERENCES users (uid),
+        FOREIGN KEY (cid) REFERENCES characters (cid),
     );
 
 -- chat_record type
@@ -46,7 +46,7 @@ CREATE TYPE chat_record AS (
 
 -- create chat
 CREATE TABLE
-    chat (
+    chats (
         chat_id SERIAL PRIMARY KEY,
         uid INT NOT NULL,
         cid INT NOT NULL,

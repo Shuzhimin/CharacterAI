@@ -1,6 +1,9 @@
 from pydantic import BaseModel, Field
 from typing import Literal, Any
 from datetime import datetime
+import string
+import random
+from psycopg.sql import SQL, Composed
 
 
 type Role = Literal["user", "character"]
@@ -32,15 +35,68 @@ class Character(BaseModel):
         }
 
 
+def get_random_string(length) -> str:
+    # choose from all lowercase letter
+    letters = string.ascii_lowercase
+    result_str = "".join(random.choice(letters) for i in range(length))
+    print("Random string of length", length, "is:", result_str)
+    return result_str
+
+
 class User(BaseModel):
-    id: int = Field(default=..., description="用户id")
+    id: int = Field(default=-1, description="用户id")
     name: str = Field(default=..., description="用户名")
     password: str = Field(default=..., description="密码")
-    avatar_url: str = Field(default=..., description="头像url")
+    avatar_url: str = Field(description="头像url")
+    role: str = Field(default="user", description="角色")
+    create_time: datetime = Field(description="创建时间")
+    update_time: datetime = Field(description="更新时间")
+    status: str = Field(default="active", description="状态")
+
+    @staticmethod
+    def new_normal(name: str, password: str, role: str) -> "User":
+        return User(
+            id=-1,
+            name=name,
+            password=password,
+            avatar_url="",
+            role=role,
+            create_time=datetime.now(),
+            update_time=datetime.now(),
+            status="active",
+        )
+
+    @staticmethod
+    def new_admin(name: str, password: str) -> "User":
+        return User.new_normal(name=name, password=password, role="admin")
+
+    @staticmethod
+    def new_random() -> "User":
+        return User.new_normal(
+            name=get_random_string(8), password=get_random_string(8), role="user"
+        )
+
+
+# pydantic model filter only occurs between iniheritance?
+#
+class UserIn(BaseModel):
+    # 这个就是创建用户传入的参数
+    # 前端只需要传入用户名和角色
+    # 然后只有管理员可以指定创建管理员角色
+    username: str = Field(default=..., description="用户名")
+    password: str = Field(default=..., description="密码")
+    role: str = Field(default="user", description="角色")
+
+
+class UserOut(BaseModel):
+    # 定义获取用户信息接口返回的信息
+    # 但是这个接口返回的信息是不应该包含密码的
+    uid: int = Field(description="用户id")
+    username: str = Field(default=..., description="用户名")
+    avatar_url: str = Field(description="头像url")
     role: str = Field(default=..., description="角色")
-    create_time: datetime = Field(default=..., description="创建时间")
-    update_time: datetime = Field(default=..., description="更新时间")
-    status: str = Field(default=..., description="状态")
+    create_time: datetime = Field(description="创建时间")
+    update_time: datetime = Field(description="更新时间")
 
 
 class UserParams(BaseModel):
@@ -56,6 +112,126 @@ class UserParams(BaseModel):
 
     def is_empty(self) -> bool:
         return True
+
+
+class UserUpdate(BaseModel):
+    username: str | None = None
+    password: str | None = None
+    avatar_url: str | None = None
+    status: str | None = None
+
+    def is_empty(self) -> bool:
+        return not any([self.username, self.password, self.avatar_url, self.status])
+
+    def to_set_clause(self) -> str:
+        # clause = ""
+        clauses: list[str] = []
+        if self.username:
+            # clause += "username = %(update_username)s"
+            clauses.append("username = %(update_username)s")
+        if self.password:
+            # clause += "passwd = %(update_password)s"
+            clauses.append("passwd = %(update_password)s")
+        if self.avatar_url:
+            # clause += "avatar_url = %(update_avatar_url)s"
+            clauses.append("avatar_url = %(update_avatar_url)s")
+        if self.status:
+            # clause += "status = %(update_status)s"
+            clauses.append("status = %(update_status)s")
+        clause = ", ".join(clauses)
+
+        if clause:
+            clause = "SET " + clause
+        return clause
+
+    def to_set_clause_v2(self) -> Composed:
+
+        # 这个是可以泛化的
+        # sql({identifier} = {placeholder})
+        # 然后执行一个循环，使用上述的模板创建下面四个具体的sql
+        # 然后再join起来
+        clauses: list[SQL] = []
+        if self.username:
+            clauses.append(SQL("username = %(update_username)s"))
+        if self.password:
+            clauses.append(SQL("passwd = %(update_password)s"))
+        if self.avatar_url:
+            clauses.append(SQL("avatar_url = %(update_avatar_url)s"))
+        if self.status:
+            clauses.append(SQL("status = %(update_status)s"))
+
+        return SQL("SET {fileds}").format(fileds=SQL(", ").join(clauses))
+
+    def to_params(self) -> dict:
+        return {
+            "update_username": self.username,
+            "update_password": self.password,
+            "update_avatar_url": self.avatar_url,
+            "update_status": self.status,
+        }
+
+
+class UserFilter(BaseModel):
+    uid: int | None = None
+    username: str | None = None
+    role: str | None = None
+    status: str | None = None
+    # TODO(zhangzhong)： 暂不支持时间范围内的查询
+    # create_time: datetime = Field(description="创建时间")
+    # update_time: datetime = Field(description="更新时间")
+
+    def to_where_clause(self) -> str:
+        # clause = ""
+        clauses: list[str] = []
+        if self.uid:
+            # clause += "uid = %(filter_uid)s, "
+            clauses.append("uid = %(filter_uid)s")
+        if self.username:
+            # clause += "username = %(filter_username)s, "
+            clauses.append("username = %(filter_username)s")
+        if self.role:
+            # clause += "who = %(filter_role)s, "
+            clauses.append("who = %(filter_role)s")
+        if self.status:
+            # clause += "status = %(filter_status)s, "
+            clauses.append("status = %(filter_status)s")
+        clause = " AND ".join(clauses)
+        if clause:
+            clause = "WHERE " + clause
+        return clause
+
+    def to_where_clause_v2(self) -> Composed:
+        # clause = ""
+        clauses: list[SQL] = []
+        if self.uid:
+            # clause += "uid = %(filter_uid)s, "
+            clauses.append(SQL("uid = %(filter_uid)s"))
+        if self.username:
+            # clause += "username = %(filter_username)s, "
+            clauses.append(SQL("username = %(filter_username)s"))
+        if self.role:
+            # clause += "who = %(filter_role)s, "
+            clauses.append(SQL("who = %(filter_role)s"))
+        if self.status:
+            # clause += "status = %(filter_status)s, "
+            clauses.append(SQL("status = %(filter_status)s"))
+        clause = SQL(" AND ").join(clauses)
+        if clause:
+            clause = SQL("WHERE {fields}").format(fields=clause)
+        return clause
+
+    # update 和 filter 里面有重复的怎么办
+    # 应该在他们生成的clause和params里面加上前缀
+    def to_params(self) -> dict:
+        return {
+            "filter_uid": self.uid,
+            "filter_username": self.username,
+            "filter_role": self.role,
+            "filter_status": self.status,
+        }
+
+    def is_empty(self) -> bool:
+        return not any([self.uid, self.username, self.role, self.status])
 
 
 class CharacterV2(BaseModel):
