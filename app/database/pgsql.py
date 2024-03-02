@@ -23,6 +23,9 @@ from app.models import (
     CharacterCreate,
     CharacterWhere,
     CharacterUpdate,
+    UserCharacterCreate,
+    UserCharacterWhere,
+    UserCharacterUpdate,
 )
 from app.common.error import ErrorV2
 import app.common.error as error
@@ -377,3 +380,109 @@ def update_chat(chat_update: ChatUpdate, where: ChatWhere) -> ErrorV2:
 
 
 # 其实还有第四张表啊，每一张表都对应着四个操作
+def create_user_character(user_character: UserCharacterCreate) -> ErrorV2:
+    # raise NotImplementedError
+    with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
+        with conn.cursor() as cur:
+            # 模型中的名字和数据库中的名字确实应该保持一致
+            cur.execute(
+                query="""
+                    INSERT INTO user_character (uid, cid, status)
+                    VALUES (%(uid)s, %(cid)s, %(status)s)""",
+                params={
+                    # 在入库的时候是不应该携带uid的
+                    # 但是在出库的时候是不应该携带password的
+                    # 所以入库和出库的model应该不一样
+                    # "uid": user.id,
+                    "uid": user_character.uid,
+                    "cid": user_character.cid,
+                    "status": user_character.status,
+                },
+            )
+            conn.commit()
+    return error.ok()
+
+
+def delete_user_character(where: UserCharacterWhere) -> ErrorV2:
+    # raise NotImplementedError
+    if where.is_empty():
+        return error.ok()
+
+    # raise NotImplementedError
+    with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
+        with conn.cursor() as cur:
+            # 模型中的名字和数据库中的名字确实应该保持一致
+            cur.execute(
+                query=SQL("DELETE FROM user_character {}").format(
+                    where.to_where_clause_v2()
+                ),
+                params=where.to_params(),
+            )
+            conn.commit()
+    return error.ok()
+
+
+def update_user_character(
+    update: UserCharacterUpdate, where: UserCharacterWhere
+) -> ErrorV2:
+    # raise NotImplementedError
+    if update.is_empty() or where.is_empty():
+        return error.bad_sql(message="update or filter is empty")
+
+    def merge_dict(dict1, dict2) -> dict:
+        return {**dict1, **dict2}
+
+    # raise NotImplementedError
+    with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
+        with conn.cursor() as cur:
+            # 模型中的名字和数据库中的名字确实应该保持一致
+            query = SQL("""UPDATE user_character {set} {where}""").format(
+                **{
+                    # 直接这样写会被当成字符串
+                    "set": update.to_set_clause_v2(),
+                    "where": where.to_where_clause_v2(),
+                }
+            )
+
+            cur.execute(
+                # TODO(zhangzhong): 如何可以输出完整的sql查询语句就好了 方便调试
+                # https://www.psycopg.org/psycopg3/docs/api/sql.html#module-usage
+                # but can also be used to compose a query as a Python string, using the as_string() method:
+                query=query,
+                # params={
+                #     "uid": user.id,
+                #     "username": user.name,
+                #     "status": user.status,
+                #     "avatar_url": user.avatar_url,
+                #     "update_time": datetime.now(),
+                #     "password": user.password,
+                # },
+                params=merge_dict(update.to_params(), where.to_params()),
+            )
+            print(f"SQL: {query.as_string(cur)}")
+            conn.commit()
+    return error.ok()
+
+
+def select_user_character(where: UserCharacterWhere) -> list[dict]:
+    rows: list[dict] = []
+    with psycopg.connect(
+        conninfo=conf.get_postgres_connection_string(), row_factory=dict_row
+    ) as conn:
+        with conn.cursor() as cur:
+            # 模型中的名字和数据库中的名字确实应该保持一致
+            cur.execute(
+                # TODO(zhangzhong): 应该可以配置返回哪些字段才对
+                query=SQL(
+                    "SELECT * FROM user_character {} OFFSET %(offset)s LIMIT %(limit)s"
+                ).format(where.to_where_clause_v2()),
+                params=where.to_params(),
+            )
+            conn.commit()
+            # 怎么从数据库中直接返回pydantic对象呢？？
+            # https://www.psycopg.org/psycopg3/docs/api/rows.html
+            # https://www.psycopg.org/psycopg3/docs/advanced/rows.html#row-factories
+            rows = cur.fetchall()
+            print(rows)
+    # TODO(zhangzhong): 要做到这么方便的从dict转换到pydantic对象，需要他们对应的filed一样, 将返回类型改为list[User]
+    return rows

@@ -518,3 +518,113 @@ class CharacterUpdate(BaseModel):
             "update_status": self.status,
             "update_attribute": self.attribute,
         }
+
+
+class UserCharacter(BaseModel):
+    uid: int = Field(default=..., description="用户id")
+    cid: int = Field(default=..., description="机器人id")
+    create_time: datetime = Field(default=..., description="创建时间")
+    update_time: datetime = Field(default=..., description="更新时间")
+    status: str = Field(default=..., description="状态")
+
+    def to_params(self) -> dict:
+        return {
+            "uid": self.uid,
+            "cid": self.cid,
+            "status": self.status,
+        }
+
+
+class UserCharacterCreate(BaseModel):
+    uid: int = Field(default=..., description="用户id")
+    cid: int = Field(default=..., description="机器人id")
+    status: str = Field(default="active", description="状态")
+
+    def to_params(self) -> dict:
+        return {
+            "uid": self.uid,
+            "cid": self.cid,
+            "status": self.status,
+        }
+
+
+class UserCharacterWhere(BaseModel):
+    uid: int | None = None
+    cid: int | None = None
+    status: str | None = None
+
+    def to_where_clause(self) -> str:
+        # clause = ""
+        clauses: list[str] = []
+        if self.uid:
+            # clause += "uid = %(filter_uid)s, "
+            clauses.append("uid = %(filter_uid)s")
+        if self.cid:
+            # clause += "cid = %(filter_cid)s, "
+            clauses.append("cid = %(filter_cid)s")
+        if self.status:
+            # clause += "status = %(filter_status)s, "
+            clauses.append("status = %(filter_status)s")
+        clause = " AND ".join(clauses)
+        if clause:
+            clause = "WHERE " + clause
+        return clause
+
+    def to_where_clause_v2(self) -> Composed:
+        # clause = ""
+        clauses: list[SQL] = []
+        if self.uid:
+            # clause += "uid = %(filter_uid)s, "
+            clauses.append(SQL("uid = %(filter_uid)s"))
+        if self.cid:
+            # clause += "cid = %(filter_cid)s, "
+            clauses.append(SQL("cid = %(filter_cid)s"))
+        if self.status:
+            # clause += "status = %(filter_status)s, "
+            clauses.append(SQL("status = %(filter_status)s"))
+        clause = SQL(" AND ").join(clauses)
+        if clause:
+            clause = SQL("WHERE {fields}").format(fields=clause)
+        return clause
+
+    def to_params(self) -> dict:
+        return {
+            "filter_uid": self.uid,
+            "filter_cid": self.cid,
+            "filter_status": self.status,
+        }
+
+    def is_empty(self) -> bool:
+        return not any([self.uid, self.cid, self.status])
+
+
+class UserCharacterUpdate(BaseModel):
+    status: str | None = None
+
+    def is_empty(self) -> bool:
+        return not any([self.status])
+
+    def to_set_clause(self) -> str:
+        # clause = ""
+        clauses: list[str] = []
+        if self.status:
+            # clause += "status = %(update_status)s"
+            clauses.append("status = %(update_status)s")
+        clause = ", ".join(clauses)
+
+        if clause:
+            clause = "SET " + clause
+        return clause
+
+    def to_set_clause_v2(self) -> Composed:
+        # clause = ""
+        clauses: list[SQL] = []
+        if self.status:
+            # clause += "status = %(update_status)s"
+            clauses.append(SQL("status = %(update_status)s"))
+        return SQL("SET {fields}").format(fields=SQL(", ").join(clauses))
+
+    def to_params(self) -> dict:
+        return {
+            "update_status": self.status,
+        }

@@ -61,6 +61,10 @@ with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
                     user_character (
                         uid INT NOT NULL,
                         cid INT NOT NULL,
+                        status VARCHAR(16) NOT NULL,
+                        create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        
                         PRIMARY KEY (uid, cid),
                         FOREIGN KEY (uid) REFERENCES users (uid),
                         FOREIGN KEY (cid) REFERENCES characters (cid)
