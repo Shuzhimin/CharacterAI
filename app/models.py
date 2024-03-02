@@ -5,10 +5,16 @@ import string
 import random
 from psycopg.sql import SQL, Composed
 from dataclasses import dataclass
+from collections import namedtuple
 
 # from deploy.build_postgres import info
 
 # type Role = Literal["user", "character"]
+
+# 原来如此，我们不需要拿到哪个类型信息，只需要定义对应的namedtuple就行了
+# 而返回的时候也是拿到namedtuple
+# 而我们的任务之一就是将namedtuple变成pydantic model
+chat_record = namedtuple("chat_record", ["who", "message"])
 
 
 class ChatRecord(BaseModel):
@@ -27,10 +33,10 @@ class ChatRecord(BaseModel):
     # 因为Pydantic要求传入的参数必须是Key parameter
     # 而库返回的是positional parameter
     # 只需要自己定义一个构造函数就行了
-    def __init__(self, who: str, message: str):
-        super().__init__(who=who, message=message)
-        # self.who = who
-        # self.message = message
+    # def __init__(self, *args):
+    #     super().__init__(*args)
+    # self.who = who
+    # self.message = message
 
 
 # @dataclass
@@ -588,10 +594,10 @@ class ChatUpdate(BaseModel):
             # 而且只要全局注册了info 还不用返回 这就非常方便了
             # 所以要全部注册成pydantic model！
             # 好像是这里必须要写成info.python_type的方式？
-            # "update_chat_record": ChatRecordFactory(
-            #     self.chat_record.who, self.chat_record.message
-            # ),
-            "update_chat_record": self.chat_record,
+            "update_chat_record": chat_record(
+                who=self.chat_record.who, message=self.chat_record.message
+            ),
+            # "update_chat_record": self.chat_record,
             "update_status": self.status,
         }
 

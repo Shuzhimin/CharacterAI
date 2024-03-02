@@ -234,7 +234,7 @@ def create_all() -> CompositeInfo:
             # 好像是因为这个factory和pydantic配合的并不好
             # 还不如用它自己的呢
             # 感觉还是必须写一个factory函数来返回我们自己的chatrecord
-            register_composite(info=info, factory=ChatRecord)
+            register_composite(info=info)
             assert info.python_type
             my_card = info.python_type(who="zhangzhong", message="hello")
             print(my_card)
