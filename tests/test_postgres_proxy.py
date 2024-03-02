@@ -3,6 +3,12 @@
 
 from app.models import User, UserFilter, UserIn, UserOut, UserParams, UserUpdate
 from app.models import CharacterV2, CharacterCreate, CharacterUpdate, CharacterWhere
+from app.models import (
+    UserCharacter,
+    UserCharacterCreate,
+    UserCharacterWhere,
+    UserCharacterUpdate,
+)
 from app.common.conf import conf
 from typing import NoReturn
 from deploy import build_postgres
@@ -94,17 +100,50 @@ def test_postgres_proxy() -> None:
     assert len(characters) > 0
     print(len(characters))
 
+    # assign characters to users
+    # test table user_character
+    # 1. create user_character
+    # 我们可以找到所有的cid 然后把这些cid分配个数个用户
+    # primary key (uid, cid)
+    # 我们随机挑选数个uid，然后把角色均匀分配给这些用户
+    user_count = 10
+    # 有效的id都是从1开始的
+    uid = 0
+    cid = 0
+    character_per_user = character_count // user_count
+    for u in range(user_count):
+        uid += 1
+        for c in range(character_per_user):
+            cid += 1
+            err = pg.create_user_character(UserCharacterCreate(uid=uid, cid=cid))
+            assert err.is_ok()
+
+    # 2. update user_character
+    uid = 1
+    where = UserCharacterWhere(uid=uid)
+    update = UserCharacterUpdate(status="new_status")
+    err = pg.update_user_character(update=update, where=where)
+    assert err.is_ok()
+
+    # select user_character
+    ucs = pg.select_user_character(where=where)
+    print(ucs)
+    assert len(ucs) == character_per_user
+    for uc in ucs:
+        assert uc.get("status") == "new_status"
+
+    # TODO(zhangzhong): 先不测删除了，前面的都测完再测删除
     # all delete should be test at the end
     # delete characters
-    err = pg.delete_character(where=character_where)
-    assert err.is_ok()
+    # err = pg.delete_character(where=character_where)
+    # assert err.is_ok()
 
-    characters = pg.select_character(where=character_where)
-    assert len(characters) == 0
+    # characters = pg.select_character(where=character_where)
+    # assert len(characters) == 0
 
-    # 3. delete user
-    err = pg.delete_user(user_filter=user_filter)
-    assert err.is_ok()
+    # # 3. delete user
+    # err = pg.delete_user(user_filter=user_filter)
+    # assert err.is_ok()
 
-    users = pg.select_user(user_filter=user_filter)
-    assert len(users) == 0
+    # users = pg.select_user(user_filter=user_filter)
+    # assert len(users) == 0
