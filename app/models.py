@@ -116,12 +116,12 @@ class UserParams(BaseModel):
 
 class UserUpdate(BaseModel):
     username: str | None = None
-    password: str | None = None
+    passwd: str | None = None
     avatar_url: str | None = None
     status: str | None = None
 
     def is_empty(self) -> bool:
-        return not any([self.username, self.password, self.avatar_url, self.status])
+        return not any([self.username, self.passwd, self.avatar_url, self.status])
 
     def to_set_clause(self) -> str:
         # clause = ""
@@ -129,7 +129,7 @@ class UserUpdate(BaseModel):
         if self.username:
             # clause += "username = %(update_username)s"
             clauses.append("username = %(update_username)s")
-        if self.password:
+        if self.passwd:
             # clause += "passwd = %(update_password)s"
             clauses.append("passwd = %(update_password)s")
         if self.avatar_url:
@@ -153,7 +153,7 @@ class UserUpdate(BaseModel):
         clauses: list[SQL] = []
         if self.username:
             clauses.append(SQL("username = %(update_username)s"))
-        if self.password:
+        if self.passwd:
             clauses.append(SQL("passwd = %(update_password)s"))
         if self.avatar_url:
             clauses.append(SQL("avatar_url = %(update_avatar_url)s"))
@@ -165,7 +165,7 @@ class UserUpdate(BaseModel):
     def to_params(self) -> dict:
         return {
             "update_username": self.username,
-            "update_password": self.password,
+            "update_password": self.passwd,
             "update_avatar_url": self.avatar_url,
             "update_status": self.status,
         }
@@ -235,15 +235,216 @@ class UserFilter(BaseModel):
 
 
 class CharacterV2(BaseModel):
-    id: int = Field(default=..., description="机器人id")
-    name: str = Field(default=..., description="机器人名称")
-    info: str = Field(default=..., description="机器人信息")
-    category: str = Field(default=..., description="机器人类型")
+    cid: int = Field(default=..., description="机器人id")
+    character_name: str = Field(default=..., description="机器人名称")
+    character_info: str = Field(default=..., description="机器人信息")
+    character_class: str = Field(default=..., description="机器人类型")
     avatar_url: str = Field(default=..., description="头像url")
     create_time: datetime = Field(default=..., description="创建时间")
     update_time: datetime = Field(default=..., description="更新时间")
     status: str = Field(default=..., description="状态")
     attribute: str = Field(default=..., description="属性")
+
+    @staticmethod
+    def new_normal(
+        name: str, info: str, category: str, avatar_url: str, attribute: str
+    ) -> "CharacterV2":
+        return CharacterV2(
+            cid=-1,
+            character_name=name,
+            character_info=info,
+            character_class=category,
+            avatar_url=avatar_url,
+            create_time=datetime.now(),
+            update_time=datetime.now(),
+            status="active",
+            attribute=attribute,
+        )
+
+    @staticmethod
+    def new_random() -> "CharacterV2":
+        return CharacterV2.new_normal(
+            name=get_random_string(8),
+            info=get_random_string(8),
+            category=random.choice(["tech", "food", "game", "movie"]),
+            avatar_url="avatar_url",
+            attribute="normal",
+        )
+
+
+class CharacterCreate(BaseModel):
+    character_name: str = Field(default=..., description="机器人名称")
+    character_info: str = Field(default=..., description="机器人信息")
+    character_class: str = Field(default=..., description="机器人类型")
+    avatar_url: str = Field(default=..., description="头像url")
+    status: str = Field(default="active", description="状态")
+    attr: str = Field(default="normal", description="属性")
+
+    def to_params(self) -> dict:
+        return {
+            "character_name": self.character_name,
+            "character_info": self.character_info,
+            "character_class": self.character_class,
+            "avatar_url": self.avatar_url,
+            "status": self.status,
+            "attr": self.attr,
+        }
+
+
+class CharacterWhere(BaseModel):
+    cid: int | None = None
+    character_name: str | None = None
+    character_class: str | None = None
+    status: str | None = None
+    attr: str | None = None
+
+    # def to_where_clause(self) -> str:
+    #     # clause = ""
+    #     clauses: list[str] = []
+    #     if self.cid:
+    #         # clause += "cid = %(filter_cid)s, "
+    #         clauses.append("cid = %(filter_cid)s")
+    #     if self.character_name:
+    #         # clause += "name = %(filter_name)s, "
+    #         clauses.append("name = %(filter_name)s")
+    #     if self.character_class:
+    #         # clause += "category = %(filter_category)s, "
+    #         clauses.append("category = %(filter_category)s")
+    #     if self.status:
+    #         # clause += "status = %(filter_status)s, "
+    #         clauses.append("status = %(filter_status)s")
+    #     if self.attr:
+    #         # clause += "attr = %(filter_attribute)s, "
+    #         clauses.append("attr = %(filter_attribute)s")
+    #     clause = " AND ".join(clauses)
+    #     if clause:
+    #         clause = "WHERE " + clause
+    #     return clause
+
+    def to_where_clause_v2(self) -> Composed:
+        # clause = ""
+        clauses: list[SQL] = []
+        if self.cid:
+            # clause += "cid = %(filter_cid)s, "
+            clauses.append(SQL("cid = %(filter_cid)s"))
+        if self.character_name:
+            # clause += "name = %(filter_name)s, "
+            clauses.append(SQL("character_name = %(filter_name)s"))
+        if self.character_class:
+            # clause += "category = %(filter_category)s, "
+            clauses.append(SQL("character_class = %(filter_category)s"))
+        if self.status:
+            # clause += "status = %(filter_status)s, "
+            clauses.append(SQL("status = %(filter_status)s"))
+        if self.attr:
+            # clause += "attr = %(filter_attribute)s, "
+            clauses.append(SQL("attr = %(filter_attribute)s"))
+        clause = SQL(" AND ").join(clauses)
+        if clause:
+            clause = SQL("WHERE {fields}").format(fields=clause)
+        return clause
+
+    def to_params(self) -> dict:
+        return {
+            "filter_cid": self.cid,
+            "filter_name": self.character_name,
+            "filter_category": self.character_class,
+            "filter_status": self.status,
+            "filter_attribute": self.attr,
+        }
+
+    def is_empty(self) -> bool:
+        return not any(
+            [
+                self.cid,
+                self.character_name,
+                self.character_class,
+                self.status,
+                self.attr,
+            ]
+        )
+
+
+class CharacterUpdate(BaseModel):
+    character_name: str | None = None
+    character_info: str | None = None
+    character_class: str | None = None
+    avatar_url: str | None = None
+    status: str | None = None
+    attr: str | None = None
+
+    def is_empty(self) -> bool:
+        return not any(
+            [
+                self.character_name,
+                self.character_info,
+                self.character_class,
+                self.avatar_url,
+                self.status,
+                self.attr,
+            ]
+        )
+
+    # def to_set_clause(self) -> str:
+    #     # clause = ""
+    #     clauses: list[str] = []
+    #     if self.character_name:
+    #         # clause += "name = %(update_name)s"
+    #         clauses.append("character_name = %(update_name)s")
+    #     if self.character_info:
+    #         # clause += "info = %(update_info)s"
+    #         clauses.append("character_info = %(update_info)s")
+    #     if self.character_class:
+    #         # clause += "category = %(update_category)s"
+    #         clauses.append("character_class = %(update_category)s")
+    #     if self.avatar_url:
+    #         # clause += "avatar_url = %(update_avatar_url)s"
+    #         clauses.append("avatar_url = %(update_avatar_url)s")
+    #     if self.status:
+    #         # clause += "status = %(update_status)s"
+    #         clauses.append("status = %(update_status)s")
+    #     if self.attr:
+    #         # clause += "attr = %(update_attribute)s"
+    #         clauses.append("attr = %(update_attribute)s")
+    #     clause = ", ".join(clauses)
+
+    #     if clause:
+    #         clause = "SET " + clause
+    #     return clause
+
+    def to_set_clause_v2(self) -> Composed:
+        # clause = ""
+        clauses: list[SQL] = []
+        if self.character_name:
+            # clause += "name = %(update_name)s"
+            clauses.append(SQL("character_name = %(update_name)s"))
+        if self.character_info:
+            # clause += "info = %(update_info)s"
+            clauses.append(SQL("character_info = %(update_info)s"))
+        if self.character_class:
+            # clause += "category = %(update_category)s"
+            clauses.append(SQL("character_class = %(update_category)s"))
+        if self.avatar_url:
+            # clause += "avatar_url = %(update_avatar_url)s"
+            clauses.append(SQL("avatar_url = %(update_avatar_url)s"))
+        if self.status:
+            # clause += "status = %(update_status)s"
+            clauses.append(SQL("status = %(update_status)s"))
+        if self.attr:
+            # clause += "attr = %(update_attribute)s"
+            clauses.append(SQL("attr = %(update_attribute)s"))
+
+        return SQL("SET {fields}").format(fields=SQL(", ").join(clauses))
+
+    def to_params(self) -> dict:
+        return {
+            "update_name": self.character_name,
+            "update_info": self.character_info,
+            "update_category": self.character_class,
+            "update_avatar_url": self.avatar_url,
+            "update_status": self.status,
+            "update_attribute": self.attr,
+        }
 
 
 class Chat(BaseModel):
@@ -348,175 +549,6 @@ class ChatUpdate(BaseModel):
         return {
             "update_chat_record": self.chat_record,
             "update_status": self.status,
-        }
-
-
-class CharacterCreate(BaseModel):
-    name: str = Field(default=..., description="机器人名称")
-    info: str = Field(default=..., description="机器人信息")
-    category: str = Field(default=..., description="机器人类型")
-    avatar_url: str = Field(default=..., description="头像url")
-    status: str = Field(default="active", description="状态")
-    attribute: str = Field(default="normal", description="属性")
-
-    def to_params(self) -> dict:
-        return {
-            "name": self.name,
-            "info": self.info,
-            "category": self.category,
-            "avatar_url": self.avatar_url,
-            "status": self.status,
-            "attribute": self.attribute,
-        }
-
-
-class CharacterWhere(BaseModel):
-    cid: int | None = None
-    name: str | None = None
-    category: str | None = None
-    status: str | None = None
-    attribute: str | None = None
-
-    def to_where_clause(self) -> str:
-        # clause = ""
-        clauses: list[str] = []
-        if self.cid:
-            # clause += "cid = %(filter_cid)s, "
-            clauses.append("cid = %(filter_cid)s")
-        if self.name:
-            # clause += "name = %(filter_name)s, "
-            clauses.append("name = %(filter_name)s")
-        if self.category:
-            # clause += "category = %(filter_category)s, "
-            clauses.append("category = %(filter_category)s")
-        if self.status:
-            # clause += "status = %(filter_status)s, "
-            clauses.append("status = %(filter_status)s")
-        if self.attribute:
-            # clause += "attr = %(filter_attribute)s, "
-            clauses.append("attr = %(filter_attribute)s")
-        clause = " AND ".join(clauses)
-        if clause:
-            clause = "WHERE " + clause
-        return clause
-
-    def to_where_clause_v2(self) -> Composed:
-        # clause = ""
-        clauses: list[SQL] = []
-        if self.cid:
-            # clause += "cid = %(filter_cid)s, "
-            clauses.append(SQL("cid = %(filter_cid)s"))
-        if self.name:
-            # clause += "name = %(filter_name)s, "
-            clauses.append(SQL("name = %(filter_name)s"))
-        if self.category:
-            # clause += "category = %(filter_category)s, "
-            clauses.append(SQL("category = %(filter_category)s"))
-        if self.status:
-            # clause += "status = %(filter_status)s, "
-            clauses.append(SQL("status = %(filter_status)s"))
-        if self.attribute:
-            # clause += "attr = %(filter_attribute)s, "
-            clauses.append(SQL("attr = %(filter_attribute)s"))
-        clause = SQL(" AND ").join(clauses)
-        if clause:
-            clause = SQL("WHERE {fields}").format(fields=clause)
-        return clause
-
-    def to_params(self) -> dict:
-        return {
-            "filter_cid": self.cid,
-            "filter_name": self.name,
-            "filter_category": self.category,
-            "filter_status": self.status,
-            "filter_attribute": self.attribute,
-        }
-
-    def is_empty(self) -> bool:
-        return not any(
-            [self.cid, self.name, self.category, self.status, self.attribute]
-        )
-
-
-class CharacterUpdate(BaseModel):
-    name: str | None = None
-    info: str | None = None
-    category: str | None = None
-    avatar_url: str | None = None
-    status: str | None = None
-    attribute: str | None = None
-
-    def is_empty(self) -> bool:
-        return not any(
-            [
-                self.name,
-                self.info,
-                self.category,
-                self.avatar_url,
-                self.status,
-                self.attribute,
-            ]
-        )
-
-    def to_set_clause(self) -> str:
-        # clause = ""
-        clauses: list[str] = []
-        if self.name:
-            # clause += "name = %(update_name)s"
-            clauses.append("name = %(update_name)s")
-        if self.info:
-            # clause += "info = %(update_info)s"
-            clauses.append("info = %(update_info)s")
-        if self.category:
-            # clause += "category = %(update_category)s"
-            clauses.append("category = %(update_category)s")
-        if self.avatar_url:
-            # clause += "avatar_url = %(update_avatar_url)s"
-            clauses.append("avatar_url = %(update_avatar_url)s")
-        if self.status:
-            # clause += "status = %(update_status)s"
-            clauses.append("status = %(update_status)s")
-        if self.attribute:
-            # clause += "attr = %(update_attribute)s"
-            clauses.append("attr = %(update_attribute)s")
-        clause = ", ".join(clauses)
-
-        if clause:
-            clause = "SET " + clause
-        return clause
-
-    def to_set_clause_v2(self) -> Composed:
-        # clause = ""
-        clauses: list[SQL] = []
-        if self.name:
-            # clause += "name = %(update_name)s"
-            clauses.append(SQL("name = %(update_name)s"))
-        if self.info:
-            # clause += "info = %(update_info)s"
-            clauses.append(SQL("info = %(update_info)s"))
-        if self.category:
-            # clause += "category = %(update_category)s"
-            clauses.append(SQL("category = %(update_category)s"))
-        if self.avatar_url:
-            # clause += "avatar_url = %(update_avatar_url)s"
-            clauses.append(SQL("avatar_url = %(update_avatar_url)s"))
-        if self.status:
-            # clause += "status = %(update_status)s"
-            clauses.append(SQL("status = %(update_status)s"))
-        if self.attribute:
-            # clause += "attr = %(update_attribute)s"
-            clauses.append(SQL("attr = %(update_attribute)s"))
-
-        return SQL("SET {fields}").format(fields=SQL(", ").join(clauses))
-
-    def to_params(self) -> dict:
-        return {
-            "update_name": self.name,
-            "update_info": self.info,
-            "update_category": self.category,
-            "update_avatar_url": self.avatar_url,
-            "update_status": self.status,
-            "update_attribute": self.attribute,
         }
 
 

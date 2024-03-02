@@ -261,7 +261,8 @@ def select_character(where: CharacterWhere) -> list[dict]:
             cur.execute(
                 # TODO(zhangzhong): 应该可以配置返回哪些字段才对
                 query=SQL(
-                    "SELECT * FROM characters {} OFFSET %(offset)s LIMIT %(limit)s"
+                    "SELECT * FROM characters {}"
+                    # "SELECT * FROM characters {} OFFSET %(offset)s LIMIT %(limit)s"
                 ).format(where.to_where_clause_v2()),
                 params=where.to_params(),
             )
