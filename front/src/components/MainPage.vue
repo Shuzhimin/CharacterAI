@@ -1,8 +1,6 @@
 <template>
-  <div>
-<!--修改测试-->
-    git合并测试
-    <el-card>
+  <div style="height: 100%; background-color: #242949">
+    <el-card style="background-color: #212529; border: 0">
       <el-row>
         <el-input
           v-model="character_name"
@@ -11,24 +9,41 @@
           clearable>
           <el-button slot="append" icon="el-icon-search"></el-button>
         </el-input>
-        <el-menu style="padding-top: 20px">
-          <el-col :span="6" v-for="(item, index) in character_list" style="">
-            <el-menu-item style="width: 100%; height: 100%" @click="selectRole(item)">
-              <div>
-                <el-image :src="item.img_url" style="width: 100%; height: 100%">
+        <div v-for="(type, i) in character_type" v-if="character_list[i].length !== 0" style="padding-top: 20px; background-color: transparent">
+          <div>
+            <i class="el-icon-s-opportunity" style="font-weight: 50;font-size: 30px; color: white"></i>
+            <span style="font-size: 30px; color: white">{{type}}</span>
+          </div>
 
-                </el-image>
-                <p>{{item.label}}</p>
-              </div>
-            </el-menu-item>
+          <el-menu style="padding-top: 20px; background-color: transparent">
+            <el-col span="3" v-for="(item, index) in character_list[i]" style="background-color: transparent;">
+              <el-menu-item style="width: 100%; height: 100%; background-color: transparent" @click="selectRole(item)">
+                <div>
+                  <el-image :src="item.img_url" style="width: 100%; height: 100%">
 
-          </el-col>
-        </el-menu>
+                  </el-image>
+                  <p class="clabel" style="color: white">{{item.label}}</p>
+                </div>
+              </el-menu-item>
+
+            </el-col>
+          </el-menu>
+        </div>
+
 
 
       </el-row>
     </el-card>
-
+<!--    <div class="color"></div>-->
+<!--    <div class="color"></div>-->
+<!--    <div class="color"></div>-->
+<!--    <div class="box">-->
+<!--      <div class="square" style="&#45;&#45;i:0;"></div>-->
+<!--      <div class="square" style="&#45;&#45;i:1;"></div>-->
+<!--      <div class="square" style="&#45;&#45;i:2;"></div>-->
+<!--      <div class="square" style="&#45;&#45;i:3;"></div>-->
+<!--      <div class="square" style="&#45;&#45;i:4;"></div>-->
+<!--    </div>-->
 
   </div>
 </template>
@@ -39,7 +54,8 @@ export default {
   data() {
     return {
       character_list : [
-        {
+        // 美食
+        [{
           id: 1,
           img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
           label: 'test1',
@@ -59,7 +75,9 @@ export default {
           img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
           label: 'test4',
           description: 'test4'
-        },{
+        },],
+        // 旅游
+        [{
           id: 5,
           img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
           label: 'test5',
@@ -69,14 +87,41 @@ export default {
           img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
           label: 'test6',
           description: 'test6'
-        },{
+        },],
+        // 科技
+        [],
+        // 健康
+        [{
           id: 7,
           img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
           label: 'test7',
           description: 'test7'
-        },
+        },],
+        // 法律
+        [{
+          id: 8,
+          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
+          label: 'test8',
+          description: 'test8'
+        },{
+          id: 9,
+          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
+          label: 'test9',
+          description: 'test9'
+        },],
+        // 其他
+        [],
+
       ],
-      character_name: ''
+      character_name: '',
+      character_type: [
+        '美食',
+        '旅游',
+        '科技',
+        '健康',
+        '法律',
+        '其他'
+      ]
     }
   },
   methods: {
@@ -92,7 +137,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="less">
 /*搜索组件最外层div */
 .input_box {
   width: 300px;
@@ -112,5 +157,10 @@ export default {
   border-radius: 95px;
   border: 0;
   box-shadow: 0 0 0 0px;
+}
+.el-menu-item:hover{
+  /*border-left:#33A2EF solid 6px !important;*/
+  background-color: #666e74 !important;
+  color: #38B2FF !important;
 }
 </style>

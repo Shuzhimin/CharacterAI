@@ -102,6 +102,10 @@ export default {
   },
   methods: {
     sendMessage() {
+      if (this.input_message === '' || this.input_message === null){
+        this.$message.error('发送信息不能为空')
+        return
+      }
       let mess = {
         content: this.input_message,
         owner: 'user',
