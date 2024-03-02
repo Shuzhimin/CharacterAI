@@ -67,8 +67,8 @@ def test_database_proxy() -> None:
     assert character2 == character2_replica
 
     # append chat records
-    chat_record1 = ChatRecord(role="user", content="hello")
-    chat_record2 = ChatRecord(role="assistant", content="hi")
+    chat_record1 = ChatRecord(who="user", message="hello")
+    chat_record2 = ChatRecord(who="assistant", message="hi")
     chat_records = [chat_record1, chat_record2]
     error = db.append_chat_recoards(botname=bot_name, chat_records=chat_records)
     assert error.ok()

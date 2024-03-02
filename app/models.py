@@ -6,13 +6,19 @@ import random
 from psycopg.sql import SQL, Composed
 
 
-type Role = Literal["user", "character"]
+# type Role = Literal["user", "character"]
 
 
 class ChatRecord(BaseModel):
-    role: Role
-    content: str
-    create_time: datetime = Field(default=..., description="创建时间")
+    who: str
+    message: str
+    # 看一看是不是now的问题
+    # create_time: datetime = Field(
+    #     default=datetime(2042, 7, 1, 14, 0), description="创建时间"
+    # )
+    # TODO(zhangzhong):
+    # 确实是时间的问题，去掉这个field就行了
+    # 那这就神奇了呀，是不是任何更新时间的sql都会出错？
 
 
 # deprecated
@@ -463,6 +469,7 @@ class ChatCreate(BaseModel):
 
 
 class ChatWhere(BaseModel):
+    chat_id: int | None = None
     cid: int | None = None
     uid: int | None = None
     status: str | None = None
@@ -487,6 +494,8 @@ class ChatWhere(BaseModel):
     def to_where_clause_v2(self) -> Composed:
         # clause = ""
         clauses: list[SQL] = []
+        if self.chat_id:
+            clauses.append(SQL("chat_id = %(filter_chat_id)s"))
         if self.cid:
             # clause += "cid = %(filter_cid)s, "
             clauses.append(SQL("cid = %(filter_cid)s"))
@@ -503,13 +512,14 @@ class ChatWhere(BaseModel):
 
     def to_params(self) -> dict:
         return {
+            "filter_chat_id": self.chat_id,
             "filter_cid": self.cid,
             "filter_uid": self.uid,
             "filter_status": self.status,
         }
 
     def is_empty(self) -> bool:
-        return not any([self.cid, self.uid, self.status])
+        return not any([self.chat_id, self.cid, self.uid, self.status])
 
 
 class ChatUpdate(BaseModel):
@@ -524,6 +534,9 @@ class ChatUpdate(BaseModel):
         clauses: list[str] = []
         if self.chat_record:
             # clause += "chat_record = %(update_chat_record)s"
+            # 这里应该就要使用append——array函数了
+            # https://www.postgresql.org/docs/current/functions-array.html
+            # https://www.postgresql.org/docs/current/rowtypes.html
             clauses.append("chat_record = %(update_chat_record)s")
         if self.status:
             # clause += "status = %(update_status)s"
@@ -539,7 +552,11 @@ class ChatUpdate(BaseModel):
         clauses: list[SQL] = []
         if self.chat_record:
             # clause += "chat_record = %(update_chat_record)s"
-            clauses.append(SQL("chat_record = %(update_chat_record)s"))
+            clauses.append(
+                SQL(
+                    "chat_history = chat_history || %(update_chat_record)s::chat_record"
+                )
+            )
         if self.status:
             # clause += "status = %(update_status)s"
             clauses.append(SQL("status = %(update_status)s"))
@@ -547,6 +564,12 @@ class ChatUpdate(BaseModel):
 
     def to_params(self) -> dict:
         return {
+            # 这里需要返回一个info.python_type
+            # 也就是我们注册好的类型
+            # 不对啊，我们直接注册ChatRecord model不就行了吗 还很方便
+            # 而且只要全局注册了info 还不用返回 这就非常方便了
+            # 所以要全部注册成pydantic model！
+            # 好像是这里必须要写成info.python_type的方式？
             "update_chat_record": self.chat_record,
             "update_status": self.status,
         }

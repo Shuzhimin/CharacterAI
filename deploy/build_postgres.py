@@ -7,6 +7,8 @@
 # user \d <table> to show the info of table
 import psycopg
 from app.common.conf import conf
+from psycopg.types.composite import CompositeInfo, register_composite
+from app.models import ChatRecord
 
 # with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
 #     with conn.cursor() as cur:
@@ -121,7 +123,7 @@ def drop_all() -> None:
             # conn.commit()
 
 
-def create_all() -> None:
+def create_all() -> CompositeInfo:
     # drop first
     drop_all()
 
@@ -197,8 +199,8 @@ def create_all() -> None:
                 query="""
                     CREATE TYPE chat_record AS (
                         who VARCHAR(16),
-                        message VARCHAR(256),
-                        create_time TIMESTAMP
+                        message VARCHAR(256)
+                        -- create_time TIMESTAMP
                     )
                 """
             )
@@ -216,3 +218,20 @@ def create_all() -> None:
                     )
                 """
             )
+
+            # 在这里获取类型信息并进行注册
+            # https://www.psycopg.org/psycopg3/docs/basic/pgtypes.html
+            info = CompositeInfo.fetch(conn, "chat_record")
+            assert info
+            # 这里不指定conn就可以全局注册 比较方便
+            # https://www.psycopg.org/psycopg3/docs/advanced/typing.html
+            # https://www.psycopg.org/psycopg3/docs/api/rows.html#psycopg.rows.class_row
+            # 只要这样就可以直接返回一个pydanticmodel了 cool！
+            register_composite(info=info, factory=ChatRecord)
+            assert info.python_type
+            my_card = info.python_type(
+                who="zhangzhong", message="hello", create_time="2024-03-01 00:00:00"
+            )
+            print(my_card)
+            print(type(my_card))
+            return info

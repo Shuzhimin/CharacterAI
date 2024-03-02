@@ -352,7 +352,7 @@ def update_chat(chat_update: ChatUpdate, where: ChatWhere) -> ErrorV2:
     with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
         with conn.cursor() as cur:
             # 模型中的名字和数据库中的名字确实应该保持一致
-            query = SQL("""UPDATE users {set} {where}""").format(
+            query = SQL("""UPDATE chats {set} {where}""").format(
                 **{
                     # 直接这样写会被当成字符串
                     "set": chat_update.to_set_clause_v2(),
@@ -437,6 +437,10 @@ def update_user_character(
     with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
         with conn.cursor() as cur:
             # 模型中的名字和数据库中的名字确实应该保持一致
+            # update chats set chat_history = array_append(chat_history, ROW('user', 'hello', NOW())::chat_record) where chat_id = 1;
+            # 貌似必须要做强制类型转换
+            # https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-cast/
+            # 从sql层面做append我会了，现在怎么从代码层面实现呢？
             query = SQL("""UPDATE user_character {set} {where}""").format(
                 **{
                     # 直接这样写会被当成字符串

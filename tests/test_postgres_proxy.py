@@ -1,6 +1,8 @@
 # 2024/3/2
 # zhangzhong
 
+# model里面的东西太多了
+# 确实不如引入一个model 然后.出来
 from app.models import User, UserFilter, UserIn, UserOut, UserParams, UserUpdate
 from app.models import CharacterV2, CharacterCreate, CharacterUpdate, CharacterWhere
 from app.models import (
@@ -9,10 +11,12 @@ from app.models import (
     UserCharacterWhere,
     UserCharacterUpdate,
 )
+from app.models import Chat, ChatCreate, ChatWhere, ChatUpdate, ChatRecord
 from app.common.conf import conf
 from typing import NoReturn
 from deploy import build_postgres
 import app.database.pgsql as pg
+import random
 
 # how to test
 # 依次建立数张表
@@ -131,6 +135,25 @@ def test_postgres_proxy() -> None:
     assert len(ucs) == character_per_user
     for uc in ucs:
         assert uc.get("status") == "new_status"
+
+    # finally, the most important
+    # test table chats
+    # 不行，我们不能在chat表中添加 (uid, cid) 的外键约束, 而仅仅是进行了单独的外键约束
+    # 因为有多种可能，某个用户可能和不是他自己创建的角色进行聊天
+    # 1. create chat
+    chat_count = 100
+    for _ in range(chat_count):
+        uid = random.randint(1, user_count)
+        cid = random.randint(1, character_count)
+        err = pg.create_chat(ChatCreate(uid=uid, cid=cid))
+
+    # 最最关键的操作来了，添加聊天记录
+    # 2. update chat
+    chat_id = 1
+    chat_update = ChatUpdate(chat_record=ChatRecord(who="user", message="hello"))
+    chat_where = ChatWhere(chat_id=chat_id)
+    err = pg.update_chat(chat_update=chat_update, where=chat_where)
+    assert err.is_ok()
 
     # TODO(zhangzhong): 先不测删除了，前面的都测完再测删除
     # all delete should be test at the end
