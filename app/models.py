@@ -4,7 +4,9 @@ from datetime import datetime
 import string
 import random
 from psycopg.sql import SQL, Composed
+from dataclasses import dataclass
 
+# from deploy.build_postgres import info
 
 # type Role = Literal["user", "character"]
 
@@ -12,6 +14,7 @@ from psycopg.sql import SQL, Composed
 class ChatRecord(BaseModel):
     who: str
     message: str
+
     # 看一看是不是now的问题
     # create_time: datetime = Field(
     #     default=datetime(2042, 7, 1, 14, 0), description="创建时间"
@@ -19,6 +22,21 @@ class ChatRecord(BaseModel):
     # TODO(zhangzhong):
     # 确实是时间的问题，去掉这个field就行了
     # 那这就神奇了呀，是不是任何更新时间的sql都会出错？
+
+    # TMD，终于成了，原因就是因为它返回的对象无法作为参数传入
+    # 因为Pydantic要求传入的参数必须是Key parameter
+    # 而库返回的是positional parameter
+    # 只需要自己定义一个构造函数就行了
+    def __init__(self, who: str, message: str):
+        super().__init__(who=who, message=message)
+        # self.who = who
+        # self.message = message
+
+
+# @dataclass
+# class ChatRecordFactory:
+#     who: str
+#     message: str
 
 
 # deprecated
@@ -570,6 +588,9 @@ class ChatUpdate(BaseModel):
             # 而且只要全局注册了info 还不用返回 这就非常方便了
             # 所以要全部注册成pydantic model！
             # 好像是这里必须要写成info.python_type的方式？
+            # "update_chat_record": ChatRecordFactory(
+            #     self.chat_record.who, self.chat_record.message
+            # ),
             "update_chat_record": self.chat_record,
             "update_status": self.status,
         }

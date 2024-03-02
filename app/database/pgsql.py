@@ -31,7 +31,7 @@ from app.common.error import ErrorV2
 import app.common.error as error
 from psycopg.sql import SQL, Composed
 from datetime import datetime
-from psycopg.rows import dict_row
+from psycopg.rows import dict_row, class_row
 
 
 # user table
@@ -326,7 +326,9 @@ def select_chat(where: ChatWhere) -> list[dict]:
             cur.execute(
                 # TODO(zhangzhong): 应该可以配置返回哪些字段才对
                 query=SQL(
-                    "SELECT * FROM users {} OFFSET %(offset)s LIMIT %(limit)s"
+                    # "SELECT * FROM users {} OFFSET %(offset)s LIMIT %(limit)s"
+                    # 应该是
+                    "SELECT * FROM chats {}"
                 ).format(where.to_where_clause_v2()),
                 params=where.to_params(),
             )

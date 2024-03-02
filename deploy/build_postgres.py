@@ -123,6 +123,9 @@ def drop_all() -> None:
             # conn.commit()
 
 
+info = []
+
+
 def create_all() -> CompositeInfo:
     # drop first
     drop_all()
@@ -227,11 +230,13 @@ def create_all() -> CompositeInfo:
             # https://www.psycopg.org/psycopg3/docs/advanced/typing.html
             # https://www.psycopg.org/psycopg3/docs/api/rows.html#psycopg.rows.class_row
             # 只要这样就可以直接返回一个pydanticmodel了 cool！
+            # https://stackoverflow.com/questions/30032078/typeerror-init-takes-1-positional-argument-but-3-were-given
+            # 好像是因为这个factory和pydantic配合的并不好
+            # 还不如用它自己的呢
+            # 感觉还是必须写一个factory函数来返回我们自己的chatrecord
             register_composite(info=info, factory=ChatRecord)
             assert info.python_type
-            my_card = info.python_type(
-                who="zhangzhong", message="hello", create_time="2024-03-01 00:00:00"
-            )
+            my_card = info.python_type(who="zhangzhong", message="hello")
             print(my_card)
             print(type(my_card))
             return info

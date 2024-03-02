@@ -155,6 +155,13 @@ def test_postgres_proxy() -> None:
     err = pg.update_chat(chat_update=chat_update, where=chat_where)
     assert err.is_ok()
 
+    # 仍然很关键的操作，获取聊天记录
+    chat_id = 1
+    chat_where = ChatWhere(chat_id=chat_id)
+    chats = pg.select_chat(where=chat_where)
+    assert len(chats) == 1
+    print(chats)
+
     # TODO(zhangzhong): 先不测删除了，前面的都测完再测删除
     # all delete should be test at the end
     # delete characters
