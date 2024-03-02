@@ -252,3 +252,100 @@ class Chat(BaseModel):
     uid: int = Field(default=..., description="用户id")
     history: list[ChatRecord] = Field(default=..., description="聊天记录")
     status: str = Field(default=..., description="状态")
+
+
+class ChatCreate(BaseModel):
+    cid: int = Field(description="机器人id")
+    uid: int = Field(description="用户id")
+    # history: list[ChatRecord] = Field(default=..., description="聊天记录")
+    status: str = Field(default="active", description="状态")
+
+
+class ChatWhere(BaseModel):
+    cid: int | None = None
+    uid: int | None = None
+    status: str | None = None
+
+    def to_where_clause(self) -> str:
+        # clause = ""
+        clauses: list[str] = []
+        if self.cid:
+            # clause += "cid = %(filter_cid)s, "
+            clauses.append("cid = %(filter_cid)s")
+        if self.uid:
+            # clause += "uid = %(filter_uid)s, "
+            clauses.append("uid = %(filter_uid)s")
+        if self.status:
+            # clause += "status = %(filter_status)s, "
+            clauses.append("status = %(filter_status)s")
+        clause = " AND ".join(clauses)
+        if clause:
+            clause = "WHERE " + clause
+        return clause
+
+    def to_where_clause_v2(self) -> Composed:
+        # clause = ""
+        clauses: list[SQL] = []
+        if self.cid:
+            # clause += "cid = %(filter_cid)s, "
+            clauses.append(SQL("cid = %(filter_cid)s"))
+        if self.uid:
+            # clause += "uid = %(filter_uid)s, "
+            clauses.append(SQL("uid = %(filter_uid)s"))
+        if self.status:
+            # clause += "status = %(filter_status)s, "
+            clauses.append(SQL("status = %(filter_status)s"))
+        clause = SQL(" AND ").join(clauses)
+        if clause:
+            clause = SQL("WHERE {fields}").format(fields=clause)
+        return clause
+
+    def to_params(self) -> dict:
+        return {
+            "filter_cid": self.cid,
+            "filter_uid": self.uid,
+            "filter_status": self.status,
+        }
+
+    def is_empty(self) -> bool:
+        return not any([self.cid, self.uid, self.status])
+
+
+class ChatUpdate(BaseModel):
+    chat_record: ChatRecord | None = None
+    status: str | None = None
+
+    def is_empty(self) -> bool:
+        return not any([self.chat_record, self.status])
+
+    def to_set_clause(self) -> str:
+        # clause = ""
+        clauses: list[str] = []
+        if self.chat_record:
+            # clause += "chat_record = %(update_chat_record)s"
+            clauses.append("chat_record = %(update_chat_record)s")
+        if self.status:
+            # clause += "status = %(update_status)s"
+            clauses.append("status = %(update_status)s")
+        clause = ", ".join(clauses)
+
+        if clause:
+            clause = "SET " + clause
+        return clause
+
+    def to_set_clause_v2(self) -> Composed:
+        # clause = ""
+        clauses: list[SQL] = []
+        if self.chat_record:
+            # clause += "chat_record = %(update_chat_record)s"
+            clauses.append(SQL("chat_record = %(update_chat_record)s"))
+        if self.status:
+            # clause += "status = %(update_status)s"
+            clauses.append(SQL("status = %(update_status)s"))
+        return SQL("SET {fields}").format(fields=SQL(", ").join(clauses))
+
+    def to_params(self) -> dict:
+        return {
+            "update_chat_record": self.chat_record,
+            "update_status": self.status,
+        }
