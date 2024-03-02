@@ -64,8 +64,8 @@ def test_postgres_proxy() -> None:
     users = pg.select_user(user_filter=user_filter)
     assert len(users) == 1
     print(users)
-    print(UserUpdate(**users[0]))
-    assert UserUpdate(**users[0]) == user_update
+    print(UserUpdate(**users[0].model_dump()))
+    assert UserUpdate(**users[0].model_dump()) == user_update
 
     # test table characters
     # 1. create characters
@@ -94,8 +94,8 @@ def test_postgres_proxy() -> None:
     characters = pg.select_character(where=character_where)
     assert len(characters) == 1
     print(characters)
-    print(CharacterUpdate(**characters[0]))
-    assert CharacterUpdate(**characters[0]) == character_update
+    print(CharacterUpdate(**characters[0].model_dump()))
+    assert CharacterUpdate(**characters[0].model_dump()) == character_update
 
     # 2. select characters
     character_class = "tech"
@@ -134,7 +134,7 @@ def test_postgres_proxy() -> None:
     print(ucs)
     assert len(ucs) == character_per_user
     for uc in ucs:
-        assert uc.get("status") == "new_status"
+        assert uc.status == "new_status"
 
     # finally, the most important
     # test table chats
@@ -162,18 +162,34 @@ def test_postgres_proxy() -> None:
     assert len(chats) == 1
     print(chats)
 
+    # 删除聊天记录
+    chat_id = 1
+    chat_where = ChatWhere(chat_id=chat_id)
+    err = pg.delete_chat(where=chat_where)
+    assert err.is_ok()
+    chats = pg.select_chat(where=chat_where)
+    assert len(chats) == 0
+
     # TODO(zhangzhong): 先不测删除了，前面的都测完再测删除
     # all delete should be test at the end
     # delete characters
-    # err = pg.delete_character(where=character_where)
-    # assert err.is_ok()
+    # 在删除角色之前需要删除所有引用该角色的元素
+    # 包括chat 和 user_character
+    err = pg.delete_chat(where=ChatWhere(cid=cid))
+    assert err.is_ok()
+    err = pg.delete_user_character(where=UserCharacterWhere(cid=cid))
+    assert err.is_ok()
+    err = pg.delete_character(where=CharacterWhere(cid=cid))
+    assert err.is_ok()
 
-    # characters = pg.select_character(where=character_where)
-    # assert len(characters) == 0
+    characters = pg.select_character(where=CharacterWhere(cid=cid))
+    assert len(characters) == 0
 
     # # 3. delete user
-    # err = pg.delete_user(user_filter=user_filter)
-    # assert err.is_ok()
-
-    # users = pg.select_user(user_filter=user_filter)
-    # assert len(users) == 0
+    uid = 1
+    assert pg.delete_chat(where=ChatWhere(uid=uid)).is_ok()
+    assert pg.delete_user_character(where=UserCharacterWhere(uid=uid)).is_ok()
+    err = pg.delete_user(user_filter=UserFilter(uid=uid))
+    assert err.is_ok()
+    users = pg.select_user(user_filter=UserFilter(uid=uid))
+    assert len(users) == 0

@@ -26,6 +26,8 @@ from app.models import (
     UserCharacterCreate,
     UserCharacterWhere,
     UserCharacterUpdate,
+    chat_record,
+    UserCharacter,
 )
 from app.common.error import ErrorV2
 import app.common.error as error
@@ -61,9 +63,9 @@ def create_user(user: User) -> ErrorV2:
                     # 但是在出库的时候是不应该携带password的
                     # 所以入库和出库的model应该不一样
                     # "uid": user.id,
-                    "username": user.name,
-                    "passwd": user.password,
-                    "who": user.role,
+                    "username": user.username,
+                    "passwd": user.passwd,
+                    "who": user.who,
                     "status": user.status,
                     "avatar_url": user.avatar_url,
                 },
@@ -114,15 +116,15 @@ def update_user(user_update: UserUpdate, user_filter: UserFilter) -> ErrorV2:
 
 # 现在先不要思考将这些数据库操作合并抽象的问题 先全部实现出来 过早抽象也是一种错误的思想
 # TODO(zhangzhong): 不对呀，万一用户并不像使用limit呢
-def select_user(user_filter: UserFilter, offset: int = 0, limit: int = 1) -> list[dict]:
+def select_user(user_filter: UserFilter, offset: int = 0, limit: int = 1) -> list[User]:
     # raise NotImplementedError
     # 不能直接使用f-string, 需要使用SQL类型
     # If you need to generate SQL queries dynamically (for instance choosing a table name at runtime)
     # you can use the functionalities provided in the psycopg.sql module
     # https://www.psycopg.org/psycopg3/docs/api/sql.html#module-psycopg.sql
-    rows: list[dict] = []
+    rows: list[User] = []
     with psycopg.connect(
-        conninfo=conf.get_postgres_connection_string(), row_factory=dict_row
+        conninfo=conf.get_postgres_connection_string(), row_factory=class_row(User)
     ) as conn:
         with conn.cursor() as cur:
             # 模型中的名字和数据库中的名字确实应该保持一致
@@ -251,10 +253,11 @@ def update_character(update: CharacterUpdate, where: CharacterWhere) -> ErrorV2:
     return error.ok()
 
 
-def select_character(where: CharacterWhere) -> list[dict]:
-    rows: list[dict] = []
+def select_character(where: CharacterWhere) -> list[CharacterV2]:
+    rows: list[CharacterV2] = []
     with psycopg.connect(
-        conninfo=conf.get_postgres_connection_string(), row_factory=dict_row
+        conninfo=conf.get_postgres_connection_string(),
+        row_factory=class_row(CharacterV2),
     ) as conn:
         with conn.cursor() as cur:
             # 模型中的名字和数据库中的名字确实应该保持一致
@@ -309,14 +312,14 @@ def delete_chat(where: ChatWhere) -> ErrorV2:
         with conn.cursor() as cur:
             # 模型中的名字和数据库中的名字确实应该保持一致
             cur.execute(
-                query=SQL("DELETE FROM users {}").format(where.to_where_clause_v2()),
+                query=SQL("DELETE FROM chats {}").format(where.to_where_clause_v2()),
                 params=where.to_params(),
             )
             conn.commit()
     return error.ok()
 
 
-def select_chat(where: ChatWhere) -> list[dict]:
+def select_chat(where: ChatWhere) -> list[Chat]:
     rows: list[dict] = []
     with psycopg.connect(
         conninfo=conf.get_postgres_connection_string(), row_factory=dict_row
@@ -339,7 +342,15 @@ def select_chat(where: ChatWhere) -> list[dict]:
             rows = cur.fetchall()
             print(rows)
     # TODO(zhangzhong): 要做到这么方便的从dict转换到pydantic对象，需要他们对应的filed一样, 将返回类型改为list[User]
-    return rows
+    # namedtuple -> pydantic
+    # results: list[dict] = []
+    for row in rows:
+        chat_history: list[chat_record] = row["chat_history"]
+        chat_history_dict: list[dict] = [h._asdict() for h in chat_history]
+        row["chat_history"] = chat_history_dict
+    # 咱们首先把rows里面的namedtuple转成dict
+    # 然后再把整个dict转成pydantic model
+    return [Chat(**row) for row in rows]
 
 
 def update_chat(chat_update: ChatUpdate, where: ChatWhere) -> ErrorV2:
@@ -471,10 +482,11 @@ def update_user_character(
     return error.ok()
 
 
-def select_user_character(where: UserCharacterWhere) -> list[dict]:
-    rows: list[dict] = []
+def select_user_character(where: UserCharacterWhere) -> list[UserCharacter]:
+    rows: list[UserCharacter] = []
     with psycopg.connect(
-        conninfo=conf.get_postgres_connection_string(), row_factory=dict_row
+        conninfo=conf.get_postgres_connection_string(),
+        row_factory=class_row(UserCharacter),
     ) as conn:
         with conn.cursor() as cur:
             # 模型中的名字和数据库中的名字确实应该保持一致

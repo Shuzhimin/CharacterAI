@@ -123,7 +123,7 @@ def drop_all() -> None:
             # conn.commit()
 
 
-info = []
+# info = []
 
 
 def create_all() -> CompositeInfo:

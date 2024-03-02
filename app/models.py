@@ -74,11 +74,11 @@ def get_random_string(length) -> str:
 
 
 class User(BaseModel):
-    id: int = Field(default=-1, description="用户id")
-    name: str = Field(default=..., description="用户名")
-    password: str = Field(default=..., description="密码")
+    uid: int = Field(default=-1, description="用户id")
+    username: str = Field(default=..., description="用户名")
+    passwd: str = Field(default=..., description="密码")
     avatar_url: str = Field(description="头像url")
-    role: str = Field(default="user", description="角色")
+    who: str = Field(default="user", description="角色")
     create_time: datetime = Field(description="创建时间")
     update_time: datetime = Field(description="更新时间")
     status: str = Field(default="active", description="状态")
@@ -86,11 +86,11 @@ class User(BaseModel):
     @staticmethod
     def new_normal(name: str, password: str, role: str) -> "User":
         return User(
-            id=-1,
-            name=name,
-            password=password,
+            uid=-1,
+            username=name,
+            passwd=password,
             avatar_url="",
-            role=role,
+            who=role,
             create_time=datetime.now(),
             update_time=datetime.now(),
             status="active",
@@ -273,7 +273,7 @@ class CharacterV2(BaseModel):
     create_time: datetime = Field(default=..., description="创建时间")
     update_time: datetime = Field(default=..., description="更新时间")
     status: str = Field(default=..., description="状态")
-    attribute: str = Field(default=..., description="属性")
+    attr: str = Field(default=..., description="属性")
 
     @staticmethod
     def new_normal(
@@ -288,7 +288,7 @@ class CharacterV2(BaseModel):
             create_time=datetime.now(),
             update_time=datetime.now(),
             status="active",
-            attribute=attribute,
+            attr=attribute,
         )
 
     @staticmethod
@@ -478,10 +478,10 @@ class CharacterUpdate(BaseModel):
 
 
 class Chat(BaseModel):
-    id: int = Field(default=..., description="聊天id")
+    chat_id: int = Field(default=..., description="聊天id")
     cid: int = Field(default=..., description="机器人id")
     uid: int = Field(default=..., description="用户id")
-    history: list[ChatRecord] = Field(default=..., description="聊天记录")
+    chat_history: list[ChatRecord] = Field(default=..., description="聊天记录")
     status: str = Field(default=..., description="状态")
 
 
