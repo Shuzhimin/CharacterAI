@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="content">
-<!--       页面内ds[-->
+<!--       页面内ds[xiygai-->
       <div>
         <el-form :model="createForm" label-position="top" style="max-width: 400px; margin: 0 auto; ">
           <el-form-item label="创建角色名称" :prop="'bot_name'" required>
