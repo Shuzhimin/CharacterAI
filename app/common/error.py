@@ -26,6 +26,7 @@ class ErrorCode(int, Enum):
     CHARACTER_NOT_FOUND = 3
     NONE_CHARACTER = 5
     NOT_IMPLEMENTED = 6
+    BAD_SQL = 7
 
 
 class ErrorV2:
@@ -47,3 +48,7 @@ def unknown(message: str = "unknown") -> ErrorV2:
 
 def not_implemented(message: str = "not implemented") -> ErrorV2:
     return ErrorV2(code=ErrorCode.NOT_IMPLEMENTED, message=message)
+
+
+def bad_sql(message: str = "bad sql") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.BAD_SQL, message=message)

@@ -5,12 +5,12 @@ from pydantic import ValidationError
 
 
 def test_chat_record() -> None:
-    chat_record = ChatRecord(role="user", content="hello")
-    assert chat_record.role == "user"
-    assert chat_record.content == "hello"
+    chat_record = ChatRecord(who="user", message="hello")
+    assert chat_record.who == "user"
+    assert chat_record.message == "hello"
 
     try:
-        chat_record = ChatRecord(role="should_fail", content="hello")  # type: ignore
+        chat_record = ChatRecord(who="should_fail", message="hello")  # type: ignore
         assert False
     except ValidationError as e:
         assert True
@@ -25,8 +25,8 @@ def test_dump_chat_history() -> None:
         user_name="user_name",
         user_info="user_info",
         chat_history=[
-            ChatRecord(role="user", content="hello"),
-            ChatRecord(role="assistant", content="hi"),
+            ChatRecord(who="user", message="hello"),
+            ChatRecord(who="assistant", message="hi"),
         ],
     )
 
