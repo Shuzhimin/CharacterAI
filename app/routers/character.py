@@ -1,8 +1,8 @@
 from fastapi import Depends, HTTPException, APIRouter
 from app.database.proxy import DatabaseProxy
-from app.models import Character, ChatRecord
-from typing import Annotated
-from app.dependencies import database_proxy
+from app.models import Character, ChatRecord, CharacterV2, CharacterCreate, CharacterUpdate
+from typing import Annotated, Union, List
+from app.dependencies import database_proxy, get_current_uid
 from typing import Any
 import app.common.glm as glm
 
@@ -33,30 +33,51 @@ async def query_character_info(
     return character.dump_character_info_without_chat_history()
 
 
-# 删除机器人
+# 删除机器人 接口1.2 删除角色 /character/delete
 @router.delete(path="/character/delete")
 async def delete_character(
-    bot_name: str, db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)]
-) -> dict[str, bool]:
-    return {"success": db.delete_character_by_botname(botname=bot_name).ok()}
+    cid: list[int], db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)]
+) -> dict[str, Union[int, str, List[dict]]]:
+    err = db.delete_character_by_botname(cid=cid)
+    return {"code": err.code, "message": err.message, "data": []}
 
-
-# 根据机器人名称更新机器人信息
+#接口1.3 修改角色 /character/update  功能描述：对已创建的角色进行修改，用户只能修改自己创建的角色，不能修改管理员创建的角色，管理员可以修改任意角色。
 @router.post(path="/character/update")
 async def update_character_info(
-    character: Character,
+    character: CharacterUpdate,
     db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
-) -> dict[str, bool]:
-    return {"success": db.update_character(character=character).ok()}
+) -> dict[str, Union[int, str, List[dict]]]:
+    err = db.update_character(character=character)
+    return {"code": err.code, "message": err.message, "data": []}
+
+#接口1.6 角色头像生成 /character/avatar  接口1.4 1.5废弃
+@router.post(path="/character/avatar")
+async def generate_avatar(
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+    avatar_describe: str = " ",
+) -> dict[str, Union[int, str, List[dict]]]:
+    err = db.generate_avatar(avatar_describe= avatar_describe)
+    return {"code": err.code, "message": err.message, "data": []}
 
 
-# 创建机器人信息
+#文档写的是根据机器人id来更新，这里占用了路径  注释掉
+# 根据机器人名称更新机器人信息
+# @router.post(path="/character/update")
+# async def update_character_info(
+#     character: Character,
+#     db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+# ) -> dict[str, bool]:
+#     return {"success": db.update_character(character=character).ok()}
+
+
+# 创建机器人信息 接口1.1 创建角色 /character/create  自己完成，等给他们看看
 @router.post(path="/character/create")
 async def create_character(
-    character: Character,
+    character: CharacterCreate,
     db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
-) -> dict[str, bool]:
-    return {"success": db.create_character(character=character).ok()}
+) -> dict[str, Union[int, str, List[dict]]]:
+    err = db.create_character(character=character)
+    return {"code": err.code, "message": err.message, "data": []}
 
 
 # 聊天
