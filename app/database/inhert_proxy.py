@@ -8,7 +8,7 @@ class InheritDataBaseProxy(proxy.DatabaseProxy):
         super().__init__()
         pass
 
-    def create_chat(self, chat: Chat) -> tuple[ErrorV2, int]:
+    def create_chat(self, cid: int, uid: int) -> tuple[ErrorV2, int]:
         return ErrorV2(ErrorCode.OK, message="OK"), 1
 
     def delete_chat_by_chat_id(self, chat_id: int) -> ErrorV2:
