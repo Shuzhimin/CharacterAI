@@ -8,12 +8,12 @@ from typing import Any
 import app.common.glm as glm
 from typing import List, Union
 from app.database.mongo import get_uid_by_cid
-from app.common.error import ErrorCodeV2
+from app.common.error import ErrorV2
 import app.common.error as error
 from typing import Optional
 
 router = APIRouter()
-
+ChatRecord(role="user",content="你好",create_time="2022-02-02 12:12:12")
 
 # /chat/create
 @router.post("/chat/create")
@@ -24,7 +24,7 @@ async def create_chat_record(
     err, uid = db.get_uid_by_cid(cid)
     if not err.is_ok() or uid is None:
     #创建Chat对象
-        chat = Chat(cid=cid, uid=uid,chat_history=[],status="normal")
+        chat = Chat(cid=cid, uid=uid,history=[],status="normal")
         err,chat_id = db.create_chat(chat)
         if err.is_ok():
             return {"code": err.code, "message":err.message, "data": [{"chat_id": chat_id}]}
@@ -86,6 +86,7 @@ async def select_chat_record(
     for chat_id,cid in zip(chat_ids,cids):
         err, chat = db.get_chat_by_chat_id_cid(chat_id,cid)
         if err.is_ok():
+            chat=Chat(**chat)
             chat_list.append(chat)
         else:
             return {"code":err.code, "message":err.message, "data": []}

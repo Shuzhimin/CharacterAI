@@ -3,7 +3,7 @@
 
 from app.database.proxy import DatabaseProxy
 from app.database.inhert_proxy import InheritDataBaseProxy
-from common.error import ErrorCodeV2
+from common.error import ErrorV2
 
 
 def database_proxy() -> DatabaseProxy:
@@ -14,8 +14,8 @@ def get_current_uid() -> int:
     return 0
 
 
-def return_erroe()->ErrorCodeV2:
-    return ErrorCodeV2.DATABASE_ErrorCodeV2
+def return_erroe()->ErrorV2:
+    return ErrorV2.DATABASE_ErrorCodeV2
 
 def get_chat_ids()->list[int]:
     return [1,2,3]

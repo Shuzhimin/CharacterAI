@@ -30,7 +30,7 @@ class ErrorCode(int, Enum):
     NONE_CHAT = 8
 
 
-class ErrorCodeV2:
+class ErrorV2:
     def __init__(self, code: ErrorCode, message: str) -> None:
         self.code = code
         self.message = message
@@ -39,16 +39,16 @@ class ErrorCodeV2:
         return self.code == ErrorCode.OK
 
 
-def ok(message: str = "ok") -> ErrorCodeV2:
-    return ErrorCodeV2(code=ErrorCode.OK, message=message)
+def ok(message: str = "ok") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.OK, message=message)
 
 
-def unknown(message: str = "unknown") -> ErrorCodeV2:
-    return ErrorCodeV2(code=ErrorCode.UNKNOWN, message=message)
+def unknown(message: str = "unknown") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.UNKNOWN, message=message)
 
 
-def not_implemented(message: str = "not implemented") -> ErrorCodeV2:
-    return ErrorCodeV2(code=ErrorCode.NOT_IMPLEMENTED, message=message)
+def not_implemented(message: str = "not implemented") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.NOT_IMPLEMENTED, message=message)
 
-def chat_already_exists(message: str = "chat already exists") -> ErrorCodeV2:
-    return ErrorCodeV2(code=ErrorCode.CHAT_ALREADY_EXISTS, message=message)
+def chat_already_exists(message: str = "chat already exists") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.CHAT_ALREADY_EXISTS, message=message)
