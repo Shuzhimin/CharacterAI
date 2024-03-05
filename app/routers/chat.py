@@ -70,7 +70,7 @@ async def append_chat_record(
 @router.get("/chat/select")
 async def select_chat_record(
     db: Annotated[InheritDataBaseProxy, Depends(dependency=database_proxy)],
-    chat_id: Optional[List[int]]=Depends(dependency=get_chat_ids),
+    chat_ids: Optional[List[int]]=Depends(dependency=get_chat_ids),
     cids: Optional[List[int]]=Depends(dependency=get_cids),
     # 从第几个开始
     offset: Optional[int] = 0,
@@ -83,13 +83,14 @@ async def select_chat_record(
     chat_history_ascend: Optional[bool] = True,
 ) -> dict[str, Union[int, str, List[dict]]]:
     chat_list = []
-    for chat_id,cid in zip(chat_id,cids):
+    for chat_id,cid in zip(chat_ids,cids):
         err, chat = db.get_chat_by_chat_id_cid(chat_id,cid)
         if err.is_ok():
             chat_list.append(chat)
         else:
             return {"code":err.code, "message":err.message, "data": []}
     part_chat_list = chat_list[offset:offset+limit]
+    part_chat_list = sorted(part_chat_list, key=lambda x: x.create_time, reverse=ascend)
     for chat in part_chat_list:
         chat.history = chat.history[chat_history_offset:chat_history_offset+chat_history_limit]
         chat.history = sorted(chat.history, key=lambda x: x.create_time, reverse=chat_history_ascend)

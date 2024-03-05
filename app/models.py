@@ -3,7 +3,7 @@ from typing import Literal, Any
 from datetime import datetime
 
 
-type Role = Literal["user", "character"]
+Role = Literal["user", "character"]
 
 
 class ChatRecord(BaseModel):
