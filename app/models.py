@@ -59,5 +59,5 @@ class Chat(BaseModel):
     id: int = Field(default=..., description="聊天id")
     cid: int = Field(default=..., description="机器人id")
     uid: int = Field(default=..., description="用户id")
-    history: list[ChatRecord] = Field(default=..., description="聊天记录")
+    chat_history: list[ChatRecord] = Field(default=..., description="聊天记录")
     status: str = Field(default=..., description="状态")

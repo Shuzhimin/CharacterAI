@@ -24,10 +24,10 @@ class InheritDataBaseProxy(proxy.DatabaseProxy):
     #     return ErrorCodeV2, [ChatRecord(role="user",content="test",create_time="2022-02-02 12:12:12")]
 
     def get_chat_by_chat_id(self, chat_id: int) -> tuple[ErrorV2, Chat]:
-        return ErrorV2(ErrorCode.OK, message="OK"), Chat(id=1, cid=1, uid=1, history=[], status="normal")
+        return ErrorV2(ErrorCode.OK, message="OK"), Chat(id=1, cid=1, uid=1, chat_history=[], status="normal")
 
     def append_chat_records(self, chat_id: int, chat_records: list[dict]) -> ErrorV2:
         return ErrorV2(ErrorCode.OK, message="OK")
 
     def get_chat_by_chat_id_cid(self, chat_id: int, cid: int) -> tuple[ErrorV2, Chat]:
-        return ErrorV2(ErrorCode.OK, message="OK"), Chat(id=1, cid=1, uid=1, history=[], status="normal")
+        return ErrorV2(ErrorCode.OK, message="OK"), Chat(id=1, cid=1, uid=1, chat_history=[], status="normal")
