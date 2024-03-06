@@ -59,6 +59,18 @@ async def generate_avatar(
     err = db.generate_avatar(avatar_describe= avatar_describe)
     return {"code": err.code, "message": err.message, "data": []}
 
+#接口1.7 查询角色信息 /character/select
+@router.post(path="/character/select")
+async def character_select(
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+    cids: list[int],
+    offset: int = 0,
+    limit: int = 1,
+    acsend: bool = "True",
+) -> list[str]:
+    err, character = db.character_select1(cids,offset,limit,acsend)
+    return {"code": err.code, "message": err.message, "data": []}
+
 
 #文档写的是根据机器人id来更新，这里占用了路径  注释掉
 # 根据机器人名称更新机器人信息

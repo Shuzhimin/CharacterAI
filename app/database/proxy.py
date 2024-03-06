@@ -1,7 +1,7 @@
 # 2024/2/6
 # zhangzhong
 from app.common.conf import ZhipuAIConf
-from app.dependencies import get_current_uid
+#from app.dependencies import get_current_uid
 from app.models import Character, ChatRecord, CharacterV2, CharacterCreate, CharacterUpdate
 import app.database.mongo as mongo
 from app.common.error import Error
@@ -50,9 +50,9 @@ class DatabaseProxy:
         characterv2.status = character.status,
         uid = get_current_uid()
         if uid == "管理员uid":
-            characterv2.attr = "shared"
-        else:
             characterv2.attr = character.attr
+        else:
+            characterv2.attr = "Normal"
         return Error(code=0, message="OK")
 
     #    return mongo.create_character(character=character)
@@ -65,6 +65,21 @@ class DatabaseProxy:
         return Error(code=0, message="OK")
 
     #        return mongo.update_character(character=character)
+
+    def character_select1(self,cids,offset,limit,acsend):
+        uid = get_current_uid(),
+        #需要通过uid查询cid
+        cids = self.get_cid_by_uid(),
+        cids.sort(reversed=acsend)
+        result = cids[offset:limit]
+        #根据result里的/cid查询角色的相关信息  character_name, character_info, avatar, character_class
+        return #返回这里写不来了
+
+
+
+
+    def get_cid_by_uid(self, uid: str):
+        return [22,12] #返回的应该是一个列表
 
     # TODO:
     # None对象和用NoneObject来代替呀，refactor一书中就提到了这个技巧
@@ -81,6 +96,7 @@ class DatabaseProxy:
         if err.code == Error.CHARACTER_NOT_FOUND | uid != get_current_uid() | get_current_uid() != "管理员id":
             return Error(code=3, message="机器人不存在")
         # 还需要进行判断机器人的状态status是不是delete
+
 
         # 进行删除操作
         character.status = "delete"
