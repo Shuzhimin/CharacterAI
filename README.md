@@ -20,3 +20,5 @@ AI虚拟角色养成系统
 ## 后端部署
 1. on the project root dir, `uvicorn app.main:app --host 0.0.0.0 --reload`
 2. 运行"build_database.py"，在本地创建数据库
+
+hi

@@ -6,8 +6,8 @@ from app.common.conf import conf
 
 
 app = FastAPI()
-app.include_router(router=character.router)
-app.include_router(router=user.router)
+# app.include_router(router=character.router)
+# app.include_router(router=user.router)
 app.include_router(router=chat.router)
 
 # 允许跨域请求
