@@ -2,9 +2,10 @@
 # zhangzhong
 
 from app.database.proxy import DatabaseProxy
-from app.models import Character, ChatRecord
+from app.models import Character, ChatRecord, User, UserUpdate, UserFilter
 from app.common.conf import conf
 from pymongo import MongoClient
+import app.database.pgsql as pgsql
 
 
 def test_mongo() -> None:
@@ -66,8 +67,8 @@ def test_database_proxy() -> None:
     assert character2 == character2_replica
 
     # append chat records
-    chat_record1 = ChatRecord(role="user", content="hello")
-    chat_record2 = ChatRecord(role="assistant", content="hi")
+    chat_record1 = ChatRecord(who="user", message="hello")
+    chat_record2 = ChatRecord(who="assistant", message="hi")
     chat_records = [chat_record1, chat_record2]
     error = db.append_chat_recoards(botname=bot_name, chat_records=chat_records)
     assert error.ok()
@@ -86,3 +87,28 @@ def test_database_proxy() -> None:
     error, character = db.get_character_by_botname(botname=bot_name)
     assert not error.ok()
     assert character is None
+
+
+def test_postgres() -> None:
+    pass
+    # create some random data and insert into postgres account table
+    # for _ in range(100):
+    #     user = User.new_random()
+    #     print(user)
+    #     error = pgsql.create_user(user=user)
+    #     assert error.is_ok()
+
+    # pgsql.create_user(user=User.new_normal(name="test", password="test", role="test"))
+
+    # 因为每次测试都会删除一个用户，所以在测试之前手动把uid+1,否则会测试失败
+    user_filter = UserFilter(uid=3)
+    pgsql.update_user(
+        user_update=UserUpdate(username="test_username"), user_filter=user_filter
+    )
+
+    users = pgsql.select_user(user_filter=user_filter)
+    assert len(users) == 1
+
+    pgsql.delete_user(user_filter=user_filter)
+    users = pgsql.select_user(user_filter=user_filter)
+    assert len(users) == 0

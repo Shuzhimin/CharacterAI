@@ -74,10 +74,10 @@ async def chat(
             "chat_history": [],
         }
 
-    character.chat_history.append(ChatRecord(role="user", content=content))
+    character.chat_history.append(ChatRecord(who="user", message=content))
     response = glm.invoke_character_glm_api(character=character)
     content = glm.get_content_from_response(response=response)
-    character.chat_history.append(ChatRecord(role="assistant", content=content))
+    character.chat_history.append(ChatRecord(who="assistant", message=content))
     db.update_character(character=character)
     return {
         "success": response["success"],

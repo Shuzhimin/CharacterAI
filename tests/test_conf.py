@@ -26,3 +26,6 @@ def test_basic_conf() -> None:
     # fastapi
     assert conf.get_fastapi_host() == "localhost"
     assert conf.get_fastapi_port() == 8000
+
+    # postgres
+    print(conf.get_postgres_connection_string())

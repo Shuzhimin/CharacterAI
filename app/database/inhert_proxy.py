@@ -30,4 +30,4 @@ class InheritDataBaseProxy(proxy.DatabaseProxy):
         return ErrorV2(ErrorCode.OK, message="OK")
 
     def get_chat_by_chat_id_cid(self, chat_id: int, cid: int) -> tuple[ErrorV2, Chat]:
-        return ErrorV2(ErrorCode.OK, message="OK"), Chat(id=1, cid=1, uid=1, chat_history=[], status="normal")
+        return ErrorV2(ErrorCode.OK, message="OK"), Chat(id=1, cid=1, uid=1, chat_history=[ChatRecord(who="user",message="hello"),ChatRecord(who="character",message="hello,what can I help you")], status="normal")
