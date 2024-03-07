@@ -109,12 +109,12 @@ def fake_decode_token(token):
 # 尽量不要返回异常
 # 与后端应用逻辑有关的都应该返回相应的错误
 # 比如用户无效，等
-async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+# async def get_current_active_user(
+#     current_user: Annotated[User, Depends(get_current_user)]
+# ):
+#     if current_user.disabled:
+#         raise HTTPException(status_code=400, detail="Inactive user")
+#     return current_user
 
 
 def verify_password(plain_password, hashed_password):
