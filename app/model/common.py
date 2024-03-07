@@ -12,4 +12,4 @@ class CommonResponse(BaseModel):
 
 
 class TokenData(BaseModel):
-    uid: int
+    uid: str

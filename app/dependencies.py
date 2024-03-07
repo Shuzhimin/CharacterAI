@@ -19,7 +19,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    uid: int
+    uid: str
 
 
 def database_proxy() -> DatabaseProxy:

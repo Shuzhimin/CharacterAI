@@ -173,10 +173,10 @@ async def user_register(
         username=username, password=password, avatar_url=avatar_url
     )
     if not err.is_ok() or not user:
-        return UserRegisterResponse(err.code, err.message, data={"uid": -1})
+        return UserRegisterResponse(err.code, err.message, data={"uid": str(-1)})
     # rentrun a token
     return UserRegisterResponse(
-        code=error.ok().code, message=error.ok().message, data={"uid": user.uid}
+        code=error.ok().code, message=error.ok().message, data={"uid": str(user.uid)}
     )
 
 
@@ -206,7 +206,7 @@ async def login(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.uid}, expires_delta=access_token_expires
+        data={"sub": str(user.uid)}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
 

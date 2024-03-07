@@ -45,7 +45,13 @@ class DatabaseProxy:
     def authenticate_then_get_user(
         self, username: str, password: str
     ) -> tuple[ErrorV2, model.User | None]:
-        raise NotImplementedError
+        err, user = self.get_user_by_username(username=username)
+        if not err.is_ok() or not user:
+            return err, None
+
+        if user.passwd != password:
+            return error.unauthorized(), None
+        return error.ok(), user
 
     def create_user(
         self, username: str, password: str, avatar_url: str
