@@ -8,11 +8,13 @@ import httpx
 from app.database.proxy import DatabaseProxy
 
 client = TestClient(app)
+username = "myname"
+password = "123456"
 
 
 # 但是我们首先需要创建用户啊
 def test_register():
-    username = "myname"
+    # username = "myname"
     # 妈的 在最开始删掉这个角色吧
     db = DatabaseProxy()
     err = db.delete_user_by_username(username=username)
@@ -22,7 +24,7 @@ def test_register():
         "/register",
         data={
             "username": username,
-            "password": "123456",
+            "password": password,
             "avatar_describe": "test",
         },
     )
@@ -36,8 +38,14 @@ def test_register():
     assert user.uid == response.json().get("data").get("uid")
 
 
-def test_simple_login():
-    pass
+def test_login():
+    # 首先注册一个用户
+    test_register()
+
+    response: httpx.Response = client.post(
+        url="/login", data={"username": username, "password": password}
+    )
+    assert response.status_code == 200
 
 
 # 我需要在本地创建数据库
