@@ -29,6 +29,7 @@ class ErrorCode(int, Enum):
     CHAT_ALREADY_EXISTS = 7
     NONE_CHAT = 8
     BAD_SQL = 9
+    NOT_IDEAL_RESULTS = 10
 
 
 class ErrorV2:
