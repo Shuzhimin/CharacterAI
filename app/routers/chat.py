@@ -20,7 +20,7 @@ async def create_chat_record(
         cid: int,
         db: Annotated[InheritDataBaseProxy, Depends(dependency=database_proxy)],
         current_uid: int = Depends(dependency=get_current_uid)
-) -> dict[str, Union[int, str, List[dict]]]:
+) -> dict[str, Union[int, str, List[dict]]]: # TODO： 加上ResponseModel
     err, uid = db.get_uid_by_cid(cid)
     if not err.is_ok() or uid is None:
         err, chat_id = db.create_chat(cid, current_uid)
