@@ -134,6 +134,15 @@ def authenticate_user(fake_db, username: str, password: str):
     return user
 
 
+def authenticate_user_v2(db, username: str, password: str):
+    user = db.get_user_by_username(username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+
 # https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
 # Create a utility function to generate a new access token.
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -148,7 +157,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 
 @router.post("/login")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+async def login(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Annotated[DatabaseProxy, Depends(database_proxy)],
+):
     # user_dict = fake_users_db.get(form_data.username)
     # if not user_dict:
     #     raise HTTPException(status_code=400, detail="Incorrect username or password")
@@ -158,8 +170,11 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     #     raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     # return {"access_token": user.username, "token_type": "bearer"}
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if not user:
+    # user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+    err, user = db.authenticate_then_get_user(
+        username=form_data.username, password=form_data.password
+    )
+    if not err.is_ok() or not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -167,7 +182,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.uid}, expires_delta=access_token_expires
     )
     return Token(access_token=access_token, token_type="bearer")
 

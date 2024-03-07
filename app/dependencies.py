@@ -55,18 +55,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-# TODO(zhangzhong): should renanem to get_uid()
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
-    # user = fake_decode_token(token)
-    # if not user:
-    #     raise HTTPException(
-    #         # Any HTTP (error) status code 401 "UNAUTHORIZED" is supposed to also return a WWW-Authenticate header.
-    #         # In the case of bearer tokens (our case), the value of that header should be Bearer.
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Invalid authentication credentials",
-    #         headers={"WWW-Authenticate": "Bearer"},
-    #     )
-    # return user
+async def get_token_data(token: Annotated[str, Depends(oauth2_scheme)]):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

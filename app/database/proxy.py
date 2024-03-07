@@ -3,7 +3,9 @@
 
 from app.models import Character, ChatRecord
 import app.database.mongo as mongo
-from app.common.error import Error
+from app.common.error import Error, ErrorV2
+import app.models as model
+import app.common.error as error
 
 
 # CRUD: Create, Read, Update, Delete
@@ -37,3 +39,8 @@ class DatabaseProxy:
 
     def get_all_characters(self) -> tuple[Error, list[Character]]:
         return mongo.get_characters(filter={})
+
+    def authenticate_then_get_user(
+        self, username: str, password: str
+    ) -> tuple[ErrorV2, model.User | None]:
+        raise NotImplementedError
