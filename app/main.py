@@ -1,14 +1,16 @@
 from fastapi import FastAPI
-from app.routers import character, user, chat
+from app.routers import character, user, chat, login
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from app.common.conf import conf
 
 
 app = FastAPI()
-# app.include_router(router=character.router)
-# app.include_router(router=user.router)
+app.include_router(router=character.router)
+app.include_router(router=user.router)
 app.include_router(router=chat.router)
+app.include_router(router=login.router)
+
 
 # 允许跨域请求
 app.add_middleware(
