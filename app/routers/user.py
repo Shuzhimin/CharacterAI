@@ -27,18 +27,7 @@ from fastapi import Form
 router = APIRouter()
 
 
-@router.post("/user/register")
-async def user_register(
-    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
-    username: Annotated[str, Form(...)],
-    password: Annotated[str, Form(...)],
-    avatar_describe: Annotated[str, Form(...)],
-) -> UserRegisterResponse:
-    # confirm username & password
-    # rentrun a token
-    return UserRegisterResponse(
-        code=error.ok().code, message=error.ok().message, data={"uid": 0}
-    )
+
 
 
 @router.post("/user/update")

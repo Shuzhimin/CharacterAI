@@ -27,6 +27,7 @@ from model.user import (
 from app.dependencies import database_proxy, get_current_uid
 import app.common.error as error
 from fastapi import Form
+from app.common.model_api import get_avatar_url_by_describe
 
 router = APIRouter()
 
@@ -154,6 +155,29 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+# 感觉这个接口也应该独立出来，/user下的接口应该都是登录之后才可以操作的接口
+@router.post("/register")
+async def user_register(
+    db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+    username: Annotated[str, Form(...)],
+    password: Annotated[str, Form(...)],
+    avatar_describe: Annotated[str, Form(...)],
+) -> UserRegisterResponse:
+    # confirm username & password
+    # 1. first get the avatar_url by avatar_describe 这个功能应该在
+    avatar_url = get_avatar_url_by_describe(describe=avatar_describe)
+    # 2. create user
+    err, user = db.create_user(
+        username=username, password=password, avatar_url=avatar_url
+    )
+    if not err.is_ok() or not user:
+        return UserRegisterResponse(err.code, err.message, data={"uid": -1})
+    # rentrun a token
+    return UserRegisterResponse(
+        code=error.ok().code, message=error.ok().message, data={"uid": user.uid}
+    )
 
 
 @router.post("/login")

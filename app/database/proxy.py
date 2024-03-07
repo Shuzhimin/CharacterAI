@@ -6,6 +6,8 @@ import app.database.mongo as mongo
 from app.common.error import Error, ErrorV2
 import app.models as model
 import app.common.error as error
+import app.models as model
+import app.database.pgsql as pg
 
 
 # CRUD: Create, Read, Update, Delete
@@ -44,3 +46,12 @@ class DatabaseProxy:
         self, username: str, password: str
     ) -> tuple[ErrorV2, model.User | None]:
         raise NotImplementedError
+
+    def create_user(
+        self, username: str, password: str, avatar_url: str
+    ) -> tuple[ErrorV2, model.User | None]:
+        user = model.User.new_normal(
+            name=username, password=password, avatar_url=avatar_url, role="user"
+        )
+        err = pg.create_user(user=user)
+        return err, user if err.is_ok() else None
