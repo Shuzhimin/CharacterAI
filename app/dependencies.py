@@ -3,7 +3,7 @@
 
 from app.database.proxy import DatabaseProxy
 from app.database.inhert_proxy import InheritDataBaseProxy
-from common.error import ErrorV2
+from app.common.error import ErrorV2
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext

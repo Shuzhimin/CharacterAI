@@ -13,4 +13,3 @@ class CommonResponse(BaseModel):
 
 class TokenData(BaseModel):
     uid: int
-    expire: datetime

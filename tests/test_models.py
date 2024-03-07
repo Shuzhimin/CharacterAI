@@ -2,6 +2,7 @@
 # zhangzhong
 from app.models import ChatRecord, Character
 from pydantic import ValidationError
+import app.models as model
 
 
 def test_chat_record() -> None:
@@ -35,3 +36,9 @@ def test_dump_chat_history() -> None:
     print(character_dict["chat_history"])
     # 他俩为什么是一样的？
     assert character_dict["chat_history"] == character.dump_chat_history()
+
+
+# def test_user_where_clause():
+# where = model.UserFilter(username="username")
+# sql = where.to_where_clause_v2()
+# print(sql.as_string())

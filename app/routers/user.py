@@ -11,9 +11,9 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel
-from model.user import (
-    UserLoginByTokenResponse,
-    UserLoginByPasswordResponse,
+from app.model.user import (
+    # UserLoginByTokenResponse,
+    # UserLoginByPasswordResponse,
     UserRegisterResponse,
     UserUpdateResponse,
     UserSelectResponse,
@@ -25,9 +25,6 @@ import app.common.error as error
 from fastapi import Form
 
 router = APIRouter()
-
-
-
 
 
 @router.post("/user/update")

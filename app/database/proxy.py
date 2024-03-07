@@ -50,8 +50,23 @@ class DatabaseProxy:
     def create_user(
         self, username: str, password: str, avatar_url: str
     ) -> tuple[ErrorV2, model.User | None]:
-        user = model.User.new_normal(
-            name=username, password=password, avatar_url=avatar_url, role="user"
+        user = model.User.new(
+            username=username, password=password, avatar_url=avatar_url
         )
         err = pg.create_user(user=user)
-        return err, user if err.is_ok() else None
+        # 然后我们还需要拿到这个user
+        if not err.is_ok():
+            return err, None
+        err, user = self.get_user_by_username(username=username)
+        return err, user
+        # return err, user if err.is_ok() else None
+
+    def get_user_by_username(self, username: str) -> tuple[ErrorV2, model.User | None]:
+        users = pg.select_user(user_filter=model.UserFilter(username=username))
+        if len(users) == 0:
+            return error.not_found(), None
+        else:
+            return error.ok(), users[0]
+
+    def delete_user_by_username(self, username: str) -> ErrorV2:
+        return pg.delete_user(user_filter=model.UserFilter(username=username))

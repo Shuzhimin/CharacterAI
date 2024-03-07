@@ -117,6 +117,7 @@ def update_user(user_update: UserUpdate, user_filter: UserFilter) -> ErrorV2:
 # 现在先不要思考将这些数据库操作合并抽象的问题 先全部实现出来 过早抽象也是一种错误的思想
 # TODO(zhangzhong): 不对呀，万一用户并不像使用limit呢
 def select_user(user_filter: UserFilter, offset: int = 0, limit: int = 1) -> list[User]:
+    # 这些底层API应该封装一层，然后catch一些常见的异常，
     # raise NotImplementedError
     # 不能直接使用f-string, 需要使用SQL类型
     # If you need to generate SQL queries dynamically (for instance choosing a table name at runtime)
