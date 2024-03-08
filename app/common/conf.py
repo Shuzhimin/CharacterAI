@@ -97,4 +97,4 @@ class Conf:
         )
 
 
-conf = Conf.new(file="D:\大模型系统开发\CharacterAI\deploy\conf.toml")
+conf = Conf.new(file="deploy/conf.toml")
