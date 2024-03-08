@@ -76,3 +76,16 @@ class DatabaseProxy:
 
     def delete_user_by_username(self, username: str) -> ErrorV2:
         return pg.delete_user(user_filter=model.UserFilter(username=username))
+
+    def get_user_by_uid(self, uid: int) -> tuple[ErrorV2, model.User | None]:
+        users = pg.select_user(user_filter=model.UserFilter(uid=uid))
+        if len(users) == 0:
+            return error.not_found(), None
+        else:
+            return error.ok(), users[0]
+
+    def update_user_by_uid(self, uid: int, username: str, avatar_url: str) -> ErrorV2:
+        return pg.update_user(
+            user_update=model.UserUpdate(username=username, avatar_url=avatar_url),
+            user_filter=model.UserFilter(uid=uid),
+        )

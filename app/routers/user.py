@@ -20,9 +20,11 @@ from app.model.user import (
     UserMeResponse,
     UserWihtoutSecret,
 )
-from app.dependencies import database_proxy, get_current_uid
+from app.dependencies import database_proxy, get_current_uid, get_token_data
 import app.common.error as error
 from fastapi import Form
+from app.model.common import TokenData
+from app.common.model_api import get_avatar_url_by_describe
 
 router = APIRouter()
 
@@ -30,12 +32,25 @@ router = APIRouter()
 @router.post("/user/update")
 async def user_update(
     db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+    token_data: Annotated[TokenData, Depends(get_token_data)],
     username: Annotated[str, Form(...)],
     avatar_describe: Annotated[str, Form(...)],
 ) -> UserUpdateResponse:
     # confirm username & password
+    # first validate the token_data
+    uid = int(token_data.uid)
+    # then get user by uid
+    err, user = db.get_user_by_uid(uid=uid)
+    if not err.is_ok() or not user:
+        return UserUpdateResponse(code=err.code, message=err.message)
     # rentrun a token
-    return UserUpdateResponse(code=error.ok().code, message=error.ok().message)
+    # get the new avatar_url
+    avatar_url = ""
+    if avatar_describe:
+        # maybe error
+        avatar_url = get_avatar_url_by_describe(avatar_describe)
+    err = db.update_user_by_uid(uid=uid, username=username, avatar_url=avatar_url)
+    return UserUpdateResponse(code=err.code, message=err.message)
 
 
 @router.get("/user/me")
