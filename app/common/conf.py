@@ -97,8 +97,5 @@ class Conf:
         )
 
 
-<<<<<<< HEAD
+
 conf = Conf.new(file="deploy/conf.toml")
-=======
-conf = Conf.new(file="deploy\conf.toml")
->>>>>>> 12d68936d9648b990f0a633d94c604cb6a18dbaa
