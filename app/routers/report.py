@@ -13,21 +13,22 @@ router = APIRouter()
 
 
 @router.post("/character/report")
-async def report_form(content: str) -> dict[str, Union[int, str, List[dict]]]:
+async def report_form(content: str):
     try:
         glm.invoke_report(content)
     except:
         raise HTTPException(status_code=500, detail="GLM-4 call failed")
 
     if os.path.exists("common/character_form.jpeg"):
-        err = ErrorV2(ErrorCode.OK, message="Report generated successfully")
-        return {
-            "code": err.code,
-            "message": err.message,
-            "data": [
-                {"report": FileResponse("common/character_form.jpeg", media_type="image/jpeg")}
-            ]
-        }
+        # err = ErrorV2(ErrorCode.OK, message="Report generated successfully")
+        return FileResponse("common/character_form.jpeg", media_type="image/jpeg")
+        # return {
+        #     "code": err.code,
+        #     "message": err.message,
+        #     "data": [
+        #         {"report": FileResponse("common/character_form.jpeg", media_type="image/jpeg")}
+        #     ]
+        # }
     err = ErrorV2(ErrorCode.NOT_IDEAL_RESULTS, message="GLM-4 did not provide ideal results")
     return {
         "code": err.code,
