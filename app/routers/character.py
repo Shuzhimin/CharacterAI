@@ -19,8 +19,13 @@ router = APIRouter()
 #     #     # TODO: do some logging
 #     #     pass
 #     return {"bot_names": [character.bot_name for character in characters]}
+<<<<<<< HEAD
 
 
+=======
+#
+#
+>>>>>>> 12d68936d9648b990f0a633d94c604cb6a18dbaa
 # # 根据机器人名称查询机器人信息
 # @router.get(path="/character/query")
 # async def query_character_info(
