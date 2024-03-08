@@ -56,17 +56,21 @@ async def user_update(
 @router.get("/user/me")
 async def user_me(
     db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
-    current_uid: int = Depends(dependency=get_current_uid),
+    token_data: Annotated[TokenData, Depends(dependency=get_token_data)],
 ) -> UserMeResponse:
     # get user info by uid
     # then return it
     # 返回的用户信息不应该包含敏感信息，所以我们应该再创建一个类型 用于过滤
+
+    # get user by uid
+    err, user = db.get_user_by_uid(uid=int(token_data.uid))
+    if not err.is_ok() or not user:
+        return UserMeResponse(code=err.code, message=err.message)
+
     return UserMeResponse(
         code=error.ok().code,
         message=error.ok().message,
-        data=UserWihtoutSecret(
-            username="fake_user", email="fake_email", full_name="fake_full_name"
-        ),
+        data=UserWihtoutSecret(**user.model_dump()),
     )
 
 

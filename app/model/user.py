@@ -6,10 +6,17 @@ from app.model.common import CommonResponse
 from app.models import User
 from pydantic import BaseModel, Field
 from app.model.common import TokenData
+from datetime import datetime
 
 
 class UserWihtoutSecret(BaseModel):
-    pass
+    uid: int = Field(default=-1, description="用户id")
+    username: str = Field(default=..., description="用户名")
+    avatar_url: str = Field(description="头像url")
+    who: str = Field(default="user", description="角色")
+    create_time: datetime = Field(description="创建时间")
+    update_time: datetime = Field(description="更新时间")
+    status: str = Field(default="active", description="状态")
 
 
 # 这俩model没用了 直接返回token就行
@@ -40,7 +47,7 @@ class UserSelectResponse(CommonResponse):
 
 
 class UserMeResponse(CommonResponse):
-    data: UserWihtoutSecret
+    data: UserWihtoutSecret | None = None
 
 
 class UserAdminSelectResponse(CommonResponse):
