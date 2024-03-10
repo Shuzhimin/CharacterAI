@@ -96,5 +96,4 @@ class Conf:
             ]
         )
 
-
 conf = Conf.new(file="deploy/conf.toml")
