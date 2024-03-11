@@ -16,7 +16,7 @@
           </div>
 
           <el-menu style="padding-top: 20px; background-color: transparent">
-            <el-col span="3" v-for="(item, index) in character_list[i]" style="background-color: transparent;">
+            <el-col :span="3" v-for="(item, index) in character_list[i]" style="background-color: transparent;">
               <el-menu-item style="width: 100%; height: 100%; background-color: transparent" @click="selectRole(item)">
                 <div>
                   <el-image :src="item.img_url" style="width: 100%; height: 100%">

@@ -7,6 +7,7 @@
         <span>AI角色</span>
       </div>
       <div>
+        <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 20px;"></el-avatar>
         <el-button type="info" @click="openDialog" style="background-color: #d0ba13;padding-right: 20px">
           查看个人信息
         </el-button>
@@ -21,27 +22,33 @@
                   inactive-color="#ff4949">
               </el-switch>
             </el-form-item>
-            <el-form-item label="学号" :label-width="formLabelWidth">
-              <el-input v-model="form.sno" autocomplete="off" :disabled="true"></el-input>
+            <el-form-item label="用户名" :label-width="formLabelWidth">
+              <el-input v-model="form.username" autocomplete="off" :disabled="true"></el-input>
             </el-form-item>
-            <el-form-item label="姓名" :label-width="formLabelWidth">
-              <el-input v-model="form.name" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
+            <el-form-item v-if="!form.modifyFlag" label="用户头像" :label-width="formLabelWidth">
+              <el-image :src="form.avatar_url" style="max-width: 150px; max-height: 150px;"></el-image>
             </el-form-item>
-            <el-form-item label="邮箱" :label-width="formLabelWidth">
-              <el-input v-model="form.email" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
+            <el-form-item v-if="!form.modifyFlag" label="所有角色数" :label-width="formLabelWidth">
+              <el-input v-model="form.character_num" :disabled="true" style="width: 50px"></el-input> <span>个</span>
             </el-form-item>
-            <el-form-item label="新密码" :label-width="formLabelWidth">
+
+            <el-form-item v-if="form.modifyFlag" label="新密码" :label-width="formLabelWidth">
               <el-input v-model="form.new_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
             </el-form-item>
-            <el-form-item label="再次确认新密码" :label-width="formLabelWidth">
-              <el-input v-model="form.check" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
+            <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">
+              <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
             </el-form-item>
+            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">
+              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>
+            </el-form-item>
+
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
             <el-button type="primary" @click="modify()">确 定</el-button>
           </div>
         </el-dialog>
+        <GenerateAvatarDialog v-if="generateAvatarDialogVisible" @closeDialog="closeGenerateAvatarDialog" :DialogShowFlag="generateAvatarDialogVisible" :avatarUrl="cur_account.avatar_url"></GenerateAvatarDialog>
         <el-button type="info" @click="logout" style="background-color: #d01355">
           退出
         </el-button>
@@ -118,8 +125,10 @@
 </template>
 
 <script>
+import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 export default {
   name: 'home',
+  components: { GenerateAvatarDialog },
   data () {
     return {
       // 左侧菜单数据
@@ -143,6 +152,11 @@ export default {
               id: 1013,
               authName: '创建角色',
               path: '/createrole'
+            },
+            {
+              id: 1014,
+              authName: '智能报表',
+              path: '/report'
             }
           ]
         }
@@ -159,29 +173,32 @@ export default {
       // 被激活的链接地址
       activePath: '',
       dialogFormVisible: false,
+      generateAvatarDialogVisible: false,
       formLabelWidth: '120px',
       form: {
-        id: '',
-        sno: '',
-        name: '',
+        username: '',
+        avatar_url: '',
+        character_num: '',
         new_password: '',
-        check: '',
-        email: '',
+        check_password: '',
         modifyFlag: false
       },
+      cur_account: {
+        id: 1,
+        username: 'test',
+        avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+        character_num: 5,
+      }
     }
   },
   created () {
     // this.getMenuList()
 
     this.activePath = window.sessionStorage.getItem('activePath')
-    this.form.id = window.sessionStorage.getItem('id')
 
-    this.getMsg()
-    this.form.id = window.sessionStorage.getItem('id')
-    this.form.sno = window.sessionStorage.getItem('sno')
-    this.form.name = window.sessionStorage.getItem('name')
-    this.form.email = window.sessionStorage.getItem('email')
+    this.form.username = this.cur_account.username
+    this.form.avatar_url = this.cur_account.avatar_url
+    this.form.character_num = this.cur_account.character_num
   },
   methods: {
     logout () {
@@ -235,6 +252,15 @@ export default {
     },
     handleUpdate(newVal) {
       this.activePath = newVal; // 更新父组件的值为子组件传递的新值
+    },
+    showGenerateAvatarDialog() {
+      // 显示生成头像对话框
+      console.log(this.generateAvatarDialogVisible)
+      this.generateAvatarDialogVisible = true;
+      console.log(this.generateAvatarDialogVisible)
+    },
+    closeGenerateAvatarDialog() {
+      this.generateAvatarDialogVisible = false;
     }
   }
 }
