@@ -1,6 +1,5 @@
 from fastapi import Depends, HTTPException, APIRouter
-from fastapi.responses import FileResponse
-from app.models import Character, ChatRecord
+from app.model.report import ReportRequest, ReportResponse
 from typing import Annotated
 from app.dependencies import database_proxy
 from typing import List, Union
@@ -9,13 +8,14 @@ import app.common.glm as glm
 from app.common.error import ErrorV2, ErrorCode
 import os
 
+
 router = APIRouter()
 
 
 @router.post("/character/report")
-async def report_form(content: str):
+async def report_form(data: ReportRequest) -> ReportResponse:
     try:
-        glm.invoke_report(content)
+        glm.invoke_report(data.content)
     except:
         raise HTTPException(status_code=500, detail="GLM-4 call failed")
     # 将生成的图片转成url
@@ -27,16 +27,6 @@ async def report_form(content: str):
 
     if not os.path.exists("app/common/character_form.png"):
         err = ErrorV2(ErrorCode.NOT_IDEAL_RESULTS, message="GLM-4 did not provide ideal results")
-        return {
-            "code": err.code,
-            "message": err.message,
-            "data": []
-        }
+        return ReportResponse(code=err.code, message=err.message)
     err = ErrorV2(ErrorCode.OK, message="Report generated successfully")
-    return {
-        "code": err.code,
-        "message": err.message,
-        "data": [
-            {"report_url": url}
-        ]
-    }
+    return ReportResponse(code=err.code, message=err.message, data= {"report_url": url})

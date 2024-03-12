@@ -9,7 +9,7 @@ app = FastAPI()
 app.include_router(router=character.router)
 app.include_router(router=user.router)
 app.include_router(router=chat.router)
-app.include_router(router=report.router, tags=["智能报表模块"])
+app.include_router(router=report.router)
 app.include_router(router=login.router)
 
 # 允许跨域请求

@@ -104,15 +104,8 @@ class Conf:
             ]
         )
 
-    def get_minio_connection_string(self) -> str:
-        return " ".join(
-            [
-                f"endpoint={self.minio.endpoint}",
-                f"access_key={self.minio.access_key}",
-                f"secret_key={self.minio.secret_key}",
-                f"secure={self.minio.secure}",
-            ]
-        )
+    def get_minio_setting(self) -> str:
+        return self.minio.model_dump()
 
 
 conf = Conf.new(file="deploy/conf.toml")
