@@ -1,5 +1,6 @@
 from .create_tools import Tool
 import matplotlib.pyplot as plt
+
 # 支持中文
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
@@ -30,6 +31,7 @@ Tool.load_tool('list_tools')
 Tool.load_tool('load_tool')
 Tool.load_tool('unload_tool')
 
+
 # 在此处添加你想加入的工具
 @Tool(
     name='get_data',
@@ -56,7 +58,8 @@ def get_data():
 @Tool(
     name='class_num_pie',
     description='用于绘制角色类别饼状图',
-    params={'data': {'type': 'Dict', 'description': '角色数据信息，输入参数的结构为：{"类别1"：数量1, "类别12"：数量2,...}'}},
+    params={
+        'data': {'type': 'Dict', 'description': '角色数据信息，输入参数的结构为：{"类别1"：数量1, "类别12"：数量2,...}'}},
     required_params=['data']
 )
 def class_num_pie(data):
@@ -68,13 +71,14 @@ def class_num_pie(data):
     plt.figure(figsize=(8, 8))
     plt.pie(sizes, labels=categories, autopct='%1.1f%%', startangle=140)
     plt.title('角色各类别的占比')
-    plt.savefig('common/character_form.jpeg')
+    plt.savefig('common/character_form.png')
 
 
 @Tool(
     name='class_num_bar',
     description='用于绘制不同角色类别数量的柱状图',
-    params={'data': {'type': 'Dict', 'description': '角色数据信息，输入参数的结构为：{"类别1"：数量1, "类别12"：数量2,...}'}},
+    params={
+        'data': {'type': 'Dict', 'description': '角色数据信息，输入参数的结构为：{"类别1"：数量1, "类别12"：数量2,...}'}},
     required_params=['data']
 )
 def class_num_bar(data):
@@ -90,13 +94,14 @@ def class_num_bar(data):
     plt.xticks(rotation=45)
     plt.grid(axis='y')
     # Save the plot to a file
-    plt.savefig('common/character_form.jpeg')
+    plt.savefig('common/character_form.png')
 
 
 @Tool(
     name='character_num_line',
     description='用于绘制每天创建角色数量折线图',
-    params={'data': {'type': 'Dict', 'description': '每天创建的角色数量，输入参数的结构为：{"时间1"：数量1, "时间2"：数量2,...}'}},
+    params={'data': {'type': 'Dict',
+                     'description': '每天创建的角色数量，输入参数的结构为：{"时间1"：数量1, "时间2"：数量2,...}'}},
     required_params=['data']
 )
 def character_num_line(data):
@@ -110,13 +115,14 @@ def character_num_line(data):
     plt.xlabel("日期")
     plt.ylabel("角色数量")
     plt.grid(True)
-    plt.savefig('common/character_form.jpeg')
+    plt.savefig('common/character_form.png')
 
 
 @Tool(
     name='share_pie',
     description='用于绘制共享角色与正常角色数量的饼状图',
-    params={'data': {'type': 'Dict', 'description': '共享角色和正常角色的数量，输入参数的结构为：{"share"：数量1, "normal"：数量2,...}'}},
+    params={'data': {'type': 'Dict',
+                     'description': '共享角色和正常角色的数量，输入参数的结构为：{"share"：数量1, "normal"：数量2,...}'}},
     required_params=['data']
 )
 def share_pie(data):
@@ -127,4 +133,4 @@ def share_pie(data):
     plt.pie([shared_characters, normal_characters], labels=["共享角色", "正常角色"], autopct='%1.1f%%', startangle=140,
             colors=['#ff9999', '#66b3ff'])
     plt.title("共享角色与正常角色数量的比例")
-    plt.savefig('common/character_form.jpeg')
+    plt.savefig('common/character_form.png')
