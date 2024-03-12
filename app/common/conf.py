@@ -45,6 +45,13 @@ class PostgresConf(BaseModel):
     database: str = Field(..., description="数据库")
 
 
+class MinioConf(BaseModel):
+    endpoint: str = Field(..., description="对象存储服务的URL")
+    access_key: str = Field(..., description="用户名")
+    secret_key: str = Field(..., description="密码")
+    secure: bool = Field(False, description="true代表使用HTTPS")
+
+
 class Conf:
     @staticmethod
     def new(file: str) -> "Conf":
@@ -57,6 +64,7 @@ class Conf:
         self.zhipuai = ZhipuAIConf(**conf["zhipuai"])
         self.fastapi = FastAPIConf(**conf["fastapi"])
         self.postgres = PostgresConf(**conf["postgres"])
+        self.minio = MinioConf(**conf["minio"])
 
     def check_conf(self, conf: dict[str, Any]) -> None:
         keys: list[str] = ["mongo", "fastapi", "zhipuai"]
@@ -93,6 +101,16 @@ class Conf:
                 f"user={self.postgres.username}",
                 f"password={self.postgres.password}",
                 f"dbname={self.postgres.database}",
+            ]
+        )
+
+    def get_minio_connection_string(self) -> str:
+        return " ".join(
+            [
+                f"endpoint={self.minio.endpoint}",
+                f"access_key={self.minio.access_key}",
+                f"secret_key={self.minio.secret_key}",
+                f"secure={self.minio.secure}",
             ]
         )
 

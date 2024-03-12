@@ -6,7 +6,7 @@ from datetime import timedelta
 def upload_file(image_path: str, object_name: str = "character_form.png", bucket_name: str = "character") -> None:
     # 创建一个客户端
     minio_client = Minio(
-        'localhost:9001',
+        endpoint='localhost:9001',
         access_key='root',
         secret_key='12345678',
         secure=False
@@ -28,7 +28,7 @@ def upload_file(image_path: str, object_name: str = "character_form.png", bucket
 def get_url(object_name: str = "character_form.png", bucket_name: str = "character") -> str:
     # 创建一个客户端
     minio_client = Minio(
-        'localhost:9001',
+        endpoint='localhost:9001',
         access_key='root',
         secret_key='12345678',
         secure=False

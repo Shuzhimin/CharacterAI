@@ -20,12 +20,12 @@ async def report_form(content: str):
         raise HTTPException(status_code=500, detail="GLM-4 call failed")
     # 将生成的图片转成url
     try:
-        image_to_url.upload_file(image_path="common/character_form.png")
+        image_to_url.upload_file(image_path="app/common/character_form.png")
         url = image_to_url.get_url()
     except:
         raise HTTPException(status_code=500, detail="File not found or bucket error")
 
-    if not os.path.exists("common/character_form.png"):
+    if not os.path.exists("app/common/character_form.png"):
         err = ErrorV2(ErrorCode.NOT_IDEAL_RESULTS, message="GLM-4 did not provide ideal results")
         return {
             "code": err.code,

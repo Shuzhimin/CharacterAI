@@ -29,3 +29,4 @@ def test_basic_conf() -> None:
 
     # postgres
     print(conf.get_postgres_connection_string())
+    print(conf.get_minio_connection_string())
