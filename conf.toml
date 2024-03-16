@@ -8,7 +8,7 @@ database = 'character_ai'
 collections.character = 'character'
 
 [postgres]
-host = '172.27.96.1'
+host = 'localhost'
 port = 5432
 username = 'postgres'
 password = 'postgres'

@@ -97,6 +97,25 @@ class User(BaseModel):
         )
 
     @staticmethod
+    def new(
+        username: str,
+        password: str,
+        avatar_url: str,
+        who: str = "user",
+        status: str = "active",
+    ) -> "User":
+        return User(
+            uid=-1,
+            username=username,
+            passwd=password,
+            avatar_url=avatar_url,
+            who=who,
+            create_time=datetime.now(),
+            update_time=datetime.now(),
+            status=status,
+        )
+
+    @staticmethod
     def new_admin(name: str, password: str) -> "User":
         return User.new_normal(name=name, password=password, role="admin")
 
