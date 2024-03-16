@@ -8,11 +8,11 @@ database = 'character_ai'
 collections.character = 'character'
 
 [postgres]
-host = 'localhost'
+host = '172.27.96.1'
 port = 5432
-username = 'root'
-password = 'password'
-database = 'database'
+username = 'postgres'
+password = 'postgres'
+database = 'CharacterAI'
 
 [zhipuai]
 api_key = ''
