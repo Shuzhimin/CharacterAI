@@ -10,7 +10,7 @@ client = TestClient(app)
 
 def test_report():
      response: httpx.Response = client.post(
-        url="/character/report", json={"content": "生成角色类型的饼状图"}
+        url="/character/report", json={"content": "利用工具，获得角色数据，并生成角色类型的饼状图"}
     )
      assert response.status_code == 200
      r = response.json()

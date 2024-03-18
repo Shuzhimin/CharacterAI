@@ -20,13 +20,13 @@ async def report_form(data: ReportRequest) -> ReportResponse:
         err = error.gLM4_call_fail()
         return ReportResponse(code=err.code, message=err.message)
     # 将生成的图片转成url
-    image_to_url.upload_file(image_path="app/common/character_form.png")
+    image_to_url.upload_file(image_path="app/assets/character_form.png")
     url = image_to_url.get_url()
     if url == '':
         err = error.image_to_url_fail()
         return ReportResponse(code=err.code, message=err.message)
     
-    if not os.path.exists("app/common/character_form.png"):
+    if not os.path.exists("app/assets/character_form.png"):
         err = error.not_ideal_results()
         return ReportResponse(code=err.code, message=err.message)
     

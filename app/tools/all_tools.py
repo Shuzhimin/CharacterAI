@@ -1,6 +1,5 @@
 from .create_tools import Tool
 import matplotlib.pyplot as plt
-
 # 支持中文
 plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
@@ -71,7 +70,7 @@ def class_num_pie(data):
     plt.figure(figsize=(8, 8))
     plt.pie(sizes, labels=categories, autopct='%1.1f%%', startangle=140)
     plt.title('角色各类别的占比')
-    plt.savefig('common/character_form.png')
+    plt.savefig('app/assets/character_form.png')
 
 
 @Tool(
@@ -94,7 +93,7 @@ def class_num_bar(data):
     plt.xticks(rotation=45)
     plt.grid(axis='y')
     # Save the plot to a file
-    plt.savefig('common/character_form.png')
+    plt.savefig('app/assets/character_form.png')
 
 
 @Tool(
@@ -115,7 +114,7 @@ def character_num_line(data):
     plt.xlabel("日期")
     plt.ylabel("角色数量")
     plt.grid(True)
-    plt.savefig('common/character_form.png')
+    plt.savefig('app/assets/character_form.png')
 
 
 @Tool(
@@ -133,4 +132,4 @@ def share_pie(data):
     plt.pie([shared_characters, normal_characters], labels=["共享角色", "正常角色"], autopct='%1.1f%%', startangle=140,
             colors=['#ff9999', '#66b3ff'])
     plt.title("共享角色与正常角色数量的比例")
-    plt.savefig('common/character_form.png')
+    plt.savefig('app/assets/character_form.png')
