@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Any
 
 
 class Tool:
@@ -6,7 +6,7 @@ class Tool:
     ZHIPUAI_TOOLS = []  # 存储工具信息
 
     @classmethod
-    def dispatch(cls, func_name: str, params: Dict[str, Any], raise_error: bool = False) -> Any:
+    def dispatch(cls, func_name: str, params: dict[str, Any], raise_error: bool = False) -> Any:
         # 在ZHIPUAI_TOOLS中查找具有给定名称的函数
         for tool in cls.ZHIPUAI_TOOLS:
             if tool['meta']['function']['name'] == func_name:
@@ -35,7 +35,7 @@ class Tool:
             return f"Function '{func_name}' not found in ZHIPUAI_TOOLS"
 
     @classmethod
-    def get_tools(cls) -> List[Dict[str, Any]]:
+    def get_tools(cls) -> list[dict[str, Any]]:
         return [tool["meta"] for tool in cls.ZHIPUAI_TOOLS]
 
     @classmethod
