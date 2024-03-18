@@ -30,6 +30,7 @@ def get_url(object_name: str = "character_form.png", bucket_name: str = "charact
                                                     'response-content-type': 'image/png',
                                                     'x-amz-meta-preview': 'true'
                                                 })
-        return url
     except S3Error as err:
+        url = ''
         print("get_url:", err)
+    return url

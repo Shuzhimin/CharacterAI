@@ -30,7 +30,8 @@ class ErrorCode(int, Enum):
     NONE_CHAT = 8
     BAD_SQL = 9
     NOT_IDEAL_RESULTS = 10
-
+    GLM4_CALL_FAIL = 11
+    IMAGE_TO_URL_FAIL = 12
 
 class ErrorV2:
     def __init__(self, code: ErrorCode, message: str) -> None:
@@ -62,3 +63,9 @@ def bad_sql(message: str = "bad sql") -> ErrorV2:
 
 def not_ideal_results(message: str = "GLM-4 did not provide ideal results") -> ErrorV2:
     return ErrorV2(code=ErrorCode.NOT_IDEAL_RESULTS, message=message)
+
+def gLM4_call_fail(message: str ="GLM-4 call failed") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.GLM4_CALL_FAIL, message=message)
+
+def image_to_url_fail(message: str ="Image to URL failed") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.IMAGE_TO_URL_FAIL, message=message)

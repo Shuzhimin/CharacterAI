@@ -17,5 +17,4 @@ def test_report():
      print(r)
 
      assert r.get("code") == 0
-     assert r.get("data") != None
      print(r.get("data"))

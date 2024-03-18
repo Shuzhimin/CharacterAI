@@ -60,16 +60,16 @@ def invoke_report(content: str) -> None:
     #     },
     # ]
     # response = client.chat.completions.create(model='glm-4', messages=messages, tools=Tool.get_tools())
-    #
+    
     # while response.choices[0].message.tool_calls:
     #     messages.append(response.choices[0].message.model_dump())
     #     tool_call = response.choices[0].message.tool_calls[0]
     #     args = tool_call.function.arguments
-    #
+    
     #     function_result = Tool.dispatch(tool_call.function.name, json.loads(args))
-    #
+    
     #     print(f"GLM-4调用函数: {tool_call.function.name}，参数: {args}，结果: {function_result}")
-    #
+    
     #     messages.append(
     #         {
     #             "role": "tool",
@@ -77,7 +77,7 @@ def invoke_report(content: str) -> None:
     #             "tool_call_id": tool_call.id,
     #         }
     #     )
-    #
+    
     #     response = client.chat.completions.create(
     #         model="glm-4",  # 填写需要调用的模型名称
     #         messages=messages,

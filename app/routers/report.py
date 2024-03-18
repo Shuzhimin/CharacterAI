@@ -17,16 +17,18 @@ async def report_form(data: ReportRequest) -> ReportResponse:
     try:
         glm.invoke_report(data.content)
     except:
-        raise HTTPException(status_code=500, detail="GLM-4 call failed")
+        err = error.gLM4_call_fail()
+        return ReportResponse(code=err.code, message=err.message)
     # 将生成的图片转成url
-    try:
-        image_to_url.upload_file(image_path="app/common/character_form.png")
-        url = image_to_url.get_url()
-    except:
-        raise HTTPException(status_code=500, detail="File not found or bucket error")
-
+    image_to_url.upload_file(image_path="app/common/character_form.png")
+    url = image_to_url.get_url()
+    if url == '':
+        err = error.image_to_url_fail()
+        return ReportResponse(code=err.code, message=err.message)
+    
     if not os.path.exists("app/common/character_form.png"):
         err = error.not_ideal_results()
         return ReportResponse(code=err.code, message=err.message)
+    
     err = error.ok()
-    return ReportResponse(code=err.code, message=err.message, data= {"report_url": url})
+    return ReportResponse(code=err.code, message=err.message, data= [{"report_url": url}])

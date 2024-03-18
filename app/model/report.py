@@ -9,4 +9,4 @@ class ReportRequest(BaseModel):
     content: str = Field(..., description="发送给模型的内容")
 
 class ReportResponse(CommonResponse):
-    data: dict[str, str] | None = None
+    data: list[dict[str, str]] = []
