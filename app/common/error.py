@@ -59,3 +59,6 @@ def chat_already_exists(message: str = "chat already exists") -> ErrorV2:
 
 def bad_sql(message: str = "bad sql") -> ErrorV2:
     return ErrorV2(code=ErrorCode.BAD_SQL, message=message)
+
+def not_ideal_results(message: str = "GLM-4 did not provide ideal results") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.NOT_IDEAL_RESULTS, message=message)

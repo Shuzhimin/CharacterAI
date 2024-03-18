@@ -2,10 +2,10 @@ from fastapi import Depends, HTTPException, APIRouter
 from app.model.report import ReportRequest, ReportResponse
 from typing import Annotated
 from app.dependencies import database_proxy
-from typing import List, Union
+from typing import List
 from app.common import image_to_url
 import app.common.glm as glm
-from app.common.error import ErrorV2, ErrorCode
+from app.common import error
 import os
 
 
@@ -26,7 +26,7 @@ async def report_form(data: ReportRequest) -> ReportResponse:
         raise HTTPException(status_code=500, detail="File not found or bucket error")
 
     if not os.path.exists("app/common/character_form.png"):
-        err = ErrorV2(ErrorCode.NOT_IDEAL_RESULTS, message="GLM-4 did not provide ideal results")
+        err = error.not_ideal_results()
         return ReportResponse(code=err.code, message=err.message)
-    err = ErrorV2(ErrorCode.OK, message="Report generated successfully")
+    err = error.ok()
     return ReportResponse(code=err.code, message=err.message, data= {"report_url": url})
