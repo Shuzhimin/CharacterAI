@@ -6,7 +6,7 @@ class Tool:
     ZHIPUAI_TOOLS = []  # 存储工具信息
 
     @classmethod
-    def dispatch(cls, func_name: str, params: dict[str, Any], raise_error: bool = False) -> Any:
+    def dispatch(cls, func_name: str, params: dict[str, Any], raise_exception: bool = False) -> Any:
         # 在ZHIPUAI_TOOLS中查找具有给定名称的函数
         for tool in cls.ZHIPUAI_TOOLS:
             if tool['meta']['function']['name'] == func_name:
@@ -14,7 +14,7 @@ class Tool:
                 required_params = tool['meta']['function']['parameters']['required']
                 for param in required_params:
                     if param not in params:
-                        if raise_error:
+                        if raise_exception:
                             raise ValueError(f"Missing required parameter: {param}")
                         else:
                             return f"Missing required parameter: {param}"
@@ -23,13 +23,13 @@ class Tool:
                 try:
                     return tool['func'](**params)
                 except Exception as e:
-                    if raise_error:
+                    if raise_exception:
                         raise
                     else:
                         return str(e)
 
         # 如果没有找到函数，则根据raise_error的值决定是否抛出异常或返回提示
-        if raise_error:
+        if raise_exception:
             raise ValueError(f"Function '{func_name}' not found in ZHIPUAI_TOOLS")
         else:
             return f"Function '{func_name}' not found in ZHIPUAI_TOOLS"
