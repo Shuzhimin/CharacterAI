@@ -20,3 +20,9 @@ api_key = ''
 [fastapi]
 host = 'localhost'
 port = 8000
+
+[minio]
+endpoint='localhost:9000'
+access_key='root'
+secret_key='12345678'
+secure=false
