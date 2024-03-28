@@ -101,7 +101,7 @@ def test_postgres() -> None:
     # pgsql.create_user(user=User.new_normal(name="test", password="test", role="test"))
 
     # 因为每次测试都会删除一个用户，所以在测试之前手动把uid+1,否则会测试失败
-    user_filter = UserFilter(uid=3)
+    user_filter = UserFilter(uid=2)
     pgsql.update_user(
         user_update=UserUpdate(username="test_username"), user_filter=user_filter
     )
