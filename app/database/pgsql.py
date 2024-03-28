@@ -8,6 +8,7 @@
 
 
 import psycopg
+from psycopg.types.composite import CompositeInfo, register_composite
 from app.common.conf import conf
 from app.models import (
     User,
@@ -325,6 +326,10 @@ def select_chat(where: ChatWhere) -> list[Chat]:
     with psycopg.connect(
         conninfo=conf.get_postgres_connection_string(), row_factory=dict_row
     ) as conn:
+        # 在这里获取类型信息并进行注册
+        # 为什么之前在创建表的时候注册的类型信息只能生效一次呢？
+        info = CompositeInfo.fetch(conn, "chat_record")
+        register_composite(info, conn)
         with conn.cursor() as cur:
             # 模型中的名字和数据库中的名字确实应该保持一致
             cur.execute(
