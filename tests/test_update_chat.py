@@ -55,6 +55,9 @@ def test_update_chat():
     chat_update = ChatUpdate(chat_record=ChatRecord(who="user", message="hello"))
     chat_where = ChatWhere(chat_id=chat_id)
     err = pg.update_chat(chat_update=chat_update, where=chat_where)
+    chat_update = ChatUpdate(chat_record=ChatRecord(who="character", message="hello,how can I help you?"))
+    chat_where = ChatWhere(chat_id=chat_id)
+    err = pg.update_chat(chat_update=chat_update, where=chat_where)
     assert err.is_ok()
 
     # 仍然很关键的操作，获取聊天记录
