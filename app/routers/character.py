@@ -176,8 +176,9 @@ async def character_select(
     # err, character = db.character_select1(cids,offset,limit,acsend)
     # return {"code": err.code, "message": err.message, "data": []}
     cv2=[]
-    if character.cids == None:
+    if character.cids is None or not character.cids:
         characterwhere = CharacterWhere()
+        print('11111111111111111111')
         characterv2 = pg.select_character(characterwhere)
         cv2=characterv2
     else:
@@ -186,7 +187,9 @@ async def character_select(
             characterv2 = pg.select_character(characterwhere)
             for item in characterv2:
                 cv2.append(item)
-    cv2.sort(reverse=character.ascend)
+    print(character.ascend)
+    cv2.sort(key=lambda x: x.cid,reverse=character.ascend)
+    #cv2.sort(key=character.cids , reverse=character.ascend)
     res = cv2[character.offset:character.offset+character.limit]
     return  CharacterSelectResponse(
         code=0, message='ok', data=res

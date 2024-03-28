@@ -1,9 +1,9 @@
 import httpx
 from app.main import app
 from fastapi.testclient import TestClient
-
+import app.database.pgsql as pg
 from app.model.character import CharacterSelectRequests
-from app.models import CharacterCreate
+from app.models import CharacterCreate, CharacterWhere
 
 
 client = TestClient(app)
@@ -57,13 +57,15 @@ ca = CharacterSelectRequests()
 def test_character_select():
     response: httpx.Response = client.post(
         url='/character/select',
-        json={"cids": [101]}
+        json={"cids": [1,200000000]}
     )
     print(response.request)
     # print('1111111',response.text)
     # print('222222222222222222222222222222',response.json())
     assert response.status_code == 200
     print(response.json())
+    # character_where = CharacterWhere()
+    # characters = pg.select_character(where=character_where)
     
 
 
