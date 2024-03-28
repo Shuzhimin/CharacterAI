@@ -58,3 +58,9 @@ def chat_already_exists(message: str = "chat already exists") -> ErrorV2:
 
 def bad_sql(message: str = "bad sql") -> ErrorV2:
     return ErrorV2(code=ErrorCode.BAD_SQL, message=message)
+
+def character_already_exists(message: str= "character already exists") -> ErrorV2:
+    return ErrorV2(code=Error.CHARACTER_ALREADY_EXISTS,message=message)
+
+def character_not_found(message:set = "character not found") -> ErrorV2:
+    return ErrorV2(code=Error.CHARACTER_NOT_FOUND,message=message)

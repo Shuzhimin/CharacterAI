@@ -415,7 +415,6 @@ class CharacterWhere(BaseModel):
 
 
 class CharacterUpdate(BaseModel):
-    cid: int
     character_name: str | None = None
     character_info: str | None = None
     character_class: str | None = None

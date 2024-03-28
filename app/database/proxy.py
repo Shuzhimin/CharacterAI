@@ -1,6 +1,10 @@
 # 2024/2/6
 # zhangzhong
+
+from datetime import datetime
+import uuid
 from app.common.conf import ZhipuAIConf
+#from app.dependencies import get_current_uid
 #from app.dependencies import get_current_uid
 from app.models import Character, ChatRecord, CharacterV2, CharacterCreate, CharacterUpdate
 import app.database.mongo as mongo
@@ -36,27 +40,36 @@ class DatabaseProxy:
     #     attr: str = Field(default="normal", description="属性")
 
     def create_character(self, character: CharacterCreate) -> Error:
-        err = mongo.get_character(character.character_name),
-        if err.code == Error.OK:
-            return Error(code=2, message="机器人已经存在")
-        characterv2 = CharacterV2(),
-        characterv2.cid = uuid.uuid4(),
-        characterv2.character_name = character.character_name,
-        characterv2.character_info = character.character_info,
-        characterv2.character_class = character.character_class,
-        characterv2.avatar_url = character.avatar_url,
-        now = datetime.now(),
-        characterv2.create_time = now.strftime("%Y-%m-%d %H:%M:%S"),
-        characterv2.update_time = character.create_time,
-        characterv2.status = character.status,
+
+        #err = mongo.get_character(character.character_name),
+        # if err.code == Error.OK:
+        #     return Error(code=2, message="机器人已经存在")
+        # characterv2 = CharacterV2(
+        # cid = uuid.uuid4(),
+        # character_name = character.character_name,
+        # character_info = character.character_info,
+        # character_class = character.character_class,
+        # avatar_url = character.avatar_url,
+        #create_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        #update_time = character.create_time,
+        # status = character.status,)
         uid = get_current_uid()
         if uid == "管理员uid":
-            characterv2.attr = character.attr
+            character.attr = character.attr
         else:
-            characterv2.attr = "Normal"
+            character.attr = "Normal"
+        err = pg.create_character(character)
         return Error(code=0, message="OK")
 
     #    return mongo.create_character(character=character)
+
+    # class CharacterCreate(BaseModel):
+    # character_name: str = Field(default=..., description="机器人名称")
+    # character_info: str = Field(default=..., description="机器人信息")
+    # character_class: str = Field(default=..., description="机器人类型")
+    # avatar_url: str = Field(default=..., description="头像url")
+    # status: str = Field(default="active", description="状态")
+    # attr: str = Field(default="normal", description="属性")
 
     def update_character(self, character: CharacterUpdate) -> Error:
         uid_owner = self.get_uid_by_cid()
