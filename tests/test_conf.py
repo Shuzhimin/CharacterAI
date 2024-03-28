@@ -31,4 +31,4 @@ def test_basic_conf() -> None:
     print(conf.get_postgres_connection_string())
     
     # minio
-    print(conf.get_minio_connection_string())
+    print(conf.get_minio_setting())
