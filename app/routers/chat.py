@@ -1,6 +1,5 @@
 from fastapi import Depends, HTTPException, APIRouter
 from app.database.proxy import DatabaseProxy
-from app.database.inhert_proxy import InheritDataBaseProxy
 from app.models import ChatRecord, Chat
 from typing import Annotated
 from app.dependencies import database_proxy, get_cids, get_chat_ids, get_current_uid
@@ -10,85 +9,88 @@ from typing import List, Union
 from app.common.error import ErrorV2
 import app.common.error as error
 from typing import Optional
+from app.model.chat import ChatCreateResponse, ChatDeleteResponse, ChatAppendResponse, ChatSelectResponse
 
 router = APIRouter()
 
 
 # /chat/create
 @router.post("/chat/create")
-async def create_chat_record(
+async def create_chat(
         cid: int,
-        db: Annotated[InheritDataBaseProxy, Depends(dependency=database_proxy)],
+        db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
         current_uid: int = Depends(dependency=get_current_uid)
-) -> dict[str, Union[int, str, List[dict]]]:
-    err, uid = db.get_uid_by_cid(cid)
-    if not err.is_ok() or uid is None:
+) -> ChatCreateResponse:
+    err, uids = db.get_uids_by_cid(cid)
+    if uids is None or current_uid not in uids or not err.is_ok():
         err, chat_id = db.create_chat(cid, current_uid)
         if err.is_ok():
-            return {"code": err.code, "message": err.message, "data": [{"chat_id": chat_id}]}
+            return ChatCreateResponse(code=err.code, message=err.message, data=chat_id)
         else:
-            return {"code": err.code, "message": err.message, "data": []}
+            return ChatCreateResponse(code=err.code, message=err.message, data=None)
     else:
-        return {"code": err.code, "message": err.message, "data": []}
-
-    # /chat/delete
+        return ChatCreateResponse(code=err.code, message=err.message, data=None)
 
 
+# /chat/delete
 @router.post("/chat/delete")
-async def delete_chat_record(
+async def delete_chat(
         chat_id: int,
-        db: Annotated[InheritDataBaseProxy, Depends(dependency=database_proxy)],
-) -> dict[str, Union[int, str, List[dict]]]:
+        db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+) -> ChatDeleteResponse:
     err = db.delete_chat_by_chat_id(chat_id)
-    return {"code": err.code, "message": err.message, "data": []}
+    return ChatDeleteResponse(code=err.code, message=err.message)
 
 
 # /chat/append
 @router.post("/chat/append")
-async def append_chat_record(
+async def append_chat(
         character_name: str,
         character_info: str,
         chat_id: int,
         content: str,
-        db: Annotated[InheritDataBaseProxy, Depends(dependency=database_proxy)],
-) -> dict[str, Union[int, str, List[dict]]]:
+        db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+) -> ChatAppendResponse:
+    # 这里是不是应该考虑是否这是用户第一次与该角色对话的情况？第一次对话的情况下，chat_id是不存在的
     # 创建ChatRecord对象
     err, chat = db.get_chat_by_chat_id(chat_id)
     if not err.is_ok() or chat is None:
-        return {"code": err.code, "message": err.message, "data": []}
+        return ChatAppendResponse(code=err.code, message=err.message, data=None)
+    # 这里的history包含当前对话的所有信息，包括user和character，是一个list[dict]
     response, history = glm.invoke_model_api(character_name, character_info, content)
-    # 此处的history为此次对话所有的ChatRecord，包含user的和character的
-    err = db.append_chat_records(chat_id, history)
-    if err.is_ok():
-        return {"code": err.code, "message": err.message, "data": [{"response": response}]}
-    else:
-        return {"code": err.code, "message": err.message, "data": []}
+    for record in history:
+        who = record["role"]
+        message = record["content"]
+        err = db.update_chat_by_chat_id(chat_id,ChatRecord(who=who,message=message))
+        if not err.is_ok():
+            return ChatAppendResponse(code=err.code, message=err.message, data=None)
+    return ChatAppendResponse(code=err.code,message=err.message,data=response)
 
 
 # /chat/select
 @router.get("/chat/select")
-async def select_chat_record(
-        db: Annotated[InheritDataBaseProxy, Depends(dependency=database_proxy)],
-        chat_ids: Optional[List[int]] = Depends(dependency=get_chat_ids),
-        cids: Optional[List[int]] = Depends(dependency=get_cids),
+async def select_chat(
+        db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
+        chat_ids: Optional[List[int]] = get_chat_ids(),
+        cids: Optional[List[int]] = get_cids(),
         # 从第几个开始
         offset: Optional[int] = 0,
         # 一共返回多少个
         limit: Optional[int] = 1,
         chat_history_offset: Optional[int] = 0,
         chat_history_limit: Optional[int] = 1,
-) -> dict[str, Union[int, str, List[dict]]]:
+) -> ChatSelectResponse:
     chat_list = []
     for chat_id, cid in zip(chat_ids, cids):
         err, chat = db.get_chat_by_chat_id_cid(chat_id, cid)
         if err.is_ok():
             chat_list.append(chat)
         else:
-            return {"code": err.code, "message": err.message, "data": []}
+            return ChatSelectResponse(code=err.code, message=err.message, data=[])
     part_chat_list = chat_list[offset:offset + limit]
     for chat in part_chat_list:
-        chat.history = chat.history[chat_history_offset:chat_history_offset + chat_history_limit]
-    return {"code": 0, "message": "OK", "data": [chat.dict() for chat in part_chat_list]}
+        chat.chat_history = chat.chat_history[chat_history_offset:chat_history_offset + chat_history_limit]
+    return ChatSelectResponse(code=0, message="ok", data=part_chat_list)
 
 
 

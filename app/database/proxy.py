@@ -1,9 +1,11 @@
 # 2024/2/6
 # zhangzhong
 
-from app.models import Character, ChatRecord
+from app.models import Character
+from app.models import ChatRecord,Chat,ChatCreate,ChatUpdate,ChatWhere
+# from app.model.chat import ChatRecord,Chat,ChatCreate,ChatUpdate,ChatWhere
 import app.database.mongo as mongo
-from app.common.error import Error, ErrorV2
+from app.common.error import Error, ErrorV2, ErrorCode
 import app.models as model
 import app.common.error as error
 import app.models as model
@@ -89,3 +91,60 @@ class DatabaseProxy:
             user_update=model.UserUpdate(username=username, avatar_url=avatar_url),
             user_filter=model.UserFilter(uid=uid),
         )
+
+    def create_chat(self, cid: int, uid: int) -> tuple[ErrorV2, int|None]:
+        chat=ChatCreate(cid=cid,uid=uid,status="normal")   
+        err=pg.create_chat(chat=chat)
+        if not err.is_ok():
+            return err, None
+        # 然后我们要拿到这个chat的id
+        err, chat = self.get_chat_by_cid_uid(cid=cid, uid=uid)
+        return err, chat.chat_id
+    
+    def get_chat_by_cid_uid(self, cid: int, uid: int) -> tuple[ErrorV2, Chat | None]:
+        chats = pg.select_chat(where=ChatWhere(cid=cid, uid=uid))
+        if len(chats) == 0:
+            return error.chat_not_found(), None
+        else:
+            return error.ok(), chats[0]
+        
+
+    def delete_chat_by_chat_id(self, chat_id: int) -> ErrorV2:
+        return pg.delete_chat(where=ChatWhere(chat_id=chat_id))
+
+
+    def get_uids_by_cid(self, cid: int) -> tuple[ErrorV2, int]:
+        # 拿到cid对应的所有的chat
+        chats = pg.select_chat(where=ChatWhere(cid=cid))
+        if len(chats) == 0:
+            return error.chat_not_found(), None
+        else:
+            # 返回chat的uid列表
+            return error.ok(), [chat.uid for chat in chats]
+
+    def get_chat_by_chat_id(self, chat_id: int) -> tuple[ErrorV2, Chat]:
+        chats = pg.select_chat(where=ChatWhere(chat_id=chat_id))
+        if len(chats) == 0:
+            return error.chat_not_found(), None
+        else:
+            return error.ok(), chats[0]
+
+    def update_chat_by_chat_id(self, chat_id: int, chat_record: ChatRecord) -> ErrorV2:
+        return pg.update_chat(
+            chat_update=ChatUpdate(chat_record=chat_record),
+            where=ChatWhere(chat_id=chat_id),
+        )
+
+    def get_chat_by_chat_id_cid(self, chat_id: int, cid: int) -> tuple[ErrorV2, Chat]:
+        chats = pg.select_chat(where=ChatWhere(chat_id=chat_id, cid=cid))
+        if len(chats) == 0:
+            return error.chat_not_found(), None
+        else:
+            return error.ok(), chats[0]
+        
+    def clear_chat_by_chat_id(self, chat_id: int) -> ErrorV2:
+        return pg.clear_chat_history_by_chat_id(
+            chat_id=chat_id
+        )
+        
+    

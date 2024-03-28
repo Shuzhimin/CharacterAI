@@ -2,7 +2,7 @@
 # zhangzhong
 
 from app.database.proxy import DatabaseProxy
-from app.database.inhert_proxy import InheritDataBaseProxy
+from app.database.proxy import DatabaseProxy
 from app.common.error import ErrorV2
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
@@ -23,19 +23,19 @@ class TokenData(BaseModel):
 
 
 def database_proxy() -> DatabaseProxy:
-    return InheritDataBaseProxy()
+    return DatabaseProxy()
 
 
 def get_current_uid() -> int:
-    return 0
+    return 7
 
 
 def get_chat_ids() -> list[int]:
-    return [1, 2, 3]
+    return [63]
 
 
 def get_cids() -> list[int]:
-    return [1, 2, 3]
+    return [1]
 
 
 # to get a string like this run:
