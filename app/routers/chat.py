@@ -90,6 +90,9 @@ async def select_chat(
     part_chat_list = chat_list[offset:offset + limit]
     for chat in part_chat_list:
         chat.chat_history = chat.chat_history[chat_history_offset:chat_history_offset + chat_history_limit]
+    # 这里其实还有问题，我的ChatSelectResponse的data是一个list[Chat]，但是这里返回的是一个list[dict]，但是返回List[Chat]会报错
+    part_chat_list = [chat.dict() for chat in part_chat_list]  # Convert Chat instances to dictionaries
+    print("part_chat_list: ",part_chat_list)    #[{'chat_id': 2, 'cid': 4, 'uid': 8, 'chat_history': [{'who': 'user', 'message': 'hello'}], 'status': 'active'}]
     return ChatSelectResponse(code=0, message="ok", data=part_chat_list)
 
 

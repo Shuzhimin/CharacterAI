@@ -389,7 +389,8 @@ class CharacterWhere(BaseModel):
             # clause += "attr = %(filter_attribute)s, "
             clauses.append(SQL("attr = %(filter_attribute)s"))
         clause = SQL(" AND ").join(clauses)
-        if clause:
+        # 此处要用clauses进行判断，clause是sql的一个对象可能不能直接进行条件判断
+        if clauses:
             clause = SQL("WHERE {fields}").format(fields=clause)
         return clause
 

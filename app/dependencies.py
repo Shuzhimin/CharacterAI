@@ -27,15 +27,15 @@ def database_proxy() -> DatabaseProxy:
 
 
 def get_current_uid() -> int:
-    return 7
+    return 3
 
 
 def get_chat_ids() -> list[int]:
-    return [63]
+    return [2]
 
 
 def get_cids() -> list[int]:
-    return [1]
+    return [4]
 
 
 # to get a string like this run:
