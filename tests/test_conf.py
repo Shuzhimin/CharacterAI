@@ -29,3 +29,6 @@ def test_basic_conf() -> None:
 
     # postgres
     print(conf.get_postgres_connection_string())
+    
+    # minio
+    print(conf.get_minio_setting())
