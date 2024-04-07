@@ -1,8 +1,22 @@
 # 2024/2/6
 # zhangzhong
 
+from datetime import datetime
+import uuid
+from app.common.conf import ZhipuAIConf
+
+# from app.dependencies import get_current_uid
+# from app.dependencies import get_current_uid
+from app.models import (
+    Character,
+    ChatRecord,
+    CharacterV2,
+    CharacterCreate,
+    CharacterUpdate,
+)
 from app.models import Character
-from app.models import ChatRecord,Chat,ChatCreate,ChatUpdate,ChatWhere
+from app.models import ChatRecord, Chat, ChatCreate, ChatUpdate, ChatWhere
+
 # from app.model.chat import ChatRecord,Chat,ChatCreate,ChatUpdate,ChatWhere
 import app.database.mongo as mongo
 from app.common.error import Error, ErrorV2, ErrorCode
@@ -17,11 +31,77 @@ class DatabaseProxy:
     def __init__(self) -> None:
         pass
 
-    def create_character(self, character: Character) -> Error:
-        return mongo.create_character(character=character)
+    # class CharacterV2(BaseModel):
+    #     cid: int = Field(default=..., description="机器人id")1
+    #     character_name: str = Field(default=..., description="机器人名称")1
+    #     character_info: str = Field(default=..., description="机器人信息")1
+    #     character_class: str = Field(default=..., description="机器人类型")1
+    #     avatar_url: str = Field(default=..., description="头像url")1
+    #     create_time: datetime = Field(default=..., description="创建时间")1
+    #     update_time: datetime = Field(default=..., description="更新时间")1
+    #     status: str = Field(default=..., description="状态")1
+    #     attr: str = Field(default=..., description="属性")
 
-    def update_character(self, character: Character) -> Error:
-        return mongo.update_character(character=character)
+    # class CharacterCreate(BaseModel):
+    #     character_name: str = Field(default=..., description="机器人名称")1
+    #     character_info: str = Field(default=..., description="机器人信息")1
+    #     character_class: str = Field(default=..., description="机器人类型")1
+    #     avatar_url: str = Field(default=..., description="头像url")1
+    #     status: str = Field(default="active", description="状态")1
+    #     attr: str = Field(default="normal", description="属性")
+
+    def create_character(self, character: CharacterCreate) -> Error:
+
+        # err = mongo.get_character(character.character_name),
+        # if err.code == Error.OK:
+        #     return Error(code=2, message="机器人已经存在")
+        # characterv2 = CharacterV2(
+        # cid = uuid.uuid4(),
+        # character_name = character.character_name,
+        # character_info = character.character_info,
+        # character_class = character.character_class,
+        # avatar_url = character.avatar_url,
+        # create_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        # update_time = character.create_time,
+        # status = character.status,)
+        uid = get_current_uid()
+        if uid == "管理员uid":
+            character.attr = character.attr
+        else:
+            character.attr = "Normal"
+        err = pg.create_character(character)
+        return Error(code=0, message="OK")
+
+    #    return mongo.create_character(character=character)
+
+    # class CharacterCreate(BaseModel):
+    # character_name: str = Field(default=..., description="机器人名称")
+    # character_info: str = Field(default=..., description="机器人信息")
+    # character_class: str = Field(default=..., description="机器人类型")
+    # avatar_url: str = Field(default=..., description="头像url")
+    # status: str = Field(default="active", description="状态")
+    # attr: str = Field(default="normal", description="属性")
+
+    def update_character(self, character: CharacterUpdate) -> Error:
+        uid_owner = self.get_uid_by_cid()
+        if uid_owner != get_current_uid() & get_current_uid() != "管理员uid":
+            return Error(code=2, message="没有该机器人角色")
+
+        return Error(code=0, message="OK")
+
+    #        return mongo.update_character(character=character)
+
+    def character_select1(self, cids, offset, limit, acsend):
+        uid = (get_current_uid(),)
+        # 需要通过uid查询cid
+        cids = (self.get_cid_by_uid(),)
+        cids.sort(reversed=acsend)
+        result = cids[offset:limit]
+        # 根据result里的/cid查询角色的相关信息  character_name, character_info, avatar, character_class
+        return  # 返回这里写不来了
+
+    def get_cid_by_uid(self, uid: str):
+        return [22, 12]  # 返回的应该是一个列表
 
     # TODO:
     # None对象和用NoneObject来代替呀，refactor一书中就提到了这个技巧
@@ -31,6 +111,36 @@ class DatabaseProxy:
 
     def delete_character_by_botname(self, botname: str) -> Error:
         return mongo.delete_character(filter={"bot_name": botname})
+
+    def delete_character_by_cid(self, cid: list[int]):
+        err, character = mongo.get_characters(cid)
+        err1, uid = (self.get_uid_by_cid(),)
+        if (
+            err.code
+            == Error.CHARACTER_NOT_FOUND | uid
+            != get_current_uid() | get_current_uid()
+            != "管理员id"
+        ):
+            return Error(code=3, message="机器人不存在")
+        # 还需要进行判断机器人的状态status是不是delete
+
+        # 进行删除操作
+        character.status = "delete"
+        return Error(code=0, messagr="OK")
+
+    def generate_avatar(self, avatar_describe: str):
+        zhipu = ZhipuAIConf()
+        client = ZhipuAI(api_key=zhipu.api_key)  # 请填写您自已的APIKey
+        response = client.images.generations(
+            model="cogview-3",
+            prompt=avatar_describe,
+        )
+        return Error(code=0, message=response.data[0].url)
+
+    # return (response.data[0].url)  #这里的返回值应该是什么我不清楚，或者说该怎么写呢
+
+    def get_uid_by_cid(self, cid: str) -> tuple[Error, int]:
+        return Error(code=0, message="OK"), 1
 
     def append_chat_recoards(
         self, botname: str, chat_records: list[ChatRecord]
@@ -92,26 +202,24 @@ class DatabaseProxy:
             user_filter=model.UserFilter(uid=uid),
         )
 
-    def create_chat(self, cid: int, uid: int) -> tuple[ErrorV2, int|None]:
-        chat=ChatCreate(cid=cid,uid=uid,status="normal")   
-        err=pg.create_chat(chat=chat)
+    def create_chat(self, cid: int, uid: int) -> tuple[ErrorV2, int | None]:
+        chat = ChatCreate(cid=cid, uid=uid, status="normal")
+        err = pg.create_chat(chat=chat)
         if not err.is_ok():
             return err, None
         # 然后我们要拿到这个chat的id
         err, chat = self.get_chat_by_cid_uid(cid=cid, uid=uid)
         return err, chat.chat_id
-    
+
     def get_chat_by_cid_uid(self, cid: int, uid: int) -> tuple[ErrorV2, Chat | None]:
         chats = pg.select_chat(where=ChatWhere(cid=cid, uid=uid))
         if len(chats) == 0:
             return error.chat_not_found(), None
         else:
             return error.ok(), chats[0]
-        
 
     def delete_chat_by_chat_id(self, chat_id: int) -> ErrorV2:
         return pg.delete_chat(where=ChatWhere(chat_id=chat_id))
-
 
     def get_uids_by_cid(self, cid: int) -> tuple[ErrorV2, int]:
         # 拿到cid对应的所有的chat
@@ -141,10 +249,6 @@ class DatabaseProxy:
             return error.chat_not_found(), None
         else:
             return error.ok(), chats[0]
-        
+
     def clear_chat_by_chat_id(self, chat_id: int) -> ErrorV2:
-        return pg.clear_chat_history_by_chat_id(
-            chat_id=chat_id
-        )
-        
-    
+        return pg.clear_chat_history_by_chat_id(chat_id=chat_id)
