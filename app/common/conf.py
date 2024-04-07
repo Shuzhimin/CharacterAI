@@ -4,6 +4,7 @@
 from pydantic import BaseModel, Field
 from typing import Any
 import tomllib
+from pydantic import BaseModel, Field
 
 
 class Collections(BaseModel):
@@ -29,6 +30,22 @@ class ZhipuAIConf(BaseModel):
     api_key: str = Field(..., description="zhipuai API Key")
 
 
+# 这个或许没什么用
+# class PostgresTables(BaseModel):
+#     user: str = Field(..., description="用户表")
+#     character: str = Field(..., description="角色表")
+#     chat: str = Field(..., description="聊天记录表")
+#     user_character: str = Field(..., description="用户角色关联表")
+
+
+class PostgresConf(BaseModel):
+    host: str = Field(..., description="主机")
+    port: int = Field(..., description="端口")
+    username: str = Field(..., description="用户名")
+    password: str = Field(..., description="密码")
+    database: str = Field(..., description="数据库")
+
+
 class Conf:
     @staticmethod
     def new(file: str) -> "Conf":
@@ -40,6 +57,7 @@ class Conf:
         self.mongo = MongoConf(**conf["mongo"])
         self.zhipuai = ZhipuAIConf(**conf["zhipuai"])
         self.fastapi = FastAPIConf(**conf["fastapi"])
+        self.postgres = PostgresConf(**conf["postgres"])
 
     def check_conf(self, conf: dict[str, Any]) -> None:
         keys: list[str] = ["mongo", "fastapi", "zhipuai"]
@@ -67,6 +85,17 @@ class Conf:
 
     def get_zhipuai_key(self) -> str:
         return self.zhipuai.api_key
+
+    def get_postgres_connection_string(self) -> str:
+        return " ".join(
+            [
+                f"host={self.postgres.host}",
+                f"port={self.postgres.port}",
+                f"user={self.postgres.username}",
+                f"password={self.postgres.password}",
+                f"dbname={self.postgres.database}",
+            ]
+        )
 
 
 conf = Conf.new(file="deploy/conf.toml")

@@ -2,15 +2,16 @@
 # zhangzhong
 from app.models import ChatRecord, Character
 from pydantic import ValidationError
+import app.models as model
 
 
 def test_chat_record() -> None:
-    chat_record = ChatRecord(role="user", content="hello")
-    assert chat_record.role == "user"
-    assert chat_record.content == "hello"
+    chat_record = ChatRecord(who="user", message="hello")
+    assert chat_record.who == "user"
+    assert chat_record.message == "hello"
 
     try:
-        chat_record = ChatRecord(role="should_fail", content="hello")  # type: ignore
+        chat_record = ChatRecord(who="should_fail", message="hello")  # type: ignore
         assert False
     except ValidationError as e:
         assert True
@@ -25,8 +26,8 @@ def test_dump_chat_history() -> None:
         user_name="user_name",
         user_info="user_info",
         chat_history=[
-            ChatRecord(role="user", content="hello"),
-            ChatRecord(role="assistant", content="hi"),
+            ChatRecord(who="user", message="hello"),
+            ChatRecord(who="assistant", message="hi"),
         ],
     )
 
@@ -35,3 +36,9 @@ def test_dump_chat_history() -> None:
     print(character_dict["chat_history"])
     # 他俩为什么是一样的？
     assert character_dict["chat_history"] == character.dump_chat_history()
+
+
+# def test_user_where_clause():
+# where = model.UserFilter(username="username")
+# sql = where.to_where_clause_v2()
+# print(sql.as_string())

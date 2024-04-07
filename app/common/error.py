@@ -28,6 +28,7 @@ class ErrorCode(int, Enum):
     NOT_IMPLEMENTED = 6
     CHAT_ALREADY_EXISTS = 7
     NONE_CHAT = 8
+    BAD_SQL = 9
 
 
 class ErrorV2:
@@ -50,5 +51,14 @@ def unknown(message: str = "unknown") -> ErrorV2:
 def not_implemented(message: str = "not implemented") -> ErrorV2:
     return ErrorV2(code=ErrorCode.NOT_IMPLEMENTED, message=message)
 
+
 def chat_already_exists(message: str = "chat already exists") -> ErrorV2:
     return ErrorV2(code=ErrorCode.CHAT_ALREADY_EXISTS, message=message)
+
+
+def bad_sql(message: str = "bad sql") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.BAD_SQL, message=message)
+
+
+def chat_not_found(message: str = "chat not found") -> ErrorV2:
+    return ErrorV2(code=ErrorCode.NONE_CHAT, message=message)
