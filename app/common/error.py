@@ -85,3 +85,6 @@ def gLM4_call_fail(message: str = "GLM-4 call failed") -> ErrorV2:
 
 def image_to_url_fail(message: str = "Image to URL failed") -> ErrorV2:
     return ErrorV2(code=ErrorCode.IMAGE_TO_URL_FAIL, message=message)
+
+
+# TODO: 定义对应的异常，所有函数不再使用Error，直接抛出异常即可
