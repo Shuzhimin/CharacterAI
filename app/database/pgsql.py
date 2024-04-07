@@ -346,18 +346,35 @@ def select_chat(where: ChatWhere) -> list[Chat]:
             # https://www.psycopg.org/psycopg3/docs/api/rows.html
             # https://www.psycopg.org/psycopg3/docs/advanced/rows.html#row-factories
             rows = cur.fetchall()
-            print(rows)
+            # print(rows)
     # TODO(zhangzhong): 要做到这么方便的从dict转换到pydantic对象，需要他们对应的filed一样, 将返回类型改为list[User]
     # namedtuple -> pydantic
     # results: list[dict] = []
     for row in rows:
         chat_history: list[chat_record] = row["chat_history"]
-        chat_history_dict: list[dict] = [h._asdict() for h in chat_history]
-        row["chat_history"] = chat_history_dict
+        # 这里应该先判断一下chat_history是否为空，刚创建的时候是空的，这时会出现错误： TypeError: 'NoneType' object is not iterable
+        if chat_history is not None:
+            chat_history_dict: list[dict] = [h._asdict() for h in chat_history]
+            row["chat_history"] = chat_history_dict
+        else:
+            row["chat_history"] = []
     # 咱们首先把rows里面的namedtuple转成dict
     # 然后再把整个dict转成pydantic model
     return [Chat(**row) for row in rows]
 
+def clear_chat_history_by_chat_id(chat_id: int) -> ErrorV2:
+    # raise NotImplementedError
+    with psycopg.connect(conninfo=conf.get_postgres_connection_string()) as conn:
+        with conn.cursor() as cur:
+            # 模型中的名字和数据库中的名字确实应该保持一致
+            cur.execute(
+                query=SQL("UPDATE chats SET chat_history = NULL WHERE chat_id = %(chat_id)s"),
+                params={"chat_id": chat_id},
+            )
+            conn.commit()
+    return error.ok()
+
+    
 
 def update_chat(chat_update: ChatUpdate, where: ChatWhere) -> ErrorV2:
     # raise NotImplementedError
