@@ -7,7 +7,7 @@ from app.models import (
     UserCharacterUpdate,
 )
 from app.models import Chat, ChatCreate, ChatWhere, ChatUpdate, ChatRecord
-from app.common.conf import conf
+from app.conf import conf
 from typing import NoReturn
 from deploy import build_postgres
 import app.database.pgsql as pg

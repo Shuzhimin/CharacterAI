@@ -2,6 +2,7 @@
 # zhangzhong
 
 from sqlalchemy.orm import Session
+from .schema import SessionLocal
 from app import models
 from . import schema
 
@@ -9,8 +10,12 @@ from . import schema
 # 这个项目比较简单，目前看起来没有必要分出这么多表
 #
 class DatabaseService:
-    def __init__(self, session: Session) -> None:
-        self._db = session
+    def __init__(self) -> None:
+        # create a session by my self
+        self._db = SessionLocal()
+
+    def close(self):
+        self._db.close()
 
     # characters
     # 感觉东西还挺多的

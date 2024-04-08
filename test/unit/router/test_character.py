@@ -1,63 +1,82 @@
-import httpx
+# import httpx
 from app.main import app
 from fastapi.testclient import TestClient
 import app.database.pgsql as pg
-from app.model.character import CharacterSelectRequests
-from app.models import CharacterCreate, CharacterWhere
+from app.model_deprecated.character import CharacterSelectRequests
+from app.model import *
+
+# from fastapi import Response
+# from httpx import Response
 
 
 client = TestClient(app)
-#有一个的cid是101
-#接口1.1
-def test_createcharacter():
-    response: httpx.Response = client.post(
-        url = '/character/create',
-        json={"character_name": 'stcgwaza', 'character_info':'111' , 'character_class':'5455' , 'avatar_url':'222'}                
+
+
+# 有一个的cid是101
+# 接口1.1
+def test_create_character():
+    response = client.post(
+        url="/character/create",
+        json=CharacterCreate(
+            **{
+                "character_name": "stcgwaza",
+                "character_info": "111",
+                "character_class": "5455",
+                "avatar_url": "222",
+            }
+        ),
     )
     assert response.status_code == 200
-    r = response.json()
-    print(r)
-    if r.get("code") == 1:
-        print("")
-    
-#接口1.2
+    # r = response.json()
+    # print(r)
+    # if r.get("code") == 1:
+    #     print("")
+
+
+# 接口1.2
 def test_deletecharacter():
     # 发送 DELETE 请求，包含 JSON 请求体
     response: httpx.Response = client.post(
-        url='/character/delete',
-        json={"cids": [100000000000,]}
-        )
-    
+        url="/character/delete",
+        json={
+            "cids": [
+                100000000000,
+            ]
+        },
+    )
+
     assert response.status_code == 200
     print(response.json())
 
-#接口1.3
+
+# 接口1.3
 def test_updatacharacter():
     response: httpx.Response = client.post(
-    url='/character/update',
-    json={"cid": 10,"character_name":"wad"}
-    #params={"cids": 10,"character_name":"wad"}
+        url="/character/update",
+        json={"cid": 10, "character_name": "wad"},
+        # params={"cids": 10,"character_name":"wad"}
     )
     print(response.json())
     assert response.status_code == 200
     print(response.json())
 
-#接口1.6
+
+# 接口1.6
 def test_generate_avatar():
     response: httpx.Response = client.post(
-        url='/character/avatar',
-        params={"avatar_describe": '好看美丽的'}
+        url="/character/avatar", params={"avatar_describe": "好看美丽的"}
     )
     assert response.status_code == 200
     print(response.json())
+
 
 ca = CharacterSelectRequests()
 
-#接口1.7  不传参 返回所有会失败  没有实现返回所有的角色
+
+# 接口1.7  不传参 返回所有会失败  没有实现返回所有的角色
 def test_character_select():
     response: httpx.Response = client.post(
-        url='/character/select',
-        json={"cids": [1,200000000]}
+        url="/character/select", json={"cids": [1, 200000000]}
     )
     print(response.request)
     # print('1111111',response.text)
@@ -66,10 +85,6 @@ def test_character_select():
     print(response.json())
     # character_where = CharacterWhere()
     # characters = pg.select_character(where=character_where)
-    
-
-
-
 
 
 """    response: httpx.Response = client.post(

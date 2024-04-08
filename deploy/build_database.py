@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from app.models import Character
-from app.common.conf import conf
+from app.conf import conf
 
 bots: list[Character] = [
     Character(

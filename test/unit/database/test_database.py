@@ -3,7 +3,7 @@
 
 from app.database.proxy import DatabaseProxy
 from app.models import Character, ChatRecord, User, UserUpdate, UserFilter
-from app.common.conf import conf
+from app.conf import conf
 from pymongo import MongoClient
 import app.database.pgsql as pgsql
 

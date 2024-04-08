@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-from app.common.conf import conf
+from app.conf import conf
 
 # 创建MongoDB客户端
 client = MongoClient(**conf.get_mongo_setting())

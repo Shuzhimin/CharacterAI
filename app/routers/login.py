@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, APIRouter
 from app.database.proxy import DatabaseProxy
 from app.models import Character, ChatRecord
 from typing import Annotated
-from app.dependencies import database_proxy
+from app.dependency import database_proxy
 from typing import Any
 import app.common.glm as glm
 from jose import JWTError, jwt
@@ -15,7 +15,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel
-from app.model.user import (
+from app.model_deprecated.user import (
     # UserLoginByTokenResponse,
     # UserLoginByPasswordResponse,
     UserRegisterResponse,
@@ -24,8 +24,8 @@ from app.model.user import (
     UserMeResponse,
     UserWihtoutSecret,
 )
-from app.dependencies import database_proxy, get_current_uid
-import app.common.error as error
+from app.dependency import database_proxy, get_current_uid
+import app.error as error
 from fastapi import Form
 from app.common.model_api import get_avatar_url_by_describe
 

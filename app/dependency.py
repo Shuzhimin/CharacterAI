@@ -2,8 +2,7 @@
 # zhangzhong
 
 from app.database.proxy import DatabaseProxy
-from app.database.proxy import DatabaseProxy
-from app.common.error import ErrorV2
+from app.error import ErrorV2
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from passlib.context import CryptContext
@@ -11,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel
 from typing import Annotated
+from app.database.database import DatabaseService
 
 
 class Token(BaseModel):
@@ -24,6 +24,14 @@ class TokenData(BaseModel):
 
 def database_proxy() -> DatabaseProxy:
     return DatabaseProxy()
+
+
+def get_db():
+    db = DatabaseService()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 def get_current_uid() -> int:

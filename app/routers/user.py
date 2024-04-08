@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, APIRouter
 from app.database.proxy import DatabaseProxy
 from app.models import Character, ChatRecord
 from typing import Annotated
-from app.dependencies import database_proxy
+from app.dependency import database_proxy
 from typing import Any
 import app.common.glm as glm
 from jose import JWTError, jwt
@@ -11,7 +11,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel
-from app.model.user import (
+from app.model_deprecated.user import (
     # UserLoginByTokenResponse,
     # UserLoginByPasswordResponse,
     UserRegisterResponse,
@@ -20,10 +20,10 @@ from app.model.user import (
     UserMeResponse,
     UserWihtoutSecret,
 )
-from app.dependencies import database_proxy, get_current_uid, get_token_data
-import app.common.error as error
+from app.dependency import database_proxy, get_current_uid, get_token_data
+import app.error as error
 from fastapi import Form
-from app.model.common import TokenData
+from app.model_deprecated.common import TokenData
 from app.common.model_api import get_avatar_url_by_describe
 
 router = APIRouter()
@@ -33,6 +33,7 @@ router = APIRouter()
 async def user_update(
     db: Annotated[DatabaseProxy, Depends(dependency=database_proxy)],
     token_data: Annotated[TokenData, Depends(get_token_data)],
+    # 这种Form格式不利于测试，都改成body吧
     username: Annotated[str, Form(...)],
     avatar_describe: Annotated[str, Form(...)],
 ) -> UserUpdateResponse:

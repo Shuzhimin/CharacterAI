@@ -33,61 +33,67 @@ class User(Base):
     __tablename__ = "users"
 
     uid = Column(Integer, primary_key=True, index=True)
-    username = Column(String, index=True)
-    passwd = Column(String, unique=True, index=True)
+    name = Column(String, index=True)
+    password = Column(String, index=True)
     avatar_url = Column(String)
-    who = Column(Boolean, default=True)
-    create_time = Column(DateTime, default=datetime.now())
-    update_time = Column(DateTime)
-    status = Column(String, default="active")
+    role = Column(String)
+    created_at = Column(DateTime, default=datetime.now())
+    updated_at = Column(DateTime)
+    is_deleted = Column(Boolean, default=False)
+
+    characters = relationship("Character", back_populates="owner")
+    chats = relationship("Chat", back_populates="owner")
 
 
 class Character(Base):
     __tablename__ = "characters"
 
     cid = Column(Integer, primary_key=True, index=True)
-    character_name = Column(String, index=True)
-    character_info = Column(String)
-    character_class = Column(String)
+    name = Column(String, index=True)
+    description = Column(String)
+    category = Column(String)
     avatar_url = Column(String)
-    create_time = Column(DateTime, default=datetime.now())
-    update_time = Column(DateTime)
-    status = Column(String, default="active")
-    attr = Column(String, default="normal")
+    created_at = Column(DateTime, default=datetime.now())
+    updated_at = Column(DateTime)
+    # 说实话，这两个字段名设计的非常差劲
+    # 直接看这两个字段根本不知道你想说明什么
+    # 状态？
+    # status = Column(String, default="active")
+    # # 属性？
+    # attr = Column(String, default="normal")
+    # 为什么不能变成两个is_XXX 毕竟目前也就只有两个作用
+    is_deleted = Column(Boolean, default=False)
+    is_shared = Column(Boolean, default=False)
 
-
-class UserCharacter(Base):
-    __tablename__ = "user_characters"
-
-    uid = Column(Integer, ForeignKey("users.uid"))
-    cid = Column(Integer, ForeignKey("characters.cid"))
-    create_time = Column(DateTime, default=datetime.now())
-    update_time = Column(DateTime)
-    status = Column(String, default="active")
-
-    __table_args__ = PrimaryKeyConstraint("uid", "cid")
+    owner = relationship("User", back_populates="characters")
 
 
 class Chat(Base):
     __tablename__ = "chats"
 
-    chat_id = Column(Integer, index=True)
-    content_id = Column(Integer)
+    chat_id = Column(Integer, primary_key=True, index=True)
+    # uid = Column(Integer, index=True)
+    character = Column(Integer, index=True)
+    create_time = Column(DateTime, default=datetime.now())
+    # status = Column(String, default="active")
+    is_deleted = Column(Boolean, default=False)
+
+    # __table_args__ = PrimaryKeyConstraint("chat_id", "content_id")
+    # creator_id = Column(Integer, ForeignKey("users.uid"))
+
+    owner = relationship("User", back_populates="chats")
+    contents = relationship("Content", back_populates="owner")
+
+
+class Content(Base):
+    __tablename__ = "contents"
+
+    # chat_id = Column(Integer, index=True)
+    content_id = Column(Integer, primary_key=True, index=True)
+    sender = Column(String, index=True)
     content = Column(String)
-    create_time = Column(DateTime, default=datetime.now())
-    update_time = Column(DateTime)
-    status = Column(String, default="active")
+    created_at = Column(DateTime, default=datetime.now())
 
-    __table_args__ = PrimaryKeyConstraint("chat_id", "content_id")
+    # __table_args__ = PrimaryKeyConstraint("chat_id", "content_id")
 
-
-class UserChat(Base):
-    __tablename__ = "user_chats"
-
-    uid = Column(Integer, ForeignKey("users.uid"))
-    chat_id = Column(Integer, ForeignKey("chats.chat_id"))
-    create_time = Column(DateTime, default=datetime.now())
-    update_time = Column(DateTime)
-    status = Column(String, default="active")
-
-    __table_args__ = PrimaryKeyConstraint("uid", "chat_id")
+    owner = relationship("Chat", back_populates="contents")

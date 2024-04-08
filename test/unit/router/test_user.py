@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from app.database.proxy import DatabaseProxy
 from app.main import app
 from httpx import Response
-from app.model.user import UserMeResponse
+from app.model_deprecated.user import UserMeResponse
 
 client = TestClient(app)
 

@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from app.models import Character
-from app.common.conf import conf
-from app.common.error import Error
+from app.conf import conf
+from app.error import Error
 
 client = MongoClient(**conf.get_mongo_setting())
 db = client[conf.get_mongo_database()]

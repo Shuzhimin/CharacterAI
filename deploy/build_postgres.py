@@ -6,7 +6,7 @@
 # use \dt to show all tables
 # user \d <table> to show the info of table
 import psycopg
-from app.common.conf import conf
+from app.conf import conf
 from psycopg.types.composite import CompositeInfo, register_composite
 from app.models import ChatRecord
 

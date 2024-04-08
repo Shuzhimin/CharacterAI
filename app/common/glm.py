@@ -4,7 +4,7 @@ import json
 import requests
 from zhipuai import ZhipuAI
 from app.tools.all_tools import Tool
-from app.common.conf import conf
+from app.conf import conf
 from app.models import Character
 
 

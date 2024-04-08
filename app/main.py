@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from app.routers import character, user, chat, login, report
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from app.common.conf import conf
+from app.conf import conf
 
 
 app = FastAPI()

@@ -1,7 +1,7 @@
 from minio import Minio
 from minio.error import S3Error
 from datetime import timedelta
-from app.common.conf import conf
+from app.conf import conf
 
 
 def upload_file(image_path: str, object_name: str = "character_form.png", bucket_name: str = "character") -> None:

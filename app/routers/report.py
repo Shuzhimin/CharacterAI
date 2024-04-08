@@ -1,11 +1,11 @@
 from fastapi import Depends, HTTPException, APIRouter
-from app.model.report import ReportRequest, ReportResponse
+from app.model_deprecated.report import ReportRequest, ReportResponse
 from typing import Annotated
-from app.dependencies import database_proxy
+from app.dependency import database_proxy
 from typing import List
 from app.common import image_to_url
 import app.common.glm as glm
-from app.common import error
+from app import error
 import os
 
 

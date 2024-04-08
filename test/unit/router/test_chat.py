@@ -1,14 +1,12 @@
-
 from fastapi.testclient import TestClient
 from app.database.proxy import DatabaseProxy
 from app.main import app
 from httpx import Response
-from app.model.user import UserMeResponse
-
-
+from app.model_deprecated.user import UserMeResponse
 
 
 client = TestClient(app)
+
 
 def test_create_chat():
     db = DatabaseProxy()
@@ -19,8 +17,8 @@ def test_create_chat():
     assert response.status_code == 200
     assert response.json().get("code") == 0
 
-    err,chat=db.get_chat_by_cid_uid(cid=10,uid=3)
-    print("chat:",chat)
+    err, chat = db.get_chat_by_cid_uid(cid=10, uid=3)
+    print("chat:", chat)
     assert err.is_ok() and chat
 
 
@@ -40,7 +38,7 @@ def test_append_chat():
     )
     assert response.status_code == 200
     assert response.json().get("code") == 0
- 
+
 
 def test_select_chat():
     db = DatabaseProxy()
@@ -53,26 +51,29 @@ def test_select_chat():
 
 def test_clear_chat_history():
     db = DatabaseProxy()
-    err=db.clear_chat_by_chat_id(chat_id=63)
+    err = db.clear_chat_by_chat_id(chat_id=63)
     assert err.is_ok()
 
-def test_chat_update_construction():
-    from app.model.chat import ChatRecord,ChatUpdate
-    chat_record=ChatRecord(who="user",message="hello")
-    chat_update=ChatUpdate(chat_record=chat_record)
-    assert chat_record.who=="user" and chat_record.message=="hello"
-    assert chat_update.chat_record.who=="user" and chat_update.chat_record.message=="hello"
 
-def test_update_chat_pgsql():
-    import app.database.pgsql as pg
-    from app.model.chat import ChatRecord,ChatUpdate,ChatWhere
-    chat_record=ChatRecord(who="user",message="hello")
-    chat_id=7
-    pg.update_chat(
-            chat_update=ChatUpdate(chat_record=chat_record),
-                    where=ChatWhere(chat_id=chat_id),
+def test_chat_update_construction():
+    from app.model_deprecated.chat import ChatRecord, ChatUpdate
+
+    chat_record = ChatRecord(who="user", message="hello")
+    chat_update = ChatUpdate(chat_record=chat_record)
+    assert chat_record.who == "user" and chat_record.message == "hello"
+    assert (
+        chat_update.chat_record.who == "user"
+        and chat_update.chat_record.message == "hello"
     )
 
 
+def test_update_chat_pgsql():
+    import app.database.pgsql as pg
+    from app.model_deprecated.chat import ChatRecord, ChatUpdate, ChatWhere
 
-    
+    chat_record = ChatRecord(who="user", message="hello")
+    chat_id = 7
+    pg.update_chat(
+        chat_update=ChatUpdate(chat_record=chat_record),
+        where=ChatWhere(chat_id=chat_id),
+    )
