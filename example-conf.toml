@@ -15,7 +15,7 @@ password = 'postgres'
 database = 'CharacterAI2'
 
 [zhipuai]
-api_key = 'e54f639e52dcef61c2ebb2e06064cfb4.PJoQicvUhttPC9nn'
+api_key = ''
 
 [fastapi]
 host = 'localhost'
