@@ -9,6 +9,8 @@ import CreateRole from '@/components/CreateRole';
 import Test from '@/components/test';
 import Login from '@/components/Login';
 import Report from '@/components/Report';
+import GenerateAvatar from '@/components/GenerateAvatar';
+import AccountManagement from '@/components/AccountManagement';
 Vue.use(VueRouter)
 
 const routes = [
@@ -24,7 +26,8 @@ const routes = [
       { path: '/dialogue', component: Dialogue },
       { path: '/createrole', component: CreateRole },
       { path: '/test', component: Test },
-      { path: '/report', component: Report }
+      { path: '/report', component: Report },
+      { path: '/accountmanagement', component: AccountManagement }
     ]
   },
 ]

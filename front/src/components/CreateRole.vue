@@ -7,7 +7,7 @@
             <el-select v-model="createForm.selectedCategory" placeholder="请选择角色分类">
               <el-option label="美食" value="food"></el-option>
               <el-option label="旅游" value="travel"></el-option>
-              <el-option label="科技" value="technology"></el-option>
+              <el-option label="科技" value="tech"></el-option>
               <el-option label="健康" value="health"></el-option>
               <el-option label="法律" value="law"></el-option>
               <el-option label="其他" value="other"></el-option>
@@ -22,8 +22,11 @@
                       placeholder="请输入身份背景"></el-input>
             <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>
           </el-form-item>
-          <el-form-item label="人物角色头像生成" class="a">
-            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>
+<!--          <el-form-item label="人物角色头像生成" class="a">-->
+<!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+<!--          </el-form-item>-->
+          <el-form-item label="人物角色头像生成" >
+            <GenerateAvatar :avatarUrl="createForm.avatarUrl"></GenerateAvatar>
           </el-form-item>
           <!-- 头像生成对话框 -->
           <el-dialog
@@ -85,7 +88,10 @@ import {
   simulateCreateCharacter,
   // simulateDialogueAvatar
 } from '@/api/createrole'; // 假设 api.js 存放在 src 目录下
+import GenerateAvatar from '@/components/GenerateAvatar';
+import { character_create } from '@/api/character';
 export default {
+  components: { GenerateAvatar },
   data() {
     return {
       createForm: {
@@ -113,18 +119,34 @@ export default {
   },
   methods: {
     handleCreate() {
-      // 处理创建角色的逻辑，可以发送请求给后端进行处理
-      // 调用模拟接口函数，并传入角色信息
-      const response1 = simulateCreateCharacter(this.createForm);
-      this.createdCharacterId = response1.data.characterId; // 保存角色 ID
-      // 输出模拟的响应数据到控制台，可以根据需要进行后续处理
-      console.log('创建角色信息：', response1);
+      // // 处理创建角色的逻辑，可以发送请求给后端进行处理
+      // // 调用模拟接口函数，并传入角色信息
+      // const response1 = simulateCreateCharacter(this.createForm);
+      // this.createdCharacterId = response1.data.characterId; // 保存角色 ID
+      // // 输出模拟的响应数据到控制台，可以根据需要进行后续处理
+      // console.log('创建角色信息：', response1);
+      //
+      // if (response1.success) {
+      //   // this.$message.success('创建角色成功');
+      //   // 弹出提示框
+      //   this.showSuccessMessageBox();
+      // }
 
-      if (response1.success) {
-        // this.$message.success('创建角色成功');
-        // 弹出提示框
-        this.showSuccessMessageBox();
+
+      let params = {
+        "name": this.createForm.bot_name,
+        "description": this.createForm.bot_info,
+        "category": this.createForm.selectedCategory,
+        "owner_id": window.localStorage.getItem("uid")
       }
+      character_create(params).then(res => {
+        console.log(res)
+        if (res.status === 200){
+          this.$message.success("创建成功！")
+        }
+      })
+
+
     },
     // generateCharacterAvatar() {
     //   const response2 = simulateAvatar(this.createForm);

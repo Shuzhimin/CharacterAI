@@ -1,5 +1,5 @@
 // const domain = "https://appadmin.lulinyuan.com";
-const domain = "http://127.0.0.1:9000";
+const domain = "http://211.81.248.213:8000";
 
 const menuList = [];
 let lockPage = false;

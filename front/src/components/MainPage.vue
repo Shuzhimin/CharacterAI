@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import { character_select } from '@/api/character';
 export default {
   name: 'MainPage',
   data() {
@@ -124,6 +125,9 @@ export default {
       ]
     }
   },
+  created() {
+    this.getCharacter()
+  },
   methods: {
     selectRole(roleMess){
       console.log(roleMess)
@@ -132,6 +136,17 @@ export default {
       localStorage.setItem('roleMess_id', roleMess.id)
       localStorage.setItem('roleMess_description', roleMess.description)
       this.$router.push('/dialogue')
+    },
+    getCharacter(){
+      let params = {
+        "skip": 1,
+        "limit": 20
+      }
+      character_select(params).then(res => {
+        if (res.status === 200){
+          console.log(res)
+        }
+      })
     }
   }
 };

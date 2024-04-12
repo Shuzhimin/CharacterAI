@@ -53,8 +53,11 @@
                           placeholder="请输入身份背景"></el-input>
                 <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>
               </el-form-item>
-              <el-form-item label="人物角色头像生成" class="a">
-                <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>
+<!--              <el-form-item label="人物角色头像生成" class="a">-->
+<!--                <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+<!--              </el-form-item>-->
+              <el-form-item label="头像" >
+                <GenerateAvatar :avatarUrl="editForm.avatarUrl"></GenerateAvatar>
               </el-form-item>
               <!--          <el-form-item label="对话人物名称" :prop="'user_name'" required>-->
               <!--            <el-input v-model="createForm.user_name" class="a"></el-input>-->
@@ -133,11 +136,12 @@
 
 <script>
 import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
+import GenerateAvatar from '@/components/GenerateAvatar';
 import Character from '@/components/dialog/Character';
 import { simulateAvatar, simulateCreateCharacter } from '@/api/createrole';
 export default {
   name: 'Dialogue',
-  components: { Character, GenerateAvatarDialog },
+  components: { Character, GenerateAvatarDialog, GenerateAvatar },
   props: ['value'],
   data() {
     return{

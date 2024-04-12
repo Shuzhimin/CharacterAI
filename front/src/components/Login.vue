@@ -52,7 +52,7 @@
         </el-form-item>
       </el-form>
     </div>
-    <el-dialog :visible.sync="dialogFormVisible">
+    <el-dialog :visible.sync="dialogFormVisible" style="">
       <el-form :model="query" ref="register" :rules="registerFormRules">
         <el-form-item label="用户名" :label-width="formLabelWidth" prop="username">
           <el-input v-model="query.username" autocomplete="off"></el-input>
@@ -65,6 +65,12 @@
           <el-input type="password" v-model="query.repassword" autocomplete="off" :show-password="true"></el-input>
 <!--          <span>两次密码不一致</span>-->
         </el-form-item>
+<!--        <el-form-item label="人物角色头像生成" class="a">-->
+<!--          <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+<!--        </el-form-item>-->
+        <el-form-item label="头像" :label-width="formLabelWidth">
+          <GenerateAvatar :avatarUrl="query.avatar_url"></GenerateAvatar>
+        </el-form-item>
       </el-form>
 
       <div slot="footer" class="dialog-footer">
@@ -72,11 +78,19 @@
         <el-button type="primary" @click="register()" :disabled="registerFlag">注 册</el-button>
       </div>
     </el-dialog>
+    <GenerateAvatarDialog v-if="generateAvatarDialogVisible" @closeDialog="closeGenerateAvatarDialog" :DialogShowFlag="generateAvatarDialogVisible" :avatarUrl="query.avatar_url"></GenerateAvatarDialog>
   </div>
 </template>
 
 <script>
+import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
+import GenerateAvatar from '@/components/GenerateAvatar';
+import { register, login, user_me } from '@/api/user';
 export default {
+  components: {
+    GenerateAvatarDialog,
+    GenerateAvatar
+  },
   data () {
     const equalToPassword = (rule, value, callback) => {
       if (this.query.password !== this.query.repassword) {
@@ -140,6 +154,7 @@ export default {
         username: '',
         password: '',
         repassword: '',
+        avatar_url: ''
       },
       registerFormRules: {
         // 验证用户名是否合法
@@ -161,7 +176,8 @@ export default {
       registerFlag: false,
       receive: {
 
-      }
+      },
+      generateAvatarDialogVisible: false,
     }
   },
   methods: {
@@ -179,7 +195,32 @@ export default {
       this.$refs['loginFormRef'].validate((valid) => {
         if (valid) {
           console.log('登录')
-          this.$router.push('/userhome')
+
+          let params = {
+            "username": this.loginForm.username,
+            "password": this.loginForm.password
+          }
+          login(params).then(res => {
+            console.log(res)
+            if (res.status === 200){
+              window.localStorage.setItem("token", res.data.token_type + " " + res.data.access_token)
+
+              user_me().then(res =>{
+                console.log(res)
+                window.localStorage.setItem("uid", res.data.uid)
+                window.localStorage.setItem("name", res.data.name)
+                window.localStorage.setItem("description", res.data.description)
+                window.localStorage.setItem("role", res.data.role)
+
+                this.$message.success("登录成功！")
+                this.$router.push('/userhome')
+              })
+
+
+            }
+          })
+
+
         }
       })
 
@@ -245,6 +286,20 @@ export default {
       this.$refs['register'].validate((valid) => {
         if (valid) {
           console.log('注册')
+
+          let params = {
+            "name": this.query.username,
+            "password": this.query.password,
+            "description": "description"
+          }
+
+          register(params).then(res => {
+            console.log(res)
+            if (res.status === 200){
+              this.$message.success("注册成功！")
+            }
+          })
+
           this.dialogFormVisible = false
         }
       })
@@ -263,6 +318,15 @@ export default {
 
 
     },
+    showGenerateAvatarDialog() {
+      // 显示生成头像对话框
+      console.log(this.generateAvatarDialogVisible)
+      this.generateAvatarDialogVisible = true;
+      console.log(this.generateAvatarDialogVisible)
+    },
+    closeGenerateAvatarDialog() {
+      this.generateAvatarDialogVisible = false;
+    }
   }
 }
 </script>

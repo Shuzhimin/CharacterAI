@@ -54,8 +54,8 @@ service.interceptors.request.use(config => {
 // 3.响应拦截器
 service.interceptors.response.use(response => {
     //接收到响应数据并成功后的一些共有的处理，关闭loading等
-    if(response.data.code !== 0 ){
-        Message.error(response.data.message)
+    if(response.data.code !== 200 ){
+        // Message.error(response.data.message)
         if(response.data.code === 20006 ||response.data.code === 20002){
             localStorage.removeItem("token");
             localStorage.removeItem("userInfo");

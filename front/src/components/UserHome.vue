@@ -7,7 +7,7 @@
         <span>AI角色</span>
       </div>
       <div>
-        <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 20px;"></el-avatar>
+        <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 50px;"></el-avatar>
         <el-button type="info" @click="openDialog" style="background-color: #d0ba13;padding-right: 20px">
           查看个人信息
         </el-button>
@@ -38,8 +38,11 @@
             <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">
               <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
             </el-form-item>
-            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">
-              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>
+<!--            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">-->
+<!--              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+<!--            </el-form-item>-->
+            <el-form-item v-if="form.modifyFlag" label="头像" :label-width="formLabelWidth">
+              <GenerateAvatar :avatarUrl="cur_account.avatar_url"></GenerateAvatar>
             </el-form-item>
 
           </el-form>
@@ -126,9 +129,10 @@
 
 <script>
 import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
+import GenerateAvatar from '@/components/GenerateAvatar';
 export default {
   name: 'home',
-  components: { GenerateAvatarDialog },
+  components: { GenerateAvatarDialog, GenerateAvatar },
   data () {
     return {
       // 左侧菜单数据
