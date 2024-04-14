@@ -17,11 +17,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker
+from app.common import conf
 
 # database engine
 # Create a database URL for SQLAlchemy¶
 # This is the main line that you would have to modify if you wanted to use a different database.
-SQLALCHEMY_DATABASE_URL = "postgresql://zhangzhong:123456@localhost/zhangzhong"
+SQLALCHEMY_DATABASE_URL = conf.get_postgres_sqlalchemy_database_url()
 engine = create_engine(
     url=SQLALCHEMY_DATABASE_URL,
     # ..is needed only for SQLite. It's not needed for other databases

@@ -107,6 +107,9 @@ class Conf:
             ]
         )
 
+    def get_postgres_sqlalchemy_database_url(self) -> str:
+        return f"postgresql://{self.postgres.username}:{self.postgres.password}@{self.postgres.host}/characterai"
+
     def get_minio_setting(self):
         d = self.minio.model_dump()
         d.pop("bucket_name")
