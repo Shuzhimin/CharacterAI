@@ -13,7 +13,7 @@ report = APIRouter()
 @report.post("/api/report/character")
 async def report_form(data: model.ReportRequest) -> model.ReportResponse:
     try:
-        glm.invoke_report(data.content)
+        glm.invoke_report(data.message)
     except:
         raise InternalException(code=1, message="报表生成失败")
     # 将生成的图片转成url

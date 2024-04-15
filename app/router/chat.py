@@ -3,7 +3,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, WebSocket
+from fastapi import APIRouter, Depends, WebSocket, Body
 
 from app.common import model
 from app.database import DatabaseService, schema
@@ -36,7 +36,7 @@ async def websocket_endpoint(
 
             # insert data into db
             db.create_content(
-                content_create=model.ContentCreate(
+                content_create=model.MessageCreate(
                     chat_id=chat.chat_id, content=content, sender=user.uid
                 )
             )
@@ -49,7 +49,7 @@ async def websocket_endpoint(
             )
 
             db.create_content(
-                content_create=model.ContentCreate(
+                content_create=model.MessageCreate(
                     chat_id=chat.chat_id, content=response, sender=cid
                 )
             )
@@ -61,21 +61,19 @@ async def websocket_endpoint(
         await websocket.close()
 
 
-@chat.post("/api/chat/select")
+@chat.get("/api/chat/select")
 async def select_chat(
     user: Annotated[schema.User, Depends(get_user)],
-    db: Annotated[DatabaseService, Depends(get_db)],
-    where: model.ChatWhere,
-    skip: int = 0,
-    limit: int = 10,
+    chat_id: int | None = None,
+    cid: int | None = None,
 ) -> list[model.ChatOut]:
     # 我们应该是从用户的chats中获取聊天信息吧
     # 默认按照时间排序好了，不然太乱了
     chats: list[schema.Chat] = []
     for chat in user.chats:
-        if where.chat_id and chat.chat_id != where.chat_id:
+        if chat_id and chat.chat_id != chat_id:
             continue
-        if where.cid and chat.cid != where.cid:
+        if cid and chat.cid != cid:
             continue
         if chat.is_deleted:
             continue
@@ -90,12 +88,12 @@ async def select_chat(
                 cid=chat.cid,
                 create_at=chat.create_at,
                 history=[
-                    model.ContentOut(
-                        content=content.content,
-                        sender=content.sender,
-                        created_at=content.created_at,
+                    model.MessageOut(
+                        content=message.content,
+                        sender=message.sender,
+                        created_at=message.created_at,
                     )
-                    for content in chat.contents
+                    for message in chat.messages
                 ],
             )
         )
@@ -105,7 +103,9 @@ async def select_chat(
 
 @chat.post("/api/chat/delete")
 async def delete_chat(
-    chat_ids: list[int],
+    chat_ids: Annotated[
+        list[int], Body(description="聊天id列表", examples=[[1, 2, 3]])
+    ],
     db: Annotated[DatabaseService, Depends(get_db)],
     user: Annotated[schema.User, Depends(get_user)],
 ):

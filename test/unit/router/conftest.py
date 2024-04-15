@@ -26,7 +26,8 @@ def token() -> model.Token:
         json=model.UserCreate(
             name=username,
             password=password,
-            description="test",
+            avatar_description="test",
+            avatar_url="test",
         ).model_dump(),
     )
     assert response.status_code == 200

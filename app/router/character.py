@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 
 from app.common import conf, model
 from app.database import DatabaseService, schema
@@ -12,7 +12,7 @@ character = APIRouter(prefix="/api/character")
 # 删除机器人 接口1.2 删除角色 /character/delete
 @character.post(path="/delete")
 async def delete_character(
-    cids: list[int],
+    cids: Annotated[list[int], Body(description="角色id列表", examples=[[1, 2, 3]])],
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
     user: Annotated[schema.User, Depends(get_user)],
 ):
@@ -38,15 +38,14 @@ async def update_character_info(
 
 # 接口1.7 查询角色信息 /character/select
 # select_character(where: CharacterWhere) -> list[CharacterV2]:
-@character.post(path="/select")
+@character.get(path="/select")
 async def character_select(
     user: Annotated[schema.User, Depends(get_user)],
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
-    where: model.CharacterWhere,
-    skip: int = 0,
-    limit: int = 10,
+    cid: int | None = None,
+    category: str | None = None,
 ) -> list[model.CharacterOut]:
-    return db.get_characters(where=where, skip=skip, limit=limit)  # type: ignore
+    return db.get_characters(where=model.CharacterWhere(cid=cid, category=category))  # type: ignore
 
 
 # 创建机器人信息 接口1.1 创建角色 /character/create  自己完成，等给他们看看

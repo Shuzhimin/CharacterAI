@@ -5,29 +5,16 @@
 
 from datetime import datetime
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    PrimaryKeyConstraint,
-    String,
-    create_engine,
-)
+from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker
-from app.common import conf
+from app.common import conf, model
 
 # database engine
 # Create a database URL for SQLAlchemy¶
 # This is the main line that you would have to modify if you wanted to use a different database.
 SQLALCHEMY_DATABASE_URL = conf.get_postgres_sqlalchemy_database_url()
-engine = create_engine(
-    url=SQLALCHEMY_DATABASE_URL,
-    # ..is needed only for SQLite. It's not needed for other databases
-    # connect_args={"check_same_thread": False},
-)
+engine = create_engine(url=SQLALCHEMY_DATABASE_URL)
 
 # class factory
 # configured to create instances of Session bound to your specific database engine
@@ -47,71 +34,58 @@ class User(Base):
 
     uid: Mapped[int] = mapped_column(primary_key=True, index=True)
     name: Mapped[str] = mapped_column(unique=True, index=True)
-    password: Mapped[str] = mapped_column()
-    description: Mapped[str] = mapped_column()
-    role: Mapped[str] = mapped_column(default="user")
+    role: Mapped[str] = mapped_column(default=model.Role.USER.value)
+    avatar_description: Mapped[str] = mapped_column()
+    avatar_url: Mapped[str] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     updated_at: Mapped[datetime | None] = mapped_column(default=None)
+    password: Mapped[str] = mapped_column()
     is_deleted: Mapped[bool] = mapped_column(default=False)
 
-    characters: Mapped[list["Character"]] = relationship(back_populates="owner")
-    # 不对啊，这里不应该反向计算owner啊
-    # 不对，这是两个不同的owner
-    chats: Mapped[list["Chat"]] = relationship(back_populates="owner")
+    characters: Mapped[list["Character"]] = relationship(
+        back_populates="associated_user"
+    )
+    chats: Mapped[list["Chat"]] = relationship(back_populates="associated_user")
 
 
 class Character(Base):
     __tablename__ = "characters"
 
     cid: Mapped[int] = mapped_column(primary_key=True, index=True)
+    uid: Mapped[int] = mapped_column(ForeignKey("users.uid"))
     name: Mapped[str] = mapped_column(index=True)
     description: Mapped[str] = mapped_column()
     category: Mapped[str] = mapped_column()
+    avatar_description: Mapped[str] = mapped_column(default="")
     avatar_url: Mapped[str] = mapped_column(default="")
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
-    updated_at: Mapped[datetime | None] = mapped_column(default=None)
-    # 说实话，这两个字段名设计的非常差劲
-    # 直接看这两个字段根本不知道你想说明什么
-    # 状态？
-    # status = Column(String, default="active")
-    # # 属性？
-    # attr = Column(String, default="normal")
-    # 为什么不能变成两个is_XXX 毕竟目前也就只有两个作用
+    updated_at: Mapped[datetime] = mapped_column(default=datetime.now())
     is_deleted: Mapped[bool] = mapped_column(default=False)
     is_shared: Mapped[bool] = mapped_column(default=False)
 
-    owner_id: Mapped[int] = mapped_column(ForeignKey("users.uid"))
-    owner: Mapped[User] = relationship(back_populates="characters")
+    associated_user: Mapped[User] = relationship(back_populates="characters")
 
 
 class Chat(Base):
     __tablename__ = "chats"
 
     chat_id: Mapped[int] = mapped_column(primary_key=True, index=True)
-    # uid = Column(Integer, index=True)
+    uid: Mapped[int] = mapped_column(ForeignKey("users.uid"))
     cid: Mapped[int] = mapped_column(ForeignKey("characters.cid"))
     create_at: Mapped[datetime] = mapped_column(default=datetime.now())
-    # status = Column(String, default="active")
     is_deleted: Mapped[bool] = mapped_column(default=False)
 
-    # __table_args__ = PrimaryKeyConstraint("chat_id", "content_id")
-    # creator_id = Column(Integer, ForeignKey("users.uid"))
-    uid: Mapped[int] = mapped_column(ForeignKey("users.uid"))
-
-    owner: Mapped[User] = relationship(back_populates="chats")
-    contents: Mapped[list["Content"]] = relationship(back_populates="owner")
+    associated_user: Mapped[User] = relationship(back_populates="chats")
+    messages: Mapped[list["Message"]] = relationship(back_populates="associated_chat")
 
 
-class Content(Base):
-    __tablename__ = "contents"
+class Message(Base):
+    __tablename__ = "messages"
 
-    # chat_id = Column(Integer, index=True)
-    content_id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    mid: Mapped[int] = mapped_column(primary_key=True, index=True)
+    chat_id: Mapped[int] = mapped_column(ForeignKey("chats.chat_id"))
     sender: Mapped[int] = mapped_column()
     content: Mapped[str] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
 
-    # __table_args__ = PrimaryKeyConstraint("chat_id", "content_id")
-
-    chat_id: Mapped[int] = mapped_column(ForeignKey("chats.chat_id"))
-    owner: Mapped[Chat] = relationship(back_populates="contents")
+    associated_chat: Mapped[Chat] = relationship(back_populates="messages")

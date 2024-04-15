@@ -42,8 +42,9 @@ def create_character(token: model.Token) -> model.CharacterOut:
         json=model.CharacterCreate(
             name=str(uuid.uuid4()),
             description=str(uuid.uuid4()),
+            avatar_url="avatar url",
             category=str(uuid.uuid4()),
-            owner_id=uid,
+            uid=uid,
         ).model_dump(),
     )
     assert response.status_code == 200
@@ -78,10 +79,9 @@ def test_create_chat(mock_invoke_model_api, token: model.Token):
         print(data)
 
     # select chat
-    response = client.post(
+    response = client.get(
         url="/api/chat/select",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
-        json=model.ChatWhere().model_dump(),
     )
     assert response.status_code == 200
 

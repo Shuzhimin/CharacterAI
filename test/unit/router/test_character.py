@@ -25,8 +25,10 @@ def test_character(token: model.Token):
         json=model.CharacterCreate(
             name=str(uuid.uuid4()),
             description=str(uuid.uuid4()),
+            avatar_description=str(uuid.uuid4()),
+            avatar_url="avatar url",
             category=str(uuid.uuid4()),
-            owner_id=uid,
+            uid=uid,
         ).model_dump(),
     )
     assert response.status_code == 200
@@ -35,10 +37,9 @@ def test_character(token: model.Token):
     print(character)
 
     # select character
-    response = client.post(
+    response = client.get(
         url=f"{prefix}/select",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
-        json={},
     )
     assert response.status_code == 200
     print(response.json())
@@ -78,4 +79,4 @@ def test_character(token: model.Token):
     print(response.json())
 
     character = db.get_character(cid=character.cid)
-    assert character.is_deleted == True
+    assert character.is_deleted

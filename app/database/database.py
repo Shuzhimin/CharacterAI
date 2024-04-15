@@ -141,7 +141,7 @@ class DatabaseService:
             query = query.filter(schema.Character.name == where.name)
         if where.category:
             query = query.filter(schema.Character.category == where.category)
-        query = query.offset(skip).limit(limit)
+        # query = query.offset(skip).limit(limit)
         return [c for c in self._db.execute(query).scalars().all()]
 
     # def get_character_by_cid(self, cid: int) -> schema.Character:
@@ -235,8 +235,8 @@ class DatabaseService:
     #     )
 
     # content
-    def create_content(self, content_create: model.ContentCreate) -> schema.Content:
-        db_content = schema.Content(**content_create.model_dump())
+    def create_content(self, content_create: model.MessageCreate) -> schema.Message:
+        db_content = schema.Message(**content_create.model_dump())
         self._db.add(db_content)
         self._db.commit()
         return db_content
@@ -245,8 +245,8 @@ class DatabaseService:
 
     # content 不允许delete
 
-    def get_content(self, content_id: int) -> schema.Content:
-        db_content = self._db.get(schema.Content, content_id)
+    def get_content(self, content_id: int) -> schema.Message:
+        db_content = self._db.get(schema.Message, content_id)
         return db_content
 
     # register, login, authenticate

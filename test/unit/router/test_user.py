@@ -27,7 +27,8 @@ def test_user_register_login_update_me():
         json=model.UserCreate(
             name=username,
             password=password,
-            description="test",
+            avatar_description="test",
+            avatar_url="avatar url",
         ).model_dump(),
     )
     assert response.status_code == 200
@@ -52,12 +53,14 @@ def test_user_register_login_update_me():
     # then update the user info
     new_username = str(uuid.uuid4())
     new_description = str(uuid.uuid4())
+    new_avatar_url = str(uuid.uuid4())
     response = client.post(
         url=f"{prefix}/update",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
         json=model.UserUpdate(
             name=new_username,
-            description=new_description,
+            avatar_description=new_description,
+            avatar_url=new_avatar_url,
         ).model_dump(),
     )
     assert response.status_code == 200
@@ -65,4 +68,5 @@ def test_user_register_login_update_me():
     # then check the db
     user = db.get_user_by_name(name=new_username)
     assert user.name == new_username
-    assert user.description == new_description
+    assert user.avatar_description == new_description
+    assert user.avatar_url == new_avatar_url

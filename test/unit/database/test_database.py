@@ -18,11 +18,13 @@ def create_user() -> schema.User:
     name = str(uuid.uuid4())
     password = str(uuid.uuid4())
     description = str(uuid.uuid4())
+
     user = db.create_user(
         model.UserCreate(
             name=name,
             password=password,
-            description=description,
+            avatar_description=description,
+            avatar_url="avatar url",
         )
     )
     return user
@@ -33,8 +35,9 @@ def create_character(user: schema.User) -> schema.Character:
         model.CharacterCreate(
             name=str(uuid.uuid4()),
             description="test",
+            avatar_url="avatar url",
             category="test",
-            owner_id=user.uid,
+            uid=user.uid,
         )
     )
     return character
@@ -58,11 +61,15 @@ def test_create_update_delete_user():
     new_description = str(uuid.uuid4())
     new_user = db.update_user(
         uid=user.uid,  # 卧槽啊，果然就没有type hint error了
-        user_update=model.UserUpdate(name=new_username, description=new_description),
+        user_update=model.UserUpdate(
+            name=new_username,
+            avatar_description=new_description,
+            avatar_url="avatar url",
+        ),
     )
     assert new_user.name == new_username
     assert new_user.password == user.password
-    assert new_user.description == new_description
+    assert new_user.avatar_description == new_description
 
     db.delete_user(uid=user.uid)
     user = db.get_user(uid=user.uid)
@@ -99,13 +106,13 @@ def test_chat():
     chat = create_chat(user=user, character=character)
 
     db.create_content(
-        content_create=model.ContentCreate(
+        content_create=model.MessageCreate(
             chat_id=chat.chat_id, content="test", sender=user.uid
         )
     )
     db.create_content(
-        content_create=model.ContentCreate(
+        content_create=model.MessageCreate(
             chat_id=chat.chat_id, content="test", sender=character.cid
         )
     )
-    print(chat.contents)
+    print(chat.messages)
