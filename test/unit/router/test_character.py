@@ -15,7 +15,7 @@ prefix = "/api/character"
 
 
 # 为痕么create character会去 update chats
-def test_character(token: model.Token):
+def test_character(token: model.Token, avatar_url: str):
     uid = parse_token(token.access_token).uid
 
     # create character
@@ -26,7 +26,7 @@ def test_character(token: model.Token):
             name=str(uuid.uuid4()),
             description=str(uuid.uuid4()),
             avatar_description=str(uuid.uuid4()),
-            avatar_url="avatar url",
+            avatar_url=avatar_url,
             category=str(uuid.uuid4()),
             uid=uid,
         ).model_dump(),

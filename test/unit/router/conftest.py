@@ -16,7 +16,12 @@ db = DatabaseService()
 
 
 @pytest.fixture(scope="function")
-def token() -> model.Token:
+def avatar_url() -> str:
+    return "http://localhost:9001/browser/test/MTBmYTBiOWQtNjgxZS01MjhkLWJiZTEtMmU3NzQ0ZTNlMWZlXzAucG5n"
+
+
+@pytest.fixture(scope="function")
+def token(avatar_url: str) -> model.Token:
     prefix = "/api/user"
     username = str(uuid.uuid4())
     password = str(uuid.uuid4())
@@ -27,7 +32,7 @@ def token() -> model.Token:
             name=username,
             password=password,
             avatar_description="test",
-            avatar_url="test",
+            avatar_url=avatar_url,
         ).model_dump(),
     )
     assert response.status_code == 200

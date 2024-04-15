@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Body
 
 from app.common import conf, model
+from app.common.minio import minio_service
 from app.database import DatabaseService, schema
 from app.dependency import get_db, get_user
 
@@ -33,6 +34,7 @@ async def update_character_info(
     #     character_update.attr = character_update.attr
     # else:
     #     character_update.attr = "Normal"
+    character_update = minio_service.update_avatar_url(obj=character_update)
     return db.update_character(cid=cid, character_update=character_update)
 
 
@@ -55,4 +57,5 @@ async def create_character(
     character: model.CharacterCreate,
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
 ) -> model.CharacterOut:
+    character = minio_service.update_avatar_url(obj=character)
     return db.create_character(character=character)

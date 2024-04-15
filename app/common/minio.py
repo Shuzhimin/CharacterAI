@@ -8,6 +8,7 @@ import requests
 from minio import Minio
 from minio.error import S3Error  # type: ignore
 
+from pydantic import BaseModel
 from app.common import conf
 
 
@@ -39,6 +40,13 @@ class MinIOService:
         if not url.startswith("http://") or not url.startswith("https://"):
             url = "http://" + url
         return url
+
+    def update_avatar_url(self, obj: BaseModel) -> BaseModel:
+        avatar_url = getattr(obj, "avatar_url", None)
+        if avatar_url is not None:
+            avatar_url = minio_service.upload_file_from_url(avatar_url)
+            setattr(obj, "avatar_url", avatar_url)
+        return obj
 
 
 minio_service = MinIOService()

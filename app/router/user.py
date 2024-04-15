@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
+from app.common.minio import minio_service
 from app.common import model
 from app.database import DatabaseService, schema
 from app.dependency import get_db, get_user
@@ -74,6 +75,8 @@ async def register(
     # avatar_url = get_avatar_url_by_describe(describe=avatar_describe)
     # 2. create user
     # hash password
+    # 我们有四个地方都有类似的逻辑 所以我们需要提供一个函数进行更新
+    user_create = minio_service.update_avatar_url(obj=user_create)  # type: ignore
     user_create.password = pwd_context.hash(user_create.password)
     user = db.create_user(user=user_create)
     return user
@@ -108,6 +111,7 @@ async def user_update(
     user: Annotated[schema.User, Depends(get_user)],
     update: model.UserUpdate,
 ) -> model.UserOut:
+    update = minio_service.update_avatar_url(obj=update)
     return db.update_user(uid=user.uid, user_update=update)
 
 

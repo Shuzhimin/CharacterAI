@@ -34,7 +34,7 @@ def mock_invoke_model_api(mocker: MockerFixture):
     )
 
 
-def create_character(token: model.Token) -> model.CharacterOut:
+def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
     uid = parse_token(token.access_token).uid
     response = client.post(
         url="/api/character/create",
@@ -42,7 +42,7 @@ def create_character(token: model.Token) -> model.CharacterOut:
         json=model.CharacterCreate(
             name=str(uuid.uuid4()),
             description=str(uuid.uuid4()),
-            avatar_url="avatar url",
+            avatar_url=avatar_url,
             category=str(uuid.uuid4()),
             uid=uid,
         ).model_dump(),
@@ -54,8 +54,8 @@ def create_character(token: model.Token) -> model.CharacterOut:
     return character
 
 
-def test_create_chat(mock_invoke_model_api, token: model.Token):
-    character = create_character(token)
+def test_create_chat(mock_invoke_model_api, token: model.Token, avatar_url: str):
+    character = create_character(token, avatar_url)
 
     # new websocket to create a new chat
     # https://indominusbyte.github.io/fastapi-jwt-auth/advanced-usage/websocket/
