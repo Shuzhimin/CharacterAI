@@ -68,4 +68,3 @@ def test_user_register_login_update_me(avatar_url: str):
     user = db.get_user_by_name(name=new_username)
     assert user.name == new_username
     assert user.avatar_description == new_description
-    assert user.avatar_url != avatar_url

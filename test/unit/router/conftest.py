@@ -9,15 +9,21 @@ from fastapi.testclient import TestClient
 from app.common import model
 from app.database import DatabaseService, schema
 from app.main import app
+from app.common.minio import minio_service
+from app.llm import generate_image
 
 client = TestClient(app)
 
 db = DatabaseService()
 
 
+url = generate_image("a cute cat")
+minio_url = minio_service.upload_file_from_url(url=url)
+
+
 @pytest.fixture(scope="function")
 def avatar_url() -> str:
-    return "http://localhost:9001/browser/test/MTBmYTBiOWQtNjgxZS01MjhkLWJiZTEtMmU3NzQ0ZTNlMWZlXzAucG5n"
+    return minio_url
 
 
 @pytest.fixture(scope="function")
