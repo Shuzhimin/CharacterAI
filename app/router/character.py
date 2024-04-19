@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Body, Depends, HTTPException
 
 from app.common import conf, model
 from app.common.minio import minio_service
@@ -17,8 +17,12 @@ async def delete_character(
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
     user: Annotated[schema.User, Depends(get_user)],
 ):
-    for cid in cids:
-        db.delete_character(cid=cid)
+    if user.is_admin():
+        for cid in cids:
+            db.delete_character(cid=cid)
+    else:
+        for cid in cids:
+            db.delete_character(cid=cid, uid=user.uid)
 
 
 # 接口1.3 修改角色 /character/update  功能描述：对已创建的角色进行修改，用户只能修改自己创建的角色，不能修改管理员创建的角色，管理员可以修改任意角色。
@@ -35,6 +39,10 @@ async def update_character_info(
     # else:
     #     character_update.attr = "Normal"
     character_update = minio_service.update_avatar_url(obj=character_update)
+    if not user.is_admin():
+        cids = [character.cid for character in user.characters]
+        if cid not in cids:
+            raise HTTPException(status_code=403, detail="Permission denied")
     return db.update_character(cid=cid, character_update=character_update)
 
 
@@ -47,7 +55,7 @@ async def character_select(
     cid: int | None = None,
     category: str | None = None,
 ) -> list[model.CharacterOut]:
-    return db.get_characters(where=model.CharacterWhere(cid=cid, category=category))  # type: ignore
+    return db.get_characters(where=model.CharacterWhere(uid=user.uid, cid=cid, category=category))  # type: ignore
 
 
 # 创建机器人信息 接口1.1 创建角色 /character/create  自己完成，等给他们看看
@@ -58,4 +66,6 @@ async def create_character(
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
 ) -> model.CharacterOut:
     character = minio_service.update_avatar_url(obj=character)
+    if not user.is_admin():
+        character.is_shared = False
     return db.create_character(character=character)

@@ -48,6 +48,9 @@ class User(Base):
     )
     chats: Mapped[list["Chat"]] = relationship(back_populates="associated_user")
 
+    def is_admin(self) -> bool:
+        return self.role == model.Role.ADMIN.value
+
 
 class Character(Base):
     __tablename__ = "characters"

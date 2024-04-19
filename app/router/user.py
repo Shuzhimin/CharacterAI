@@ -1,16 +1,17 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, FastAPI, Form, HTTPException, status
+from fastapi import (APIRouter, Body, Depends, FastAPI, Form, HTTPException,
+                     status)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
-from app.common.minio import minio_service
 from app.common import model
+from app.common.minio import minio_service
 from app.database import DatabaseService, schema
-from app.dependency import get_db, get_user
+from app.dependency import get_admin, get_db, get_user
 
 # 2024/3/7
 # zhangzhong
@@ -121,6 +122,30 @@ async def user_me(
     user: Annotated[schema.User, Depends(get_user)],
 ) -> model.UserOut:
     return user
+
+
+# only admin could get all users
+@user.get("/all")
+async def user_all(
+    db: Annotated[DatabaseService, Depends(dependency=get_db)],
+    admin: Annotated[schema.User, Depends(get_admin)],
+) -> list[model.UserOut]:
+    users = db.get_users()
+    user_outs: list[model.UserOut] = []
+    for user in users:
+        user_out = model.UserOut(**user.dict())
+        user_outs.append(user_out)
+    return user_outs
+
+
+@user.post("/delete")
+async def delete_users(
+    db: Annotated[DatabaseService, Depends(dependency=get_db)],
+    admin: Annotated[schema.User, Depends(get_admin)],
+    uids: Annotated[list[int], Body(description="uid列表", examples=[[1, 2, 3]])],
+) -> None:
+    for uid in uids:
+        db.delete_user(uid=uid)
 
 
 # TODO(zhangzhong): admin related API

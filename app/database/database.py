@@ -93,6 +93,11 @@ class DatabaseService:
         db_user = self._db.get(schema.User, uid)
         return db_user
 
+    def get_users(self) -> list[schema.User]:
+        result = self._db.execute(select(schema.User).filter_by(is_deleted=False))
+        users = result.scalars().all()
+        return [u for u in users]
+
     def get_user_by_name(self, name: str) -> schema.User:
         return self._db.execute(
             select(schema.User).filter_by(name=name)
@@ -119,10 +124,16 @@ class DatabaseService:
         self._db.commit()
         return character
 
-    def delete_character(self, cid: int) -> None:
-        db_character = self._db.execute(
-            select(schema.Character).filter_by(cid=cid)
-        ).scalar_one_or_none()
+    def delete_character(self, cid: int, uid: int | None = None) -> None:
+        db_character = None
+        if uid is not None:
+            db_character = self._db.execute(
+                select(schema.Character).filter_by(cid=cid, uid=uid)
+            ).scalar_one_or_none()
+        else:
+            db_character = self._db.execute(
+                select(schema.Character).filter_by(cid=cid)
+            ).scalar_one_or_none()
         if db_character:
             # self._db.delete(db_character)
             db_character.is_deleted = True
@@ -131,6 +142,7 @@ class DatabaseService:
     def get_character(self, cid: int) -> schema.Character:
         return self._db.get_one(schema.Character, cid)
 
+    # 这个函数没有指定uid a
     def get_characters(
         self, where: model.CharacterWhere, skip: int = 0, limit: int = 10
     ) -> list[schema.Character]:
@@ -143,6 +155,8 @@ class DatabaseService:
             query = query.filter(schema.Character.name == where.name)
         if where.category:
             query = query.filter(schema.Character.category == where.category)
+        if where.uid:
+            query = query.filter(schema.Character.uid == where.uid)
         # query = query.offset(skip).limit(limit)
         return [c for c in self._db.execute(query).scalars().all()]
 
@@ -252,3 +266,4 @@ class DatabaseService:
         return db_content
 
     # register, login, authenticate
+    #

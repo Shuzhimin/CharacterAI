@@ -79,3 +79,15 @@ def get_user(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+def get_admin(
+    user: Annotated[schema.User, Depends(get_user)],
+) -> schema.User:
+    if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Permission denied",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user

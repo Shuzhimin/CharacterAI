@@ -3,8 +3,8 @@
 # redefine all the models
 
 from datetime import datetime
-
 from enum import Enum
+
 from pydantic import BaseModel, Field
 
 
@@ -39,7 +39,7 @@ class UserOut(BaseModel):
     role: str = Field(description="用户角色")
     created_at: datetime = Field(description="创建时间")
     updated_at: datetime | None = Field(description="更新时间")
-    is_deleted: bool = Field(description="是否删除")
+    # is_deleted: bool = Field(description="是否删除")
 
     class Config:
         from_attributes = True
@@ -54,11 +54,13 @@ class CharacterCreate(BaseModel):
     category: str = Field(description="机器人类型")
     # 感觉这个东西作为字段名不太好
     uid: int = Field(description="用户id")
+    is_shared: bool = Field(default=False, description="是否共享")
 
 
 # 因为sqlalchemy的底层实现非常简单
 # 所以提供一个where的model非常方便
 class CharacterWhere(BaseModel):
+    uid: int | None = None
     cid: int | None = None
     name: str | None = None
     category: str | None = None
@@ -81,7 +83,7 @@ class CharacterOut(BaseModel):
     avatar_url: str = Field(description="头像url")
     created_at: datetime = Field(description="创建时间")
     updated_at: datetime | None = Field(description="更新时间")
-    is_deleted: bool = Field(description="是否删除")
+    # is_deleted: bool = Field(description="是否删除")
     is_shared: bool = Field(description="是否共享")
     uid: int = Field(description="用户id")
 

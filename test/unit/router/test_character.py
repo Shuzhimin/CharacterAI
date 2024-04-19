@@ -87,5 +87,4 @@ def test_character(token: model.Token, avatar_url: str):
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
     )
     characters = [model.CharacterOut(**c) for c in response.json()]
-    for character in characters:
-        assert character.is_deleted is False
+    assert len(characters) == 0
