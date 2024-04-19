@@ -5,7 +5,7 @@
         <el-header class="block" style="white-space: pre-wrap">
           <el-row style="width: 100%;display: flex;align-items: center">
             <div style="justify-content: left">
-              <span style="color: white; font-size: large;text-align: center;white-space: pre-wrap">{{this.role.label}}</span>
+              <span style="color: white; font-size: large;text-align: center;white-space: pre-wrap">{{this.role.name}}</span>
             </div>
             <div style="margin-left: auto">
               <el-dropdown trigger="hover" split-button type="primary" @command="handleCommand">
@@ -25,7 +25,7 @@
             <span>是否确定删除此角色！(该操作无法恢复)</span>
             <span slot="footer" class="dialog-footer">
               <el-button @click="delDialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="delDialogVisible = false">确 定</el-button>
+              <el-button type="primary" @click="delDialogVisible = false;delete_character()">确 定</el-button>
             </span>
           </el-dialog>
           <el-dialog
@@ -35,7 +35,7 @@
             :before-close="handleClose">
             <el-form :model="editForm" label-position="top" style="max-width: 400px; margin: 0 auto; ">
               <el-form-item label="角色分类" :prop="'selectedCategory'" required>
-                <el-select v-model="editForm.selectedCategory" placeholder="请选择角色分类">
+                <el-select v-model="editForm.selectedCategory" placeholder="请选择角色分类" style="background-color: #cccccc; color: black">
                   <el-option label="美食" value="food"></el-option>
                   <el-option label="旅游" value="travel"></el-option>
                   <el-option label="科技" value="technology"></el-option>
@@ -44,20 +44,25 @@
                   <el-option label="其他" value="other"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="创建角色名称" :prop="'bot_name'" required>
+              <el-form-item label="角色名称" :prop="'bot_name'" required>
                 <el-input v-model="editForm.bot_name" style="background-color: #cccccc"></el-input>
               </el-form-item>
-              <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>
-                <el-input v-model="editForm.bot_info" :rows="4" type="textarea"
-                          :autosize="{ minRows: 6, maxRows: 8 }"
-                          placeholder="请输入身份背景"></el-input>
-                <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>
-              </el-form-item>
+<!--              <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>-->
+<!--                <el-input v-model="editForm.description" :rows="4" type="textarea"-->
+<!--                          :autosize="{ minRows: 6, maxRows: 8 }"-->
+<!--                          placeholder="请输入身份背景"></el-input>-->
+<!--                <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>-->
+<!--              </el-form-item>-->
 <!--              <el-form-item label="人物角色头像生成" class="a">-->
 <!--                <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
 <!--              </el-form-item>-->
+              <el-form-item label="角色描述">
+                <el-input v-model="editForm.description" :rows="4" type="textarea"
+                          :autosize="{ minRows: 6, maxRows: 8 }"
+                          placeholder="请输入角色的描述"></el-input>
+              </el-form-item>
               <el-form-item label="头像" >
-                <GenerateAvatar :avatarUrl="editForm.avatarUrl"></GenerateAvatar>
+                <GenerateAvatar :avatarUrl="editForm.avatarUrl" :description="editForm.avatar_description" @returnUrl="getAvatarUrl"></GenerateAvatar>
               </el-form-item>
               <!--          <el-form-item label="对话人物名称" :prop="'user_name'" required>-->
               <!--            <el-input v-model="createForm.user_name" class="a"></el-input>-->
@@ -73,13 +78,13 @@
               <!--            <el-image v-if="dialogueAvatarUrl" :src="dialogueAvatarUrl"-->
               <!--                      style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>-->
               <!--          </el-form-item>-->
-              <el-form-item>
-                <el-button type="primary" @click="handleCreate">立即创建</el-button>
-              </el-form-item>
+<!--              <el-form-item>-->
+<!--                <el-button type="primary" @click="handleCreate">立即创建</el-button>-->
+<!--              </el-form-item>-->
             </el-form>
             <span slot="footer" class="dialog-footer">
               <el-button @click="editDialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="editDialogVisible = false">确 定</el-button>
+              <el-button type="primary" @click="update_user">确 定</el-button>
             </span>
           </el-dialog>
           <!-- 头像生成对话框 -->
@@ -139,6 +144,7 @@ import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
 import Character from '@/components/dialog/Character';
 import { simulateAvatar, simulateCreateCharacter } from '@/api/createrole';
+import { character_delete, character_update } from '@/api/character';
 export default {
   name: 'Dialogue',
   components: { Character, GenerateAvatarDialog, GenerateAvatar },
@@ -169,7 +175,7 @@ export default {
       },
       editForm: {
         bot_name: '',
-        bot_info: '',
+        description: '',
         // user_name: '',
         // user_info: ''
         selectedCategory: '',
@@ -183,16 +189,23 @@ export default {
   },
   created() {
     // this.role = localStorage.getItem('roleMess')
-    this.role.label = localStorage.getItem('roleMess_label')
-    this.role.img_url = localStorage.getItem('roleMess_img_url')
+
+    if (localStorage.getItem("roleMess_id") === null){
+      console.log("zzzz")
+      return
+    }
+    this.role.category = localStorage.getItem('roleCategory')
+    this.role.name = localStorage.getItem('roleMess_name')
+    this.role.img_url = localStorage.getItem('roleMess_avatar_url')
     this.role.id = localStorage.getItem('roleMess_id')
     this.role.description = localStorage.getItem('roleMess_description')
+    this.role.avatar_description = localStorage.getItem('roleMess_avatar_description')
     window.sessionStorage.setItem('activePath', '/dialogue')
     this.$emit('updateParentValue', '/dialogue')
   },
   computed: {
     bot_infoLength() {
-      return this.editForm.bot_info
+      return this.editForm.description.length
     },
   },
   methods: {
@@ -230,14 +243,12 @@ export default {
       }
       else if (command === 'b'){
         this.editDialogVisible = true
-        let params = {
-          id: '1',
-          data: '测试数据'
-        }
-        console.log(params)
-        // testAPI(params).then(res => {
-        //   console.log(res)
-        // })
+        this.editForm.selectedCategory = this.role.category
+        this.editForm.bot_name = this.role.name
+        this.editForm.avatarUrl = this.role.img_url
+        this.editForm.id = this.role.id
+        this.editForm.description = this.role.description
+        this.editForm.avatar_description = this.role.avatar_description
       }
     },
     generateAvatar() {
@@ -255,20 +266,20 @@ export default {
       // 关闭对话框
       this.generateAvatarDialogVisible = false;
     },
-    handleCreate() {
-      // 处理创建角色的逻辑，可以发送请求给后端进行处理
-      // 调用模拟接口函数，并传入角色信息
-      const response1 = simulateCreateCharacter(this.createForm);
-      this.createdCharacterId = response1.data.characterId; // 保存角色 ID
-      // 输出模拟的响应数据到控制台，可以根据需要进行后续处理
-      console.log('创建角色信息：', response1);
-
-      if (response1.success) {
-        // this.$message.success('创建角色成功');
-        // 弹出提示框
-        this.showSuccessMessageBox();
-      }
-    },
+    // handleCreate() {
+    //   // 处理创建角色的逻辑，可以发送请求给后端进行处理
+    //   // 调用模拟接口函数，并传入角色信息
+    //   const response1 = simulateCreateCharacter(this.createForm);
+    //   this.createdCharacterId = response1.data.characterId; // 保存角色 ID
+    //   // 输出模拟的响应数据到控制台，可以根据需要进行后续处理
+    //   console.log('创建角色信息：', response1);
+    //
+    //   if (response1.success) {
+    //     // this.$message.success('创建角色成功');
+    //     // 弹出提示框
+    //     this.showSuccessMessageBox();
+    //   }
+    // },
     showSuccessMessageBox() {
       this.$confirm(`角色创建成功，您的角色 ID 是 ${this.createdCharacterId}，可以选择与创建角色对话或回到首页查看角色`, '创建成功', {
         confirmButtonText: '与创建角色对话',
@@ -302,6 +313,48 @@ export default {
     },
     closeGenerateAvatarDialog() {
       this.generateAvatarDialogVisible = false;
+    },
+    delete_character(){
+      let params = [
+        parseInt(localStorage.getItem("roleMess_id"))
+      ]
+      let that = this
+      console.log("zzz")
+      console.log(params)
+      character_delete(params).then(res => {
+        console.log(res)
+        console.log("删除！")
+        that.$message.success("删除角色成功！")
+        that.localStorage.removeItem("roleMess_id")
+        that.localStorage.removeItem("roleMess_name")
+        that.localStorage.removeItem("roleMess_avatar_url")
+        that.localStorage.removeItem("roleCategory")
+        that.localStorage.removeItem("roleMess_description")
+        that.localStorage.removeItem("roleMess_avatar_description")
+        that.window.sessionStorage.setItem('activePath', '/mainpage')
+        that.$router.push('/mainpage')
+      })
+    },
+    getAvatarUrl(url, avatarDescription){
+      this.editForm.avatarUrl = url
+      this.editForm.avatar_description = avatarDescription
+      console.log(url)
+    },
+    update_user(){
+      let params = {
+        "name": this.editForm.bot_name,
+        "description": this.editForm.description,
+        "category": this.editForm.selectedCategory,
+        "avatar_description": this.editForm.avatar_description,
+        "avatar_url": this.editForm.avatarUrl
+      }
+      character_update(params, this.editForm.id).then(res => {
+        if (res.status === 200){
+          console.log(res)
+          this.$message.success("修改成功")
+        }
+        this.editDialogVisible = false
+      })
     }
   }
 };

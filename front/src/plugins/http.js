@@ -43,6 +43,14 @@ const http = {
         if(params) config.data = qs.parse(params)
         return request(config)
     },
+    postList(url,params){
+      const config = {
+        method: 'post',
+        url:url
+      };
+      if(params) config.data = params
+      return request(config)
+    },
     postToFile(url,params){
         const config = {
             method: 'post',

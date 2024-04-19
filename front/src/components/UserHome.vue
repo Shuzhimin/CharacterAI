@@ -32,17 +32,17 @@
               <el-input v-model="form.character_num" :disabled="true" style="width: 50px"></el-input> <span>个</span>
             </el-form-item>
 
-            <el-form-item v-if="form.modifyFlag" label="新密码" :label-width="formLabelWidth">
-              <el-input v-model="form.new_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
-            </el-form-item>
-            <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">
-              <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>
-            </el-form-item>
+<!--            <el-form-item v-if="form.modifyFlag" label="新密码" :label-width="formLabelWidth">-->
+<!--              <el-input v-model="form.new_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>-->
+<!--            </el-form-item>-->
+<!--            <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">-->
+<!--              <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>-->
+<!--            </el-form-item>-->
 <!--            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">-->
 <!--              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
 <!--            </el-form-item>-->
             <el-form-item v-if="form.modifyFlag" label="头像" :label-width="formLabelWidth">
-              <GenerateAvatar :avatarUrl="cur_account.avatar_url"></GenerateAvatar>
+              <GenerateAvatar :avatarUrl="cur_account.avatar_url" :description="cur_account.description" @returnUrl="getAvatarUrl"></GenerateAvatar>
             </el-form-item>
 
           </el-form>
@@ -130,6 +130,7 @@
 <script>
 import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
+import { user_me, user_update } from '@/api/user';
 export default {
   name: 'home',
   components: { GenerateAvatarDialog, GenerateAvatar },
@@ -190,6 +191,8 @@ export default {
       cur_account: {
         id: 1,
         username: 'test',
+        description: '',
+        role: '',
         avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
         character_num: 5,
       }
@@ -200,9 +203,16 @@ export default {
 
     this.activePath = window.sessionStorage.getItem('activePath')
 
+    this.cur_account.id = window.localStorage.getItem("uid")
+    this.cur_account.username = window.localStorage.getItem("name")
+    this.cur_account.description = window.localStorage.getItem("description")
+    this.cur_account.role = window.localStorage.getItem("role")
+    this.cur_account.avatar_url = window.localStorage.getItem("avatarUrl")
+
     this.form.username = this.cur_account.username
     this.form.avatar_url = this.cur_account.avatar_url
     this.form.character_num = this.cur_account.character_num
+    this.form.avatar_url = this.cur_account.avatar_url
   },
   methods: {
     logout () {
@@ -224,35 +234,29 @@ export default {
       this.form.new_password=''
       this.form.check=''
     },
-    async modify(){
-      if (this.form.modifyFlag === false){
-        this.dialogFormVisible = false
-        return
-      }else {
-        if (this.form.new_password !== this.form.check){
-          this.$message.error("两次输入密码不一致！")
-          return
-        }
-        const {data: res} = await this.$http.get('/library_occupy/student/modify', {params: this.form})
-        console.log(res)
-        if (res.flag === false){
-          this.$message.success(res.msg)
-        }
-        else {
-          this.$message.success("修改成功！请重新登录")
-          this.logout()
-        }
-        this.dialogFormVisible = false
+    modify(){
+      let params = {
+        "name": this.form.username,
+        "avatar_description": this.form.avatarDescription,
+        "avatar_url": this.form.avatar_url
       }
+      user_update(params).then(res => {
+        if (res.status === 200){
+          this.$message.success("修改成功！")
+          user_me().then(res =>{
+            console.log(res)
+            window.localStorage.setItem("uid", res.data.uid)
+            window.localStorage.setItem("name", res.data.name)
+            window.localStorage.setItem("description", res.data.avatar_description)
+            window.localStorage.setItem("avatarUrl", res.data.avatar_url)
+            window.localStorage.setItem("role", res.data.role)
+          })
+          this.dialogFormVisible = false
+        }
+      })
     },
-    async getMsg(){
-      const {data: res} = await this.$http.get('/library_occupy/student/getMsg', {params: {'id': this.form.id}})
-      console.log(res)
-      window.sessionStorage.setItem('id',res.data.id)
-      window.sessionStorage.setItem('sno',res.data.sno)
-      window.sessionStorage.setItem('name',res.data.name)
-      window.sessionStorage.setItem('status',res.data.status)
-      window.sessionStorage.setItem('email',res.data.email)
+    getMsg(){
+
     },
     handleUpdate(newVal) {
       this.activePath = newVal; // 更新父组件的值为子组件传递的新值
@@ -265,6 +269,11 @@ export default {
     },
     closeGenerateAvatarDialog() {
       this.generateAvatarDialogVisible = false;
+    },
+    getAvatarUrl(url, avatarDescription){
+      this.form.avatar_url = url
+      this.form.avatarDescription = avatarDescription
+      console.log(url)
     }
   }
 }

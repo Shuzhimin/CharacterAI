@@ -15,10 +15,10 @@
 
 <script>
 import { simulateAvatar } from '@/api/createrole';
-
+import { generation } from '@/api/generation';
 export default {
   name: 'GenerateAvatar',
-  props: ['avatarUrl'],
+  props: ['avatarUrl', 'description'],
   data() {
     return{
       dialog_data: {
@@ -35,6 +35,7 @@ export default {
   mounted() {
     // this.dialog_data.dialogVisible = this.DialogShowFlag
     this.dialog_data.avatarUrl = this.avatarUrl
+    this.dialog_data.avatarDescription = this.description
   },
   computed: {
     avatarDescriptionLength() {
@@ -43,13 +44,28 @@ export default {
   },
   methods: {
     generateAvatar() {
-      const response2 = simulateAvatar(this.dialog_data.avatarDescription);
-      this.dialog_data.avatarUrl = response2.data.AvatarUrl;
-      console.log('头像生成：', response2);
-      // 假设后端接口返回头像 URL
-      setTimeout(() => {
-        this.dialog_data.avatarUrl
-      }, 1000);
+      // const response2 = simulateAvatar(this.dialog_data.avatarDescription);
+      // this.dialog_data.avatarUrl = response2.data.AvatarUrl;
+      // console.log('头像生成：', response2);
+      // // 假设后端接口返回头像 URL
+      // setTimeout(() => {
+      //   this.dialog_data.avatarUrl
+      // }, 1000);
+
+        let params = {
+            "prompt": this.dialog_data.avatarDescription
+        }
+        this.$message.info("正在生成，请等待...")
+        generation(params).then(res => {
+            if (res.status === 200){
+                console.log(res)
+                this.dialog_data.avatarUrl = res.data
+                this.$message.success("图像生成成功")
+                this.$emit("returnUrl", this.dialog_data.avatarUrl, this.dialog_data.avatarDescription)
+            }
+
+        })
+
     },
     saveAvatar() {
       // 保存头像到本地的逻辑，这里使用假数据

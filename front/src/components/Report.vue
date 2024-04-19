@@ -41,7 +41,7 @@
 
 <script>
 import { testAPI } from '@/api/test';
-
+import { report } from '@/api/report';
 export default {
   name: 'Report',
   props: ['value'],
@@ -83,25 +83,40 @@ export default {
   },
   methods: {
     sendMessage() {
-      if (this.input_message === '' || this.input_message === null){
-        this.$message.error('发送信息不能为空')
-        return
+      // if (this.input_message === '' || this.input_message === null){
+      //   this.$message.error('发送信息不能为空')
+      //   return
+      // }
+      // let mess = {
+      //   content: this.input_message,
+      //   owner: 'user',
+      //   avatar_url: '',
+      // }
+      // this.history_message.push(mess)
+      // this.input_message = ''
+      // setTimeout(()=>{
+      //   let response = {
+      //     content: '这是一条自动应答',
+      //     owner: 'bot',
+      //     avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+      //   }
+      //   this.history_message.push(response)
+      // }, 1000)
+      let params = {
+        "content": "生成角色类别的饼状图"
       }
-      let mess = {
-        content: this.input_message,
-        owner: 'user',
-        avatar_url: '',
-      }
-      this.history_message.push(mess)
-      this.input_message = ''
-      setTimeout(()=>{
-        let response = {
-          content: '这是一条自动应答',
-          owner: 'bot',
-          avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+      report(params).then(res => {
+        if (res.status === 200){
+          console.log(res)
+          let message = {
+            "content": '我是你的专属智能报表助手，请告诉我指令把！',
+            "owner": 'bot',
+            "avatar_url": 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+          }
+          this.history_message.push()
         }
-        this.history_message.push(response)
-      }, 1000)
+      })
+
     },
   }
 };

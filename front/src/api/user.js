@@ -13,3 +13,7 @@ export function login(params){
 export function user_me(params){
   return http.get('/api/user/me', params)
 }
+
+export function user_update(params){
+  return http.postJson('/api/user/update', params)
+}

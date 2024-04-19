@@ -69,7 +69,7 @@
 <!--          <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
 <!--        </el-form-item>-->
         <el-form-item label="头像" :label-width="formLabelWidth">
-          <GenerateAvatar :avatarUrl="query.avatar_url"></GenerateAvatar>
+          <GenerateAvatar :avatarUrl="query.avatar_url" @returnUrl="getAvatarUrl"></GenerateAvatar>
         </el-form-item>
       </el-form>
 
@@ -209,7 +209,8 @@ export default {
                 console.log(res)
                 window.localStorage.setItem("uid", res.data.uid)
                 window.localStorage.setItem("name", res.data.name)
-                window.localStorage.setItem("description", res.data.description)
+                window.localStorage.setItem("description", res.data.avatar_description)
+                window.localStorage.setItem("avatarUrl", res.data.avatar_url)
                 window.localStorage.setItem("role", res.data.role)
 
                 this.$message.success("登录成功！")
@@ -290,7 +291,8 @@ export default {
           let params = {
             "name": this.query.username,
             "password": this.query.password,
-            "description": "description"
+            "avatar_description": this.query.avatarDescription,
+            "avatar_url": this.query.avatar_url
           }
 
           register(params).then(res => {
@@ -326,6 +328,11 @@ export default {
     },
     closeGenerateAvatarDialog() {
       this.generateAvatarDialogVisible = false;
+    },
+    getAvatarUrl(url, avatarDescription){
+      this.query.avatar_url = url
+      this.query.avatarDescription = avatarDescription
+      console.log(url)
     }
   }
 }

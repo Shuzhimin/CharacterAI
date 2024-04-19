@@ -22,7 +22,7 @@
                   <el-image :src="item.img_url" style="width: 100%; height: 100%">
 
                   </el-image>
-                  <p class="clabel" style="color: white">{{item.label}}</p>
+                  <p class="clabel" style="color: white">{{item.name}}</p>
                 </div>
               </el-menu-item>
 
@@ -131,20 +131,37 @@ export default {
   methods: {
     selectRole(roleMess){
       console.log(roleMess)
-      localStorage.setItem('roleMess_label', roleMess.label)
-      localStorage.setItem('roleMess_img_url', roleMess.img_url)
-      localStorage.setItem('roleMess_id', roleMess.id)
+      localStorage.setItem('roleCategory', roleMess.category)
+      localStorage.setItem('roleMess_name', roleMess.name)
+      localStorage.setItem('roleMess_avatar_url', roleMess.img_url)
+      localStorage.setItem('roleMess_id', roleMess.cid)
       localStorage.setItem('roleMess_description', roleMess.description)
+      localStorage.setItem('roleMess_avatar_description', roleMess.avatar_description)
       this.$router.push('/dialogue')
     },
     getCharacter(){
       let params = {
-        "skip": 1,
-        "limit": 20
+        // "skip": 1,
+        // "limit": 20
       }
-      character_select(params).then(res => {
+      character_select().then(res => {
         if (res.status === 200){
           console.log(res)
+          for (var i=0;i<res.data.length;i++){
+            let d = {
+              cid: res.data[i].cid,
+              img_url: res.data[i].avatar_url,
+              name: res.data[i].name,
+              description: res.data[i].description,
+              avatar_description: res.data[i].avatar_description,
+              category: res.data[i].category
+            }
+            if (d.img_url === ""){
+              d.img_url = "https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300"
+            }
+            this.character_list[5].push(d)
+          }
+
         }
       })
     }
