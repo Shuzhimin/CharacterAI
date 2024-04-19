@@ -135,6 +135,8 @@ class DatabaseService:
         self, where: model.CharacterWhere, skip: int = 0, limit: int = 10
     ) -> list[schema.Character]:
         query = select(schema.Character)
+        # remove deleted characters
+        query = query.filter(schema.Character.is_deleted == False)
         if where.cid:
             query = query.filter(schema.Character.cid == where.cid)
         if where.name:

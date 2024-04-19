@@ -80,3 +80,12 @@ def test_character(token: model.Token, avatar_url: str):
 
     character = db.get_character(cid=character.cid)
     assert character.is_deleted
+
+    # after delete, we should not get it from api
+    response = client.get(
+        url=f"{prefix}/select",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+    )
+    characters = [model.CharacterOut(**c) for c in response.json()]
+    for character in characters:
+        assert character.is_deleted is False

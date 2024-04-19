@@ -5,9 +5,10 @@
 
 from datetime import datetime
 
-from sqlalchemy import create_engine, ForeignKey
+from sqlalchemy import ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker
+
 from app.common import conf, model
 
 # database engine
