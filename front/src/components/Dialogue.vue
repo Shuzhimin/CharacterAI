@@ -145,6 +145,7 @@ import GenerateAvatar from '@/components/GenerateAvatar';
 import Character from '@/components/dialog/Character';
 import { simulateAvatar, simulateCreateCharacter } from '@/api/createrole';
 import { character_delete, character_update } from '@/api/character';
+import { connectionWebSocket, send } from '@/plugins/websocket-client';
 export default {
   name: 'Dialogue',
   components: { Character, GenerateAvatarDialog, GenerateAvatar },
@@ -208,27 +209,36 @@ export default {
       return this.editForm.description.length
     },
   },
+  mounted() {
+    let token = localStorage.getItem('token')
+    let cid = localStorage.getItem('roleMess_id')
+    token = token.split(' ')[1]
+    connectionWebSocket(token, cid)
+  },
   methods: {
     sendMessage() {
       if (this.input_message === '' || this.input_message === null){
         this.$message.error('发送信息不能为空')
         return
       }
-      let mess = {
-        content: this.input_message,
-        owner: 'user',
-        avatar_url: '',
-      }
-      this.history_message.push(mess)
-      this.input_message = ''
-      setTimeout(()=>{
-        let response = {
-          content: '这是一条自动应答',
-          owner: 'bot',
-          avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
-        }
-        this.history_message.push(response)
-      }, 1000)
+      let mess = this.input_message
+      send(mess)
+
+      // let mess = {
+      //   content: this.input_message,
+      //   owner: 'user',
+      //   avatar_url: '',
+      // }
+      // this.history_message.push(mess)
+      // this.input_message = ''
+      // setTimeout(()=>{
+      //   let response = {
+      //     content: '这是一条自动应答',
+      //     owner: 'bot',
+      //     avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+      //   }
+      //   this.history_message.push(response)
+      // }, 1000)
     },
     handleClose(done) {
       this.$confirm('确认关闭？')
@@ -318,21 +328,20 @@ export default {
       let params = [
         parseInt(localStorage.getItem("roleMess_id"))
       ]
-      let that = this
       console.log("zzz")
       console.log(params)
       character_delete(params).then(res => {
         console.log(res)
         console.log("删除！")
-        that.$message.success("删除角色成功！")
-        that.localStorage.removeItem("roleMess_id")
-        that.localStorage.removeItem("roleMess_name")
-        that.localStorage.removeItem("roleMess_avatar_url")
-        that.localStorage.removeItem("roleCategory")
-        that.localStorage.removeItem("roleMess_description")
-        that.localStorage.removeItem("roleMess_avatar_description")
-        that.window.sessionStorage.setItem('activePath', '/mainpage')
-        that.$router.push('/mainpage')
+        this.$message.success("删除角色成功！")
+        localStorage.removeItem("roleMess_id")
+        localStorage.removeItem("roleMess_name")
+        localStorage.removeItem("roleMess_avatar_url")
+        localStorage.removeItem("roleCategory")
+        localStorage.removeItem("roleMess_description")
+        localStorage.removeItem("roleMess_avatar_description")
+        window.sessionStorage.setItem('activePath', '/mainpage')
+        this.$router.push('/mainpage')
       })
     },
     getAvatarUrl(url, avatarDescription){
