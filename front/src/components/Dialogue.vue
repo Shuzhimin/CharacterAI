@@ -35,7 +35,7 @@
             :before-close="handleClose">
             <el-form :model="editForm" label-position="top" style="max-width: 400px; margin: 0 auto; ">
               <el-form-item label="角色分类" :prop="'selectedCategory'" required>
-                <el-select v-model="editForm.selectedCategory" placeholder="请选择角色分类" style="background-color: #cccccc; color: black">
+                <el-select v-model="editForm.selectedCategory" placeholder="请选择角色分类" style="border: 2px solid whitesmoke;background-color: white; ">
                   <el-option label="美食" value="food"></el-option>
                   <el-option label="旅游" value="travel"></el-option>
                   <el-option label="科技" value="technology"></el-option>
@@ -45,17 +45,17 @@
                 </el-select>
               </el-form-item>
               <el-form-item label="角色名称" :prop="'bot_name'" required>
-                <el-input v-model="editForm.bot_name" style="background-color: #cccccc"></el-input>
+                <el-input v-model="editForm.bot_name" class="character_name_input" style="border: 2px solid whitesmoke;background-color: white"></el-input>
               </el-form-item>
-<!--              <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>-->
-<!--                <el-input v-model="editForm.description" :rows="4" type="textarea"-->
-<!--                          :autosize="{ minRows: 6, maxRows: 8 }"-->
-<!--                          placeholder="请输入身份背景"></el-input>-->
-<!--                <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>-->
-<!--              </el-form-item>-->
-<!--              <el-form-item label="人物角色头像生成" class="a">-->
-<!--                <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
-<!--              </el-form-item>-->
+              <!--              <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>-->
+              <!--                <el-input v-model="editForm.description" :rows="4" type="textarea"-->
+              <!--                          :autosize="{ minRows: 6, maxRows: 8 }"-->
+              <!--                          placeholder="请输入身份背景"></el-input>-->
+              <!--                <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>-->
+              <!--              </el-form-item>-->
+              <!--              <el-form-item label="人物角色头像生成" class="a">-->
+              <!--                <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+              <!--              </el-form-item>-->
               <el-form-item label="角色描述">
                 <el-input v-model="editForm.description" :rows="4" type="textarea"
                           :autosize="{ minRows: 6, maxRows: 8 }"
@@ -78,9 +78,9 @@
               <!--            <el-image v-if="dialogueAvatarUrl" :src="dialogueAvatarUrl"-->
               <!--                      style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>-->
               <!--          </el-form-item>-->
-<!--              <el-form-item>-->
-<!--                <el-button type="primary" @click="handleCreate">立即创建</el-button>-->
-<!--              </el-form-item>-->
+              <!--              <el-form-item>-->
+              <!--                <el-button type="primary" @click="handleCreate">立即创建</el-button>-->
+              <!--              </el-form-item>-->
             </el-form>
             <span slot="footer" class="dialog-footer">
               <el-button @click="editDialogVisible = false">取 消</el-button>
@@ -89,25 +89,25 @@
           </el-dialog>
           <!-- 头像生成对话框 -->
           <GenerateAvatarDialog v-if="generateAvatarDialogVisible" @closeDialog="closeGenerateAvatarDialog" :DialogShowFlag="generateAvatarDialogVisible" :avatarUrl="editForm.avatarUrl"></GenerateAvatarDialog>
-<!--          <el-dialog-->
-<!--            title="AI生成头像"-->
-<!--            :visible.sync="generateAvatarDialogVisible"-->
-<!--            width="50%"-->
-<!--            :close-on-click-modal="false"-->
-<!--          >-->
-<!--            <div class="avatar-dialog-content">-->
-<!--              <el-input v-model="avatarDescription" :rows="4" type="textarea"-->
-<!--                        :autosize="{ minRows: 6, maxRows: 8 }"-->
-<!--                        placeholder="请输入头像的描述"></el-input>-->
-<!--              <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ avatarDescriptionLength }}/100</span>-->
+          <!--          <el-dialog-->
+          <!--            title="AI生成头像"-->
+          <!--            :visible.sync="generateAvatarDialogVisible"-->
+          <!--            width="50%"-->
+          <!--            :close-on-click-modal="false"-->
+          <!--          >-->
+          <!--            <div class="avatar-dialog-content">-->
+          <!--              <el-input v-model="avatarDescription" :rows="4" type="textarea"-->
+          <!--                        :autosize="{ minRows: 6, maxRows: 8 }"-->
+          <!--                        placeholder="请输入头像的描述"></el-input>-->
+          <!--              <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ avatarDescriptionLength }}/100</span>-->
 
-<!--              <el-button @click="generateAvatar" class="generate-avatar-button">生成头像</el-button>-->
-<!--              <el-image v-if="editForm.avatarUrl" :src="editForm.avatarUrl"-->
-<!--                        style="max-width: 150px; max-height: 150px;"></el-image>-->
+          <!--              <el-button @click="generateAvatar" class="generate-avatar-button">生成头像</el-button>-->
+          <!--              <el-image v-if="editForm.avatarUrl" :src="editForm.avatarUrl"-->
+          <!--                        style="max-width: 150px; max-height: 150px;"></el-image>-->
 
-<!--              <el-button @click="saveAvatar" type="primary" class="enter-button">确定</el-button>-->
-<!--            </div>-->
-<!--          </el-dialog>-->
+          <!--              <el-button @click="saveAvatar" type="primary" class="enter-button">确定</el-button>-->
+          <!--            </div>-->
+          <!--          </el-dialog>-->
         </el-header>
         <el-main>
           <div v-for="(item, index) in history_message" class="msgCss" :style="{textAlign: item.align}">
@@ -127,7 +127,6 @@
         <el-footer>
           <el-input
             v-model="input_message"
-            style=""
             placeholder="请输入"
             @keyup.enter.native="sendMessage"
             clearable>
@@ -396,15 +395,18 @@ export default {
   align-items: center;     /* 垂直居中 */
   color: white;
 }
-/*搜索input框 */
+
+/*搜索input框*/
 :deep(.el-input__inner) {
   background-color: transparent;
   border-radius: 95px;
   /*-moz-border-radius-topright: 95px;*/
   border: 0;
   box-shadow: 0 0 0 0px;
-  color: white;
+  /*color: #808080;*/
+  color: #cccccc
 }
+
 /*搜索button按钮 */
 :deep(.el-input-group__append) {
   width: 60px;
@@ -431,10 +433,10 @@ export default {
 :deep(.el-card__body) {
   height: 100%;
 }
- .el-dropdown-link {
-   cursor: pointer;
-   color: #409EFF;
- }
+.el-dropdown-link {
+  cursor: pointer;
+  color: #409EFF;
+}
 .el-icon-arrow-down {
   font-size: 12px;
 }

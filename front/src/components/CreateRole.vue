@@ -22,11 +22,11 @@
                       placeholder="请输入身份背景"></el-input>
             <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>
           </el-form-item>
-<!--          <el-form-item label="人物角色头像生成" class="a">-->
-<!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
-<!--          </el-form-item>-->
+          <!--          <el-form-item label="人物角色头像生成" class="a">-->
+          <!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+          <!--          </el-form-item>-->
           <el-form-item label="人物角色头像生成" >
-            <GenerateAvatar :avatarUrl="createForm.avatarUrl"></GenerateAvatar>
+            <GenerateAvatar :avatarUrl="createForm.avatarUrl" @returnUrl="getAvatarUrl"></GenerateAvatar>
           </el-form-item>
           <!-- 头像生成对话框 -->
           <el-dialog
@@ -42,26 +42,26 @@
               <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ avatarDescriptionLength }}/100</span>
 
               <el-button @click="generateAvatar" class="generate-avatar-button">生成头像</el-button>
-                          <el-image v-if="createForm.avatarUrl" :src="createForm.avatarUrl"
-                                    style="max-width: 150px; max-height: 150px;"></el-image>
+              <el-image v-if="createForm.avatarUrl" :src="createForm.avatarUrl"
+                        style="max-width: 150px; max-height: 150px;"></el-image>
 
               <el-button @click="saveAvatar" type="primary" class="enter-button">确定</el-button>
             </div>
           </el-dialog>
-<!--          <el-form-item label="对话人物名称" :prop="'user_name'" required>-->
-<!--            <el-input v-model="createForm.user_name" class="a"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="对话人物身份背景" :prop="'user_info'" required>-->
-<!--            <el-input v-model="createForm.user_info" class="user_info_input" :rows="4" type="textarea"-->
-<!--                      :autosize="{ minRows: 6, maxRows: 8 }"-->
-<!--                      placeholder="请输入身份背景"></el-input>-->
-<!--            <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ user_infoLength }}/100</span>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="对话人物头像生成" class="a">-->
-<!--            <el-button @click="generateDialogueAvatar">一键生成对话人物头像</el-button>-->
-<!--            <el-image v-if="dialogueAvatarUrl" :src="dialogueAvatarUrl"-->
-<!--                      style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>-->
-<!--          </el-form-item>-->
+          <!--          <el-form-item label="对话人物名称" :prop="'user_name'" required>-->
+          <!--            <el-input v-model="createForm.user_name" class="a"></el-input>-->
+          <!--          </el-form-item>-->
+          <!--          <el-form-item label="对话人物身份背景" :prop="'user_info'" required>-->
+          <!--            <el-input v-model="createForm.user_info" class="user_info_input" :rows="4" type="textarea"-->
+          <!--                      :autosize="{ minRows: 6, maxRows: 8 }"-->
+          <!--                      placeholder="请输入身份背景"></el-input>-->
+          <!--            <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ user_infoLength }}/100</span>-->
+          <!--          </el-form-item>-->
+          <!--          <el-form-item label="对话人物头像生成" class="a">-->
+          <!--            <el-button @click="generateDialogueAvatar">一键生成对话人物头像</el-button>-->
+          <!--            <el-image v-if="dialogueAvatarUrl" :src="dialogueAvatarUrl"-->
+          <!--                      style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>-->
+          <!--          </el-form-item>-->
           <el-form-item>
             <el-button type="primary" @click="handleCreate">立即创建</el-button>
           </el-form-item>
@@ -75,8 +75,8 @@
       <div class="square" style="--i:0;"></div>
       <div class="square" style="--i:1;"></div>
       <div class="square" style="--i:2;"></div>
-<!--      <div class="square" style="&#45;&#45;i:3;"></div>-->
-<!--      <div class="square" style="&#45;&#45;i:4;"></div>-->
+      <!--      <div class="square" style="&#45;&#45;i:3;"></div>-->
+      <!--      <div class="square" style="&#45;&#45;i:4;"></div>-->
     </div>
   </div>
 </template>
@@ -132,12 +132,13 @@ export default {
       //   this.showSuccessMessageBox();
       // }
 
-
       let params = {
         "name": this.createForm.bot_name,
         "description": this.createForm.bot_info,
+        "avatar_description":this.createForm.avatarDescription,
+        "avatar_url":this.createForm.avatar_url,
         "category": this.createForm.selectedCategory,
-        "owner_id": window.localStorage.getItem("uid")
+        "uid": window.localStorage.getItem("uid"),
       }
       character_create(params).then(res => {
         console.log(res)
@@ -145,8 +146,6 @@ export default {
           this.$message.success("创建成功！")
         }
       })
-
-
     },
     // generateCharacterAvatar() {
     //   const response2 = simulateAvatar(this.createForm);
@@ -158,18 +157,23 @@ export default {
     //   }, 1000);
     //
     // },
+    getAvatarUrl(url, avatarDescription){
+      this.createForm.avatar_url = url
+      this.createForm.avatarDescription = avatarDescription
+      console.log(url)
+    },
     showGenerateAvatarDialog() {
       // 显示生成头像对话框
       this.dialogVisible = true;
     },
     generateAvatar() {
-        const response2 = simulateAvatar(this.avatarDescription);
-        this.createForm.avatarUrl = response2.data.AvatarUrl;
-        console.log('头像生成：', response2);
-        // 假设后端接口返回头像 URL
-        setTimeout(() => {
-          this.createForm.avatarUrl
-        }, 1000);
+      const response2 = simulateAvatar(this.avatarDescription);
+      this.createForm.avatarUrl = response2.data.AvatarUrl;
+      console.log('头像生成：', response2);
+      // 假设后端接口返回头像 URL
+      setTimeout(() => {
+        this.createForm.avatarUrl
+      }, 1000);
     },
     saveAvatar() {
       // 保存头像到本地的逻辑，这里使用假数据
@@ -216,17 +220,6 @@ export default {
 </script>
 
 <style scoped>
-/* 可以添加样式来自定义页面的外观 */
-
-/*.bot_info_input {*/
-/*  width: 100%; !* 设置输入框宽度为100% *!*/
-/*  height: 150px; !* 设置输入框的高度 *!*/
-/*}*/
-
-/*.user_info_input {*/
-/*  width: 100%; !* 设置输入框宽度为100% *!*/
-/*  height: 150px; !* 设置输入框的高度 *!*/
-/*}*/
 
 button {
   background-color: #4CAF50; /* 设置按钮背景颜色为绿色 */
