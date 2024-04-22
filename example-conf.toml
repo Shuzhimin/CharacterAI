@@ -1,0 +1,29 @@
+[mongo]
+host = 'localhost'
+port = 27017
+username = 'username'
+password = 'password'
+authSource = 'admin'
+database = 'character_ai'
+collections.character = 'character'
+
+[postgres]
+host = 'localhost'
+port = 5432
+username = 'postgres'
+password = 'postgres'
+database = 'CharacterAI2'
+
+[zhipuai]
+api_key = ''
+
+[fastapi]
+host = 'localhost'
+port = 8000
+
+[minio]
+endpoint = 'localhost:9000'
+access_key = 'root'
+secret_key = '12345678'
+secure = false
+bucket_name = 'test'

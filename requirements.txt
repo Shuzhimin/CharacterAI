@@ -8,3 +8,9 @@ python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
 httpx
+matplotlib
+requests
+minio
+sqlalchemy
+psycopg2-binary
+pytest-mock
