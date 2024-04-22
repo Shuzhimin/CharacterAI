@@ -31,6 +31,11 @@ class UserUpdate(BaseModel):
     avatar_url: str | None = Field(default=None, description="头像url")
 
 
+class UserPasswordUpdate(BaseModel):
+    old_password: str = Field(description="旧密码")
+    new_password: str = Field(description="新密码")
+
+
 class UserOut(BaseModel):
     uid: int = Field(description="用户id")
     name: str = Field(description="用户名")

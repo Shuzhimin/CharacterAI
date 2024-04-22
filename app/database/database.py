@@ -2,6 +2,8 @@
 # zhangzhong
 # https://docs.sqlalchemy.org/en/20/tutorial/orm_data_manipulation.html
 
+from datetime import datetime
+
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
@@ -42,6 +44,14 @@ class DatabaseService:
         for key, value in user_update.model_dump().items():
             if value is not None:
                 setattr(db_user, key, value)
+        db_user.updated_at = datetime.now()
+        self._db.commit()
+        return db_user
+
+    def update_user_password(self, uid: int, password: str) -> schema.User:
+        db_user = self._db.execute(select(schema.User).filter_by(uid=uid)).scalar_one()
+        db_user.password = password
+        db_user.updated_at = datetime.now()
         self._db.commit()
         return db_user
 
@@ -121,6 +131,7 @@ class DatabaseService:
         for key, value in character_update.model_dump().items():
             if value is not None:
                 setattr(character, key, value)
+        character.updated_at = datetime.now()
         self._db.commit()
         return character
 

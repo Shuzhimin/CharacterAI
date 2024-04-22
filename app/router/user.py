@@ -148,6 +148,25 @@ async def delete_users(
         db.delete_user(uid=uid)
 
 
+@user.post("/update-password")
+async def update_password(
+    db: Annotated[DatabaseService, Depends(dependency=get_db)],
+    user: Annotated[schema.User, Depends(get_user)],
+    update: model.UserPasswordUpdate,
+) -> model.UserOut:
+    # first check the old password
+    if not pwd_context.verify(update.old_password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # hash new password
+    new_password = pwd_context.hash(update.new_password)
+    return db.update_user_password(uid=user.uid, password=new_password)
+
+
 # TODO(zhangzhong): admin related API
 # 不对，管理员可以做的事情是很多的，并不局限于user借口
 # 所以应该是admin开头 /admin/user/select, /admin/user/delete, /admin/user/update, /admin/user/create
