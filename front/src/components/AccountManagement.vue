@@ -46,7 +46,7 @@
         <el-table-column label="操作"  align="center">
           <template slot-scope="scope">
             <el-button size="medium" circle>编辑</el-button>
-            <el-button size="medium" circle>删除</el-button>
+            <el-button size="medium" @click="delete_user(scope.row)" circle>删除</el-button>
             <el-button size="medium" circle>角色管理</el-button>
           </template>
         </el-table-column>
@@ -68,7 +68,7 @@
 
 <script>
 import AddAccountDialog from '@/components/dialog/AddAccountDialog';
-import { user_all } from '@/api/user';
+import { user_all, user_delete } from '@/api/user';
 export default {
   name: 'AccountManagement',
   components: { AddAccountDialog },
@@ -98,11 +98,7 @@ export default {
     }
   },
   created() {
-    user_all().then(res => {
-      if (res.status === 200){
-        console.log(res)
-      }
-    })
+    this.get_user_all()
   },
   methods: {
     searchUser(){
@@ -125,6 +121,23 @@ export default {
       console.log(newPage)
       this.search_query.pagenum = newPage
     },
+    get_user_all(){
+      user_all().then(res => {
+        if (res.status === 200){
+          console.log(res)
+          this.table_data = res.data
+        }
+      })
+    },
+    delete_user(row){
+      let params = [
+        row.uid
+      ]
+      user_delete(params).then(res => {
+        this.$message.success("删除成功！")
+        this.get_user_all()
+      })
+    }
   }
 };
 </script>
