@@ -1,12 +1,17 @@
 # 2024/2/6
 # zhangzhong
 import json
+from typing import Any
 
 import requests
 from zhipuai import ZhipuAI
+from zhipuai.types.chat.chat_completion import Completion
 
 from app.common import conf
-from app.llm.all_tools import Tool
+# from app.llm.all_tools import Tool
+from app.llm.tool import Tool
+
+client = ZhipuAI(api_key=conf.get_zhipuai_key())
 
 
 def invoke_model_api(character_name: str, character_info: str, content: str) -> str:
@@ -44,31 +49,32 @@ def character_llm(meta: dict, prompt: str) -> tuple[str, list[dict]]:
     return response, history
 
 
-def invoke_report(content: str) -> None:
+# 为了防止写错，这个函数还是直接重写吧
+def invoke_report(content: str) -> tuple[Any, str | None]:
     # print("报表生成成功: character_form.png")
-    client = ZhipuAI(api_key=conf.get_zhipuai_key())
     messages = [
-        {
-            "role": "system",
-            "content": """你是一个能够调用工具的AI助手，系统将提供三个基础函数: list_tools, load_tool, unload_tool，list_tools是用来查看所有可以使用的工具；load_tool是用来加载需要使用的工具；unload_tool是用来释放使用完的工具。你回答问题时必须遵循这个顺序：首先使用list_tools查看所有可用的工具，如果存在合适的工具，你将使用load_tool加载该工具，然后调用该工具，使用完毕后调用unload_tool释放工具。""",
-        },
+        # {
+        #     "role": "system",
+        #     "content": """你是一个能够调用工具的AI助手，系统将提供三个基础函数: list_tools, load_tool, unload_tool，list_tools是用来查看所有可以使用的工具；load_tool是用来加载需要使用的工具；unload_tool是用来释放使用完的工具。你回答问题时必须遵循这个顺序：首先使用list_tools查看所有可用的工具，如果存在合适的工具，你将使用load_tool加载该工具，然后调用该工具，使用完毕后调用unload_tool释放工具。""",
+        # },
         {"role": "user", "content": content},
     ]
     response = client.chat.completions.create(
-        model="glm-4", messages=messages, tools=Tool.get_tools()
+        model="glm-4",
+        messages=messages,
+        tools=Tool.tools,
     )
 
-    while response.choices[0].message.tool_calls:
+    function_result = None
+    # 就只做一轮吧，这些函数设计出来也是这样的
+    if response.choices[0].message.tool_calls:
         messages.append(response.choices[0].message.model_dump())
         tool_call = response.choices[0].message.tool_calls[0]
         args = tool_call.function.arguments
 
-        function_result = Tool.dispatch(tool_call.function.name, json.loads(args))
-
-        print(
-            f"GLM-4调用函数: {tool_call.function.name}，参数: {args}，结果: {function_result}"
+        function_result = Tool.dispatch(
+            name=tool_call.function.name, **json.loads(args)
         )
-
         messages.append(
             {
                 "role": "tool",
@@ -76,9 +82,20 @@ def invoke_report(content: str) -> None:
                 "tool_call_id": tool_call.id,
             }
         )
-
-        response = client.chat.completions.create(
-            model="glm-4",  # 填写需要调用的模型名称
-            messages=messages,
-            tools=Tool.get_tools(),
+    else:
+        messages.append(
+            {
+                "role": "user",
+                "content": "目前尚未实现该功能，请根据历史聊天生成一条合适的道歉信息。",
+            }
         )
+
+    # 这里的调用应该不需要再传递tools了吧，我们只是想要获取一个结果
+    response = client.chat.completions.create(
+        model="glm-4",  # 填写需要调用的模型名称
+        messages=messages,
+    )
+    assert isinstance(response, Completion)
+    # 1. 我们想要函数的返回值，
+    # 2. 我们想要模型的返回值
+    return function_result, response.choices[0].message.content
