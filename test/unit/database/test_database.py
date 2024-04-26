@@ -1,10 +1,13 @@
 import uuid
+from test.unit.utils import random_character, random_character_category
 
 from app.common import model
 from app.database import DatabaseService, schema
 from app.database.schema import Base, engine
 
-# 这句话必须在运行所有代码之前运行 否则就会出错
+# TODO: 这句话必须在运行所有代码之前运行 否则就会出错
+# 这显然不合理呀
+# 现在的单元测试写的不好，因为测试之间竟然有依赖关系，这显然是不对的
 Base.metadata.create_all(bind=engine)
 
 # TODO: 当测试一个空的数据库的时候，会导致测试出错，测试用例写的不好
@@ -30,16 +33,16 @@ def create_user() -> schema.User:
     return user
 
 
+# 为什么我的单元测试会写的这么乱呢？
+# 我觉得在我继续实现新功能之前 还是好好重构一下单元测试吧
 def create_character(user: schema.User) -> schema.Character:
-    character = db.create_character(
-        model.CharacterCreate(
-            name=str(uuid.uuid4()),
-            description="test",
-            avatar_url="avatar url",
-            category="test",
-            uid=user.uid,
-        )
-    )
+    # 提供一个random的方法让其他的单元测试进行调用？
+    # 这是好的吗，如果一个代码只有单元测试才需要使用
+    # 哪他就不应该出现在代码里 而应该仅仅出现的测试代码库中
+    # 所以我们真正要做的是提供一个random_character的方法
+    # 才是对的
+    # 我们应该提供一个专用于测试的模块 然后其他的测试可以调用这个模块
+    character = db.create_character(character=random_character(uid=user.uid))
     return character
 
 
@@ -82,7 +85,7 @@ def test_create_update_delete_character():
 
     new_character_name = str(uuid.uuid4())
     new_character_description = str(uuid.uuid4())
-    new_character_category = str(uuid.uuid4())
+    new_character_category = random_character_category()
     new_character = db.update_character(
         cid=character.cid,
         character_update=model.CharacterUpdate(

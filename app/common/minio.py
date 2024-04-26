@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import timedelta
 
@@ -7,8 +8,8 @@ import requests
 # bucket policy should be public
 from minio import Minio
 from minio.error import S3Error  # type: ignore
-
 from pydantic import BaseModel
+
 from app.common import conf
 
 
@@ -18,6 +19,24 @@ class MinIOService:
         self.bucket_name = conf.minio.bucket_name
         if not self.minio_client.bucket_exists(self.bucket_name):
             self.minio_client.make_bucket(self.bucket_name)
+            # make this bucket public readable throw url
+            self.minio_client.set_bucket_policy(
+                bucket_name=self.bucket_name,
+                policy=json.dumps(
+                    {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Sid": "public-read",
+                                "Effect": "Allow",
+                                "Principal": {"AWS": "*"},
+                                "Action": ["s3:GetObject"],
+                                "Resource": [f"arn:aws:s3:::{self.bucket_name}/*"],
+                            }
+                        ],
+                    }
+                ),
+            )
 
     def upload_file_from_url(self, url: str) -> str:
         # download url to local

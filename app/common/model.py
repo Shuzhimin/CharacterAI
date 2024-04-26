@@ -6,6 +6,7 @@ from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
+from sqlalchemy import desc
 
 
 # user
@@ -140,7 +141,7 @@ class ChatWhere(BaseModel):
 
 
 class ReportRequest(BaseModel):
-    message: str = Field(description="发送给模型的内容")
+    content: str = Field(description="发送给模型的内容")
 
 
 class CommonResponse(BaseModel):
@@ -152,6 +153,11 @@ class ReportResponse(CommonResponse):
     data: list[dict[str, str]] = []
 
 
+class ReportResponseV2(BaseModel):
+    content: str = Field(description="")
+    url: str | None = Field(description="")
+
+
 class GenerationRequestBody(BaseModel):
     prompt: str = Field(description="生成图片的描述")
 
@@ -159,3 +165,36 @@ class GenerationRequestBody(BaseModel):
 class Role(str, Enum):
     USER = "user"
     ADMIN = "admin"
+
+
+class Property(BaseModel):
+    description: str = Field(description="函数参数描述")
+    type: str = Field(description="函数参数签名")
+
+
+class Parameters(BaseModel):
+    type: str = Field(default="object", description="定义 JSON 数据的数据类型约束")
+    properties: dict[str, Property] = Field(
+        description="一个Object，其中的每个属性代表要定义的 JSON 数据中的一个键"
+    )
+    required: list[str] = Field(description="指定哪些属性在数据中必须被包含")
+
+
+class Function(BaseModel):
+    name: str = Field(description="函数名称")
+    description: str = Field(
+        description="用于描述函数功能。模型会根据这段描述决定函数调用方式。"
+    )
+    parameters: Parameters = Field(
+        description="parameters字段需要传入一个 Json Schema 对象，以准确地定义函数所接受的参数。若调用函数时不需要传入参数，省略该参数即可。"
+    )
+
+
+class FunctionTool(BaseModel):
+    type: str = Field(default="function")
+    function: Function = Field(description="tool对应的函数说明")
+
+
+class FunctionToolResult(BaseModel):
+    data: dict
+    path: str
