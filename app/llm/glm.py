@@ -8,6 +8,7 @@ from zhipuai import ZhipuAI
 from zhipuai.types.chat.chat_completion import Completion
 
 from app.common import conf
+
 # from app.llm.all_tools import Tool
 from app.llm.tool import Tool
 

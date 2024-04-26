@@ -141,7 +141,7 @@ class ChatWhere(BaseModel):
 
 
 class ReportRequest(BaseModel):
-    message: str = Field(description="发送给模型的内容")
+    content: str = Field(description="发送给模型的内容")
 
 
 class CommonResponse(BaseModel):
