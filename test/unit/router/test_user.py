@@ -8,6 +8,7 @@ from httpx import Response
 
 from app.common import model
 from app.database import DatabaseService
+from app.database.schema import User
 from app.main import app
 
 client = TestClient(app)
@@ -121,3 +122,32 @@ def test_user_register_login_update_password_then_login(avatar_url: str):
         data={"username": username, "password": new_password},
     )
     assert response.status_code == 200
+
+
+# 讲道理 在数据库里面我是可以直接生成一个admin的吧
+
+
+# test admin related api
+def test_admin_user_select():
+
+    admin = db.get_admin()
+    # login first
+    response = client.post(
+        url=f"{prefix}/login",
+        data={"username": admin.name, "password": "admin"},
+    )
+    assert response.status_code == 200
+    token = model.Token(**response.json())
+
+    # then select all users
+    page_num = 1
+    page_size = 10
+    response = client.get(
+        url=f"{prefix}/select?page_num={page_num}&page_size={page_size}",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+    )
+    assert response.status_code == 200
+    user_select_response = model.UserSelectResponse(**response.json())
+    print(user_select_response)
+    assert len(user_select_response.users) <= page_size
+    assert user_select_response.total == db.get_user_count()

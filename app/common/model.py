@@ -159,3 +159,8 @@ class GenerationRequestBody(BaseModel):
 class Role(str, Enum):
     USER = "user"
     ADMIN = "admin"
+
+
+class UserSelectResponse(BaseModel):
+    users: list[UserOut] = Field(description="用户列表")
+    total: int = Field(description="数据库中的用户总数")

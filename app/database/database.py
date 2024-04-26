@@ -8,6 +8,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.common import model
+from app.common.crypt import encrypt_password
 
 from . import schema
 from .schema import SessionLocal
@@ -34,6 +35,9 @@ class DatabaseService:
         # 确实如此，可能1.x版本需要吧
         return db_user
 
+    def get_user_count(self) -> int:
+        return self._db.query(schema.User).filter_by(is_deleted=False).count()
+
     # 没有必要考虑的那么复杂，就只能通过uid来过滤就好了
     # 其他的接口有需要时再增加即可，不要去瞎想莫须有的功能
     # https://docs.sqlalchemy.org/en/20/tutorial/orm_data_manipulation.html#updating-orm-objects-using-the-unit-of-work-pattern
@@ -47,6 +51,23 @@ class DatabaseService:
         db_user.updated_at = datetime.now()
         self._db.commit()
         return db_user
+
+    def get_admin(self) -> schema.User:
+        match self.get_user_by_name(name="admin"):
+            case schema.User() as admin:
+                return admin
+            case _:
+                # password 需要hash
+                db_user = schema.User(
+                    name="admin",
+                    password=encrypt_password("admin"),
+                    avatar_description="admin",
+                    avatar_url="admin",
+                    role=model.Role.ADMIN.value,
+                )
+                self._db.add(db_user)
+                self._db.commit()
+                return db_user
 
     def update_user_password(self, uid: int, password: str) -> schema.User:
         db_user = self._db.execute(select(schema.User).filter_by(uid=uid)).scalar_one()
@@ -103,12 +124,14 @@ class DatabaseService:
         db_user = self._db.get(schema.User, uid)
         return db_user
 
-    def get_users(self) -> list[schema.User]:
-        result = self._db.execute(select(schema.User).filter_by(is_deleted=False))
+    def get_users(self, skip: int, limit: int) -> list[schema.User]:
+        result = self._db.execute(
+            select(schema.User).filter_by(is_deleted=False).offset(skip).limit(limit)
+        )
         users = result.scalars().all()
         return [u for u in users]
 
-    def get_user_by_name(self, name: str) -> schema.User:
+    def get_user_by_name(self, name: str) -> schema.User | None:
         return self._db.execute(
             select(schema.User).filter_by(name=name)
         ).scalar_one_or_none()
