@@ -1,19 +1,70 @@
 import httpx
 from fastapi.testclient import TestClient
 
+from app.common.model import ReportResponseV2
 from app.main import app
+from app.router.report import (
+    character_num_line,
+    class_num_bar,
+    class_num_pie,
+    share_pie,
+)
+
+# TODO: 为了更方便的进行测试，我需要生成一些假的角色，这样生成的图表才会好看一些
+# 或者我在其他的测试中生成的角色就可以随机的引入一些category啊 对吧
 
 client = TestClient(app)
 
 
-def test_report():
-    # print(app.routes)
+# 所有的工具都应该可以被直接测试
+def test_class_num_pie():
+    data, path = class_num_pie()
+    print(data, path)
+
+
+def test_class_num_bar():
+    data, path = class_num_bar()
+    print(data, path)
+
+
+def test_character_num_line():
+    data, path = character_num_line()
+    print(data, path)
+
+
+def test_share_pie():
+    data, path = share_pie()
+    print(data, path)
+
+
+def _test_report(content: str):
     response: httpx.Response = client.post(
         url="/api/report/character",
-        # 应该叫message还是content
-        # zhipuai里面叫什么？ content 所以咱也统一叫content
-        json={"content": "利用工具，获得角色数据，并生成角色类型的饼状图"},
+        json={"content": content},
     )
+    print(response.json())
     assert response.status_code == 200
-    r = response.json()
-    print(r)
+    report_response = ReportResponseV2(**response.json())
+    assert report_response.url is not None
+
+
+def test_report(content: str):
+    contents = [
+        "根据各个角色类型的数量生成饼状图",
+        "根据各个角色类型的数量生成柱状图",
+        "创建每日新增角色的折线图",
+        "根据共享角色与正常角色数量生成饼状图",
+    ]
+    for content in contents:
+        _test_report(content=content)
+
+
+def test_report_unsupported_tool():
+    response: httpx.Response = client.post(
+        url="/api/report/character",
+        json={"content": "今天天气不错"},
+    )
+    print(response.json())
+    assert response.status_code == 200
+    report_response = ReportResponseV2(**response.json())
+    assert report_response.url is None

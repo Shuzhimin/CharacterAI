@@ -8,6 +8,7 @@ from zhipuai import ZhipuAI
 from zhipuai.types.chat.chat_completion import Completion
 
 from app.common import conf
+from app.common.model import FunctionToolResult
 
 # from app.llm.all_tools import Tool
 from app.llm.tool import Tool
@@ -51,7 +52,7 @@ def character_llm(meta: dict, prompt: str) -> tuple[str, list[dict]]:
 
 
 # 为了防止写错，这个函数还是直接重写吧
-def invoke_report(content: str) -> tuple[Any, str | None]:
+def invoke_report(content: str) -> tuple[FunctionToolResult | None, str]:
     # print("报表生成成功: character_form.png")
     messages = [
         # {
@@ -73,13 +74,16 @@ def invoke_report(content: str) -> tuple[Any, str | None]:
         tool_call = response.choices[0].message.tool_calls[0]
         args = tool_call.function.arguments
 
+        # 不对呀，傻逼了，
+        # 我们可以过滤返回的返回值啊
+        # 反正是我们自己进行控制的。。。
         function_result = Tool.dispatch(
             name=tool_call.function.name, **json.loads(args)
         )
         messages.append(
             {
                 "role": "tool",
-                "content": f"{json.dumps(function_result)}",
+                "content": f"函数调用成功，请以文字的方式从返回值中提取并总结信息，不要生成创建图像的代码。返回值：{json.dumps(function_result.data)}",
                 "tool_call_id": tool_call.id,
             }
         )
@@ -97,6 +101,8 @@ def invoke_report(content: str) -> tuple[Any, str | None]:
         messages=messages,
     )
     assert isinstance(response, Completion)
+    message = response.choices[0].message
+    assert message.content is not None, f"message content is None: {message}"
     # 1. 我们想要函数的返回值，
     # 2. 我们想要模型的返回值
-    return function_result, response.choices[0].message.content
+    return function_result, message.content

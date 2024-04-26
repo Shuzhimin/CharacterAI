@@ -193,3 +193,8 @@ class Function(BaseModel):
 class FunctionTool(BaseModel):
     type: str = Field(default="function")
     function: Function = Field(description="tool对应的函数说明")
+
+
+class FunctionToolResult(BaseModel):
+    data: dict
+    path: str

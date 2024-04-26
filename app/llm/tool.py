@@ -6,7 +6,14 @@ import inspect
 from types import UnionType
 from typing import Callable, Union, get_args, get_origin, get_type_hints
 
-from app.common.model import Function, FunctionTool, Parameters, Property
+import app.common.model
+from app.common.model import (
+    Function,
+    FunctionTool,
+    FunctionToolResult,
+    Parameters,
+    Property,
+)
 
 
 def is_optional(tp) -> bool:
@@ -43,6 +50,10 @@ class Tool:
         assert func.__doc__ is not None, "tool's doc must given"
         signature = inspect.signature(func)
         type_hints = get_type_hints(func)
+        assert (
+            type_hints["return"] is FunctionToolResult
+        ), f"return type of function tool must be {FunctionToolResult}, not {type_hints["return"]}"
+
         properties = {}
         required: list[str] = []
         for name, param in signature.parameters.items():
@@ -74,7 +85,7 @@ class Tool:
         return tool
 
     @classmethod
-    def dispatch(cls, name: str, *args, **kwargs):
+    def dispatch(cls, name: str, *args, **kwargs) -> FunctionToolResult:
         # 这里需要dispatch的话，我就需要找到对应的函数才行，那么这些函数就必须在注册时候放起来
         # 只有这样我们才能进行一个访问
         return cls.functions[name](*args, **kwargs)

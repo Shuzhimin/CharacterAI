@@ -1,4 +1,6 @@
+import random
 import uuid
+from test.unit.utils import random_character_category
 
 from fastapi.testclient import TestClient
 
@@ -27,7 +29,7 @@ def test_character(token: model.Token, avatar_url: str):
             description=str(uuid.uuid4()),
             avatar_description=str(uuid.uuid4()),
             avatar_url=avatar_url,
-            category=str(uuid.uuid4()),
+            category=random_character_category(),
             uid=uid,
         ).model_dump(),
     )
@@ -51,7 +53,7 @@ def test_character(token: model.Token, avatar_url: str):
     # update character
     new_character_name = str(uuid.uuid4())
     new_character_description = str(uuid.uuid4())
-    new_character_category = str(uuid.uuid4())
+    new_character_category = random_character_category()
     response = client.post(
         url=f"{prefix}/update?cid={characters[0].cid}",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
