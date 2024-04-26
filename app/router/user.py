@@ -1,13 +1,27 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body, Depends, FastAPI, Form, HTTPException, status
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    FastAPI,
+    Form,
+    HTTPException,
+    Query,
+    status,
+)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from app.common import model
+from app.common.crypt import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    create_access_token,
+    pwd_context,
+)
 from app.common.minio import minio_service
 from app.database import DatabaseService, schema
 from app.dependency import get_admin, get_db, get_user
@@ -28,38 +42,6 @@ user = APIRouter(prefix="/api/user")
 # /user/update
 # /user/select
 # /user/me
-
-# JWT
-# base64 encoding, not enctypted
-# but it is signed by the server, But it's signed. So, when you receive a token that you emitted, you can verify that you actually emitted it.
-# https://github.com/mpdavis/python-jose
-# https://jwt.io/
-
-# password hasing and salt
-# https://passlib.readthedocs.io/en/stable/
-
-# to get a string like this run:
-# openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-# Create a variable ALGORITHM with the algorithm used to sign the JWT token and set it to "HS256"
-ALGORITHM = "HS256"
-# Create a variable for the expiration of the token.
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-# https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
-# Create a utility function to generate a new access token.
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
 
 # 感觉这个接口也应该独立出来，/user下的接口应该都是登录之后才可以操作的接口
@@ -91,6 +73,12 @@ async def user_login(
     db: Annotated[DatabaseService, Depends(get_db)],
 ) -> model.Token:
     user = db.get_user_by_name(name=form_data.username)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     # how to verify password
     if not pwd_context.verify(form_data.password, user.password):
         raise HTTPException(
@@ -124,17 +112,26 @@ async def user_me(
 
 
 # only admin could get all users
-@user.get("/all")
+@user.get("/select")
 async def user_all(
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
     admin: Annotated[schema.User, Depends(get_admin)],
-) -> list[model.UserOut]:
-    users = db.get_users()
+    page_num: Annotated[int, Query(description="页码")] = 1,
+    page_size: Annotated[int, Query(description="每页数量")] = 10,
+) -> model.UserSelectResponse:
+    skip = (page_num - 1) * page_size
+    limit = page_size
+    users = db.get_users(skip=skip, limit=limit)
+
     user_outs: list[model.UserOut] = []
     for user in users:
-        user_out = model.UserOut(**user.dict())
+        user_out = model.UserOut(**user.__dict__)
         user_outs.append(user_out)
-    return user_outs
+
+    return model.UserSelectResponse(
+        users=user_outs,
+        total=db.get_user_count(),
+    )
 
 
 @user.post("/delete")

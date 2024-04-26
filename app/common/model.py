@@ -167,6 +167,11 @@ class Role(str, Enum):
     ADMIN = "admin"
 
 
+class UserSelectResponse(BaseModel):
+    users: list[UserOut] = Field(description="用户列表")
+    total: int = Field(description="数据库中的用户总数")
+
+
 class Property(BaseModel):
     description: str = Field(description="函数参数描述")
     type: str = Field(description="函数参数签名")

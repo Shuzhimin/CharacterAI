@@ -13,6 +13,8 @@ from pydantic import BaseModel
 from app.common import model
 from app.database import DatabaseService, schema
 
+# TODO: need refactor, combine with common/crypt.py
+
 
 def get_db() -> DatabaseService:
     return DatabaseService()
