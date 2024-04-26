@@ -15,6 +15,7 @@ from app.llm.tool import Tool
 
 db = DatabaseService()
 report = APIRouter()
+from app.common.minio import minio_service
 
 # implement tool in this file
 # 支持中文
@@ -193,8 +194,9 @@ async def report_form(request: model.ReportRequest) -> model.ReportResponseV2:
     url = None
     if function_result is not None:
         path: str = function_result.path
-        minio.upload_file(image_path=path)
-        url = minio.get_url()
+        # minio.upload_file(image_path=path)
+        # url = minio.get_url()
+        url = minio_service.upload_file_from_file(filename=path)
         if url == "":
             raise InternalException(code=1, message="报表生成失败")
 

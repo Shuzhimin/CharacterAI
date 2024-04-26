@@ -48,7 +48,7 @@ def _test_report(content: str):
     assert report_response.url is not None
 
 
-def test_report(content: str):
+def test_report():
     contents = [
         "根据各个角色类型的数量生成饼状图",
         "根据各个角色类型的数量生成柱状图",
