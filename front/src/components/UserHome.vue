@@ -210,6 +210,16 @@ export default {
     this.form.avatar_url = this.cur_account.avatar_url
     this.form.character_num = this.cur_account.character_num
     this.form.avatar_url = this.cur_account.avatar_url
+
+    user_me().then(res => {
+      if (res.data.role === "admin"){
+        this.menulist[0].childrens.push({
+          id: 1015,
+          authName: "账号管理",
+          path: '/accountmanagement'
+        },)
+      }
+    })
   },
   methods: {
     logout () {

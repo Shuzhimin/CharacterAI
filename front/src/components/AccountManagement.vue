@@ -59,7 +59,7 @@
         :page-sizes="[1, 2, 5, 10]"
         :page-size="search_query.pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="receive.total">
+        :total="search_query.total">
       </el-pagination>
     </el-card>
     <AddAccountDialog v-if="addAccountDialogVisible" @closeDialog="closeAddAccountDialog" :DialogShowFlag="addAccountDialogVisible"></AddAccountDialog>
@@ -68,7 +68,7 @@
 
 <script>
 import AddAccountDialog from '@/components/dialog/AddAccountDialog';
-import { user_all, user_delete } from '@/api/user';
+import { user_select, user_delete } from '@/api/user';
 export default {
   name: 'AccountManagement',
   components: { AddAccountDialog },
@@ -98,7 +98,7 @@ export default {
     }
   },
   created() {
-    this.get_user_all()
+    this.get_user()
   },
   methods: {
     searchUser(){
@@ -106,7 +106,7 @@ export default {
     },
     addAccount(){
       console.log('新增用户')
-      this.addAccountDialogVisible = true;
+      // this.addAccountDialogVisible = true;
     },
     closeAddAccountDialog() {
       this.addAccountDialogVisible = false;
@@ -115,17 +115,24 @@ export default {
     handleSizeChange (newSize) {
       console.log(newSize)
       this.search_query.pagesize = newSize
+      this.get_user()
     },
     // 监听 页码值 改变的时间
     handleCurrentChange (newPage) {
       console.log(newPage)
       this.search_query.pagenum = newPage
+      this.get_user()
     },
-    get_user_all(){
-      user_all().then(res => {
+    get_user(){
+      let params = {
+        "page_num": this.search_query.pagenum,
+        "page_size": this.search_query.pagesize
+      }
+      user_select(params).then(res => {
         if (res.status === 200){
           console.log(res)
-          this.table_data = res.data
+          this.table_data = res.data.users
+          this.search_query.total = res.data.total
         }
       })
     },

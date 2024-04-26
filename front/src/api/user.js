@@ -18,8 +18,8 @@ export function user_update(params){
   return http.postJson('/api/user/update', params)
 }
 
-export function user_all(){
-  return http.get('/api/user/all')
+export function user_select(params){
+  return http.get('/api/user/select', params)
 }
 
 export function user_update_password(params){
