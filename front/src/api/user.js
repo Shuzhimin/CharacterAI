@@ -17,3 +17,15 @@ export function user_me(params){
 export function user_update(params){
   return http.postJson('/api/user/update', params)
 }
+
+export function user_all(){
+  return http.get('/api/user/all')
+}
+
+export function user_update_password(params){
+  return http.postJson('/api/user/update-password', params)
+}
+
+export function user_delete(params){
+  return http.postList('/api/user/delete', params)
+}

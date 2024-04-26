@@ -126,6 +126,7 @@ export default {
     }
   },
   created() {
+    this.$emit('updateParentValue', '/mainpage')
     this.getCharacter()
   },
   methods: {
@@ -141,8 +142,8 @@ export default {
     },
     getCharacter(){
       let params = {
-        // "skip": 1,
-        // "limit": 20
+        "cid": window.localStorage.getItem('uid'),
+        "category": 'other'
       }
       character_select().then(res => {
         if (res.status === 200){

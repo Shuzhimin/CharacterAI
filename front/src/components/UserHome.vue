@@ -8,8 +8,8 @@
       </div>
       <div>
         <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 50px;"></el-avatar>
-        <el-button type="info" @click="openDialog" style="background-color: #d0ba13;padding-right: 20px">
-          查看个人信息
+        <el-button type="info" @click="" style="background-color: #d0ba13;padding-right: 20px">
+          修改密码
         </el-button>
         <el-dialog title="个人信息" :visible.sync="dialogFormVisible">
           <el-form :model="form">
@@ -27,9 +27,6 @@
             </el-form-item>
             <el-form-item v-if="!form.modifyFlag" label="用户头像" :label-width="formLabelWidth">
               <el-image :src="form.avatar_url" style="max-width: 150px; max-height: 150px;"></el-image>
-            </el-form-item>
-            <el-form-item v-if="!form.modifyFlag" label="所有角色数" :label-width="formLabelWidth">
-              <el-input v-model="form.character_num" :disabled="true" style="width: 50px"></el-input> <span>个</span>
             </el-form-item>
 
 <!--            <el-form-item v-if="form.modifyFlag" label="新密码" :label-width="formLabelWidth">-->
@@ -194,7 +191,7 @@ export default {
         description: '',
         role: '',
         avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
-        character_num: 5,
+
       }
     }
   },
@@ -217,6 +214,7 @@ export default {
   methods: {
     logout () {
       window.sessionStorage.clear()
+      localStorage.clear()
       this.$router.push('/login')
     },
     // 点击按钮，切换菜单折叠与展开
