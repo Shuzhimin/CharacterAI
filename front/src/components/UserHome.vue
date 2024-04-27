@@ -8,9 +8,29 @@
       </div>
       <div>
         <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 50px;"></el-avatar>
-        <el-button type="info" @click="" style="background-color: #d0ba13;padding-right: 20px">
+        <el-button type="info" @click="openDialog1" style="background-color: #d0ba13;padding-right: 20px">
           修改密码
         </el-button>
+        <el-dialog title="个人信息" :visible.sync="dialogFormVisible1">
+          <el-form :model="form">
+            <el-form-item label="用户名" :label-width="formLabelWidth">
+              <el-input v-model="form.username" autocomplete="off" :disabled="true"></el-input>
+            </el-form-item>
+            <el-form-item label="请输入当前密码" :label-width="formLabelWidth">
+              <el-input v-model="form.password" :show-password="true" autocomplete="off"
+                        :disabled="false"></el-input>
+            </el-form-item>
+            <el-form-item label="请输入新密码" :label-width="formLabelWidth">
+              <el-input v-model="form.new_password" :show-password="true" autocomplete="off"
+                        :disabled="false"></el-input>
+            </el-form-item>
+
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible1 = false">取 消</el-button>
+          <el-button type="primary" @click="modify1()">确 定</el-button>
+        </div>
+        </el-dialog>
         <el-dialog title="个人信息" :visible.sync="dialogFormVisible">
           <el-form :model="form">
             <el-form-item label="" :label-width="formLabelWidth">
@@ -35,9 +55,9 @@
 <!--            <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">-->
 <!--              <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>-->
 <!--            </el-form-item>-->
-<!--            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">-->
-<!--              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
-<!--            </el-form-item>-->
+            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">
+              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>
+            </el-form-item>
             <el-form-item v-if="form.modifyFlag" label="头像" :label-width="formLabelWidth">
               <GenerateAvatar :avatarUrl="cur_account.avatar_url" :description="cur_account.description" @returnUrl="getAvatarUrl"></GenerateAvatar>
             </el-form-item>
@@ -127,7 +147,7 @@
 <script>
 import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
-import { user_me, user_update } from '@/api/user';
+import { user_me, user_update,user_update_password } from '@/api/user';
 export default {
   name: 'home',
   components: { GenerateAvatarDialog, GenerateAvatar },
@@ -175,15 +195,17 @@ export default {
       // 被激活的链接地址
       activePath: '',
       dialogFormVisible: false,
+      dialogFormVisible1: false,
       generateAvatarDialogVisible: false,
       formLabelWidth: '120px',
       form: {
         username: '',
         avatar_url: '',
         character_num: '',
+        password: '',
         new_password: '',
-        check_password: '',
         modifyFlag: false
+
       },
       cur_account: {
         id: 1,
@@ -192,14 +214,14 @@ export default {
         role: '',
         avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
 
-      }
+      },
+
     }
   },
   created () {
     // this.getMenuList()
 
     this.activePath = window.sessionStorage.getItem('activePath')
-
     this.cur_account.id = window.localStorage.getItem("uid")
     this.cur_account.username = window.localStorage.getItem("name")
     this.cur_account.description = window.localStorage.getItem("description")
@@ -212,11 +234,13 @@ export default {
     this.form.avatar_url = this.cur_account.avatar_url
   },
   methods: {
+
     logout () {
       window.sessionStorage.clear()
       localStorage.clear()
       this.$router.push('/login')
     },
+
     // 点击按钮，切换菜单折叠与展开
     toggleCollapse () {
       this.isCollapsed = !this.isCollapsed
@@ -229,8 +253,11 @@ export default {
     openDialog(){
       this.dialogFormVisible=true
       this.form.modifyFlag=false
+    },
+    openDialog1(){
+      this.dialogFormVisible1=true
+      this.form.password=''
       this.form.new_password=''
-      this.form.check=''
     },
     modify(){
       let params = {
@@ -250,6 +277,22 @@ export default {
             window.localStorage.setItem("role", res.data.role)
           })
           this.dialogFormVisible = false
+        }
+      })
+    },
+    modify1(){
+      let params = {
+        "old_password": this.form.password,
+        "new_password": this.form.new_password,
+      }
+      user_update_password(params).then(res => {
+        if (res.status === 200){
+          this.$message.success("修改密码成功！")
+          user_me().then(res =>{
+            console.log(res)
+            window.localStorage.setItem("password", res.data.password)
+          })
+          this.dialogFormVisible1 = false
         }
       })
     },
