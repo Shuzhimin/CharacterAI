@@ -203,3 +203,28 @@ class FunctionTool(BaseModel):
 class FunctionToolResult(BaseModel):
     data: dict
     path: str
+
+
+# character llm
+# 定义请求体模型
+class RequestItemPrompt(BaseModel):
+    role: str
+    content: str
+
+
+class RequestItemMeta(BaseModel):
+    character_name: str
+    character_info: str
+
+
+class RequestPayload(BaseModel):
+    meta: RequestItemMeta
+    prompt: list[RequestItemPrompt]
+
+
+# 定义响应体模型
+class ResponseModel(BaseModel):
+    message: str
+
+
+# /character_llm (RequestPayload) -> ResponseModel

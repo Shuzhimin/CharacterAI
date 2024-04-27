@@ -3,9 +3,15 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, WebSocket, Body
+from fastapi import APIRouter, Body, Depends, WebSocket
 
 from app.common import model
+from app.common.model import (
+    RequestItemMeta,
+    RequestItemPrompt,
+    RequestPayload,
+    ResponseModel,
+)
 from app.database import DatabaseService, schema
 from app.dependency import get_db, get_token_data, get_user
 from app.llm import glm
@@ -28,34 +34,50 @@ async def websocket_endpoint(
     character = db.get_character(cid=cid)
     chat = db.create_chat(chat_create=model.ChatCreate(uid=user.uid, cid=cid))
 
+    # 我们需要定义meta信息
+    # 就把模型实现的那些东西拿过来放到model里面就行了
+    meta = RequestItemMeta(
+        character_name=character.name,
+        character_info=character.description,
+    )
+
+    history: list[RequestItemPrompt] = []
+
     try:
         while True:
             # 我们会收到怎样的数据呢？
             # 其实简单来说应该就只有字符串而已
             content = await websocket.receive_text()
-
             # insert data into db
             db.create_content(
                 content_create=model.MessageCreate(
                     chat_id=chat.chat_id, content=content, sender=user.uid
                 )
             )
+            history.append(RequestItemPrompt(role="user", content=content))
+
+            # 在这里，我们需要获取历史记录
 
             # ask chatglm to get the response
-            response = glm.invoke_model_api(
-                character_name=character.name,
-                character_info=character.description,
-                content=content,
-            )
+            # 我们在传递参数的时候，肯定要传递meta和history呀
+            # 要和大模型的调用参数保持一致才行
+            # response = glm.invoke_model_api(
+            #     character_name=character.name,
+            #     character_info=character.description,
+            #     content=content,
+            # )
 
+            content = glm.character_llm(
+                payload=RequestPayload(meta=meta, prompt=history)
+            ).message
             db.create_content(
                 content_create=model.MessageCreate(
-                    chat_id=chat.chat_id, content=response, sender=cid
+                    chat_id=chat.chat_id, content=content, sender=cid
                 )
             )
-
+            history.append(RequestItemPrompt(role="assistant", content=content))
             # send answer to client
-            await websocket.send_text(response)
+            await websocket.send_text(content)
     except Exception as e:
         print(e)
         await websocket.close()

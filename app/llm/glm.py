@@ -8,7 +8,13 @@ from zhipuai import ZhipuAI
 from zhipuai.types.chat.chat_completion import Completion
 
 from app.common import conf
-from app.common.model import FunctionToolResult
+from app.common.model import (
+    FunctionToolResult,
+    RequestItemMeta,
+    RequestItemPrompt,
+    RequestPayload,
+    ResponseModel,
+)
 
 # from app.llm.all_tools import Tool
 from app.llm.tool import Tool
@@ -16,39 +22,54 @@ from app.llm.tool import Tool
 client = ZhipuAI(api_key=conf.get_zhipuai_key())
 
 
-def invoke_model_api(character_name: str, character_info: str, content: str) -> str:
-    prompts = []
-    while True:
-        if content == "quit":
-            break
+# TODO: 引入character llm的类型定义 放到model模块里面 然后在这里进行封装并调用即可 非常简单
+# 这应该是最后0.2版本最后一个功能了
+# 之后需要考虑的是fastapi-user 0.3 版本
+# 0.4 版本引入retrival和web search
+# def invoke_model_api(character_name: str, character_info: str, content: str) -> str:
+#     prompts = []
+#     while True:
+#         if content == "quit":
+#             break
 
-        prompts.append({"role": "user", "content": content})
+#         prompts.append({"role": "user", "content": content})
 
-        response, history = character_llm(
-            meta={"character_name": character_name, "character_info": character_info},
-            prompt=prompts,
-        )
-        prompts = history
-        return response
+#         response, history = character_llm(
+#             meta={"character_name": character_name, "character_info": character_info},
+#             prompt=prompts,
+#         )
+#         prompts = history
+#         return response
 
 
-def character_llm(meta: dict, prompt: str) -> tuple[str, list[dict]]:
+# def character_llm(meta: dict, prompt: str) -> tuple[str, list[dict]]:
+#     # 将两个字典作为参数发送到 FastAPI 接口
+#     response = requests.post(
+#         "http://211.81.248.213:8086/character_llm",
+#         json={"meta": meta, "prompt": prompt},
+#     )
+
+#     # 打印响应结果
+#     message_str = response.json()["message"]
+#     # # 将字符串解析为字典
+#     message_dict = eval(message_str)
+
+#     # 提取 response 和 history
+#     response = message_dict["response"]
+#     # 这里的history没有create_time
+#     history = message_dict["history"]
+#     return response, history
+
+
+# 我们需要传入的参数就是requestpayload 就行
+# 返回值就是responsemodel就行 就完全和接口的定义一样就行了
+def character_llm(payload: RequestPayload) -> ResponseModel:
     # 将两个字典作为参数发送到 FastAPI 接口
     response = requests.post(
         "http://211.81.248.213:8086/character_llm",
-        json={"meta": meta, "prompt": prompt},
+        json=payload.model_dump(),
     )
-
-    # 打印响应结果
-    message_str = response.json()["message"]
-    # # 将字符串解析为字典
-    message_dict = eval(message_str)
-
-    # 提取 response 和 history
-    response = message_dict["response"]
-    # 这里的history没有create_time
-    history = message_dict["history"]
-    return response, history
+    return ResponseModel(**response.json())
 
 
 # 为了防止写错，这个函数还是直接重写吧

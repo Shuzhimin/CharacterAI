@@ -27,11 +27,11 @@ avatar_describe = "avatar_describe"
 update_username = "update_username"
 
 
-@pytest.fixture(scope="function")
-def mock_invoke_model_api(mocker: MockerFixture):
-    return mocker.patch(
-        "app.llm.glm.invoke_model_api", return_value="fake model response"
-    )
+# @pytest.fixture(scope="function")
+# def mock_invoke_model_api(mocker: MockerFixture):
+#     return mocker.patch(
+#         "app.llm.glm.invoke_model_api", return_value="fake model response"
+#     )
 
 
 def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
@@ -40,10 +40,10 @@ def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
         url="/api/character/create",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
         json=model.CharacterCreate(
-            name=str(uuid.uuid4()),
-            description=str(uuid.uuid4()),
+            name="小明",
+            description="爱打游戏的大学生",
             avatar_url=avatar_url,
-            category=str(uuid.uuid4()),
+            category="旅游",
             uid=uid,
         ).model_dump(),
     )
@@ -54,7 +54,8 @@ def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
     return character
 
 
-def test_create_chat(mock_invoke_model_api, token: model.Token, avatar_url: str):
+# 如果不用mock的话，这个测试就无法在本地通过测试，只能在服务器上进行测试
+def test_create_chat(token: model.Token, avatar_url: str):
     character = create_character(token, avatar_url)
 
     # new websocket to create a new chat
