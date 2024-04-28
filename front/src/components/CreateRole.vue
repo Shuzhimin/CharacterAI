@@ -143,10 +143,71 @@ export default {
       character_create(params).then(res => {
         console.log(res)
         if (res.status === 200){
-          this.$message.success("创建成功！")
+          // this.$message.success("创建成功！")
+          this.$confirm(`角色创建成功，可以选择与创建角色对话或回到首页查看角色`, {
+            confirmButtonText: '与创建角色对话',
+            cancelButtonText: '回到首页查看角色',
+            type: 'success'
+          }).then(() => {
+            // 点击与创建角色对话按钮的逻辑
+            console.log('与创建角色对话');
+            console.log(this.createForm)
+            localStorage.setItem('roleCategory', this.createForm.selectedCategory)
+            localStorage.setItem('roleMess_name', this.createForm.bot_name)
+            localStorage.setItem('roleMess_avatar_url', this.createForm.avatar_url)
+            localStorage.setItem('roleMess_description', this.createForm.bot_info)
+            localStorage.setItem('roleMess_avatar_description', this.createForm.avatarDescription)
+            // 跳转到与创建角色对话的页面
+            this.$router.push('/dialogue');
+          }).catch(() => {
+            // 点击回到首页查看角色按钮的逻辑
+            console.log('回到首页查看角色');
+            // 跳转到首页的页面
+            this.$router.push('/mainpage');
+          }).finally(() => {
+            // 清空表单数据
+            this.createForm = {
+              bot_name: '',
+              bot_info: '',
+              selectedCategory: '',
+              avatarUrl: '',
+            };
+          });
         }
       })
     },
+    // showSuccessMessageBox() {
+    //   this.$confirm(`角色创建成功，您的角色 ID 是 ${this.createdCharacterId}，可以选择与创建角色对话或回到首页查看角色`, {
+    //     confirmButtonText: '与创建角色对话',
+    //     cancelButtonText: '回到首页查看角色',
+    //     type: 'success'
+    //   }).then(() => {
+    //     // 点击与创建角色对话按钮的逻辑
+    //     console.log('与创建角色对话');
+    //     console.log(this.createForm)
+    //     localStorage.setItem('roleCategory', this.createForm.selectedCategory)
+    //     localStorage.setItem('roleMess_name', this.createForm.bot_name)
+    //     localStorage.setItem('roleMess_avatar_url', this.createForm.avatar_url)
+    //     localStorage.setItem('roleMess_id', window.localStorage.getItem("uid"))
+    //     localStorage.setItem('roleMess_description', this.createForm.bot_info)
+    //     localStorage.setItem('roleMess_avatar_description', this.createForm.avatarDescription)
+    //     // 跳转到与创建角色对话的页面
+    //     this.$router.push('/dialogue');
+    //   }).catch(() => {
+    //     // 点击回到首页查看角色按钮的逻辑
+    //     console.log('回到首页查看角色');
+    //     // 跳转到首页的页面
+    //     this.$router.push('/mainpage');
+    //   }).finally(() => {
+    //     // 清空表单数据
+    //     this.createForm = {
+    //       bot_name: '',
+    //       bot_info: '',
+    //       selectedCategory: '',
+    //       avatarUrl: '',
+    //     };
+    //   });
+    // },
     // generateCharacterAvatar() {
     //   const response2 = simulateAvatar(this.createForm);
     //   this.characterAvatarUrl = response2.data.AvatarUrl;
@@ -190,31 +251,7 @@ export default {
     //     this.dialogueAvatarUrl
     //   }, 1000);
     // },
-    showSuccessMessageBox() {
-      this.$confirm(`角色创建成功，您的角色 ID 是 ${this.createdCharacterId}，可以选择与创建角色对话或回到首页查看角色`, '创建成功', {
-        confirmButtonText: '与创建角色对话',
-        cancelButtonText: '回到首页查看角色',
-        type: 'success'
-      }).then(() => {
-        // 点击与创建角色对话按钮的逻辑
-        console.log('与创建角色对话');
-        // 跳转到与创建角色对话的页面
-        this.$router.push('/dialogue');
-      }).catch(() => {
-        // 点击回到首页查看角色按钮的逻辑
-        console.log('回到首页查看角色');
-        // 跳转到首页的页面
-        this.$router.push('/mainpage');
-      }).finally(() => {
-        // 清空表单数据
-        this.createForm = {
-          bot_name: '',
-          bot_info: '',
-          user_name: '',
-          user_info: ''
-        };
-      });
-    }
+
   }
 }
 </script>
