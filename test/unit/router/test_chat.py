@@ -8,6 +8,7 @@ from app.common import model
 from app.database import DatabaseService, schema
 from app.dependency import parse_token
 from app.main import app
+from app.llm import glm
 
 client = TestClient(app)
 
@@ -52,6 +53,20 @@ def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
     character = model.CharacterOut(**response.json())
     print(character)
     return character
+
+
+def test_llm(token: model.Token, avatar_url: str):
+    character = create_character(token, avatar_url)
+
+    response = glm.character_llm(
+        payload=model.RequestPayload(
+            meta=model.RequestItemMeta(
+                character_name=character.name, character_info=character.description
+            ),
+            prompt=[model.RequestItemPrompt(role="user", content="你好")],
+        )
+    )
+    print(response)
 
 
 # 如果不用mock的话，这个测试就无法在本地通过测试，只能在服务器上进行测试

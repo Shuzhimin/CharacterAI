@@ -69,7 +69,8 @@ def character_llm(payload: RequestPayload) -> ResponseModel:
         "http://211.81.248.213:8086/character_llm",
         json=payload.model_dump(),
     )
-    return ResponseModel(**response.json())
+    response_dict = eval(response.json()["message"])
+    return ResponseModel(message=response_dict["response"])
 
 
 # 为了防止写错，这个函数还是直接重写吧
