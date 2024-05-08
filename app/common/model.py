@@ -228,3 +228,12 @@ class ResponseModel(BaseModel):
 
 
 # /character_llm (RequestPayload) -> ResponseModel
+
+
+class ChatMessage(BaseModel):
+    chat_id: int
+    sender: int
+    receiver: int
+    is_end_of_stream: bool
+    content: str
+    images: list[str] = []
