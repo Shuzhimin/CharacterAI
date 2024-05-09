@@ -17,11 +17,11 @@ chat = APIRouter()
 
 @chat.websocket("/ws/chat")
 async def websocket_endpoint(
+    db: Annotated[DatabaseService, Depends(get_db)],
     websocket: WebSocket,
     cid: int,
     token: str,
     chat_id: int | None = None,
-    db: Annotated[DatabaseService, Depends(get_db)],
 ):
     # 我们需要在这里验证token 并获得用户
     token_data = await get_token_data(token=token)
@@ -37,7 +37,7 @@ async def websocket_endpoint(
             role = "assistant" if message.sender == cid else "user"
             content = message.content
             history.append(RequestItemPrompt(role=role, content=content))
-    
+
     await websocket.accept()
     character = db.get_character(cid=cid)
     chat = db.create_chat(chat_create=model.ChatCreate(uid=user.uid, cid=cid))
@@ -48,7 +48,6 @@ async def websocket_endpoint(
         character_name=character.name,
         character_info=character.description,
     )
-
 
     try:
         while True:

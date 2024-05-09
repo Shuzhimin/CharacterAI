@@ -101,7 +101,7 @@ async def character_all(
     def sort_by_fuzz(character: schema.Character) -> int:
         return fuzz.ratio(character.name, query)
 
-    characters = sorted(iterable=characters, key=sort_by_fuzz, reverse=True)
+    characters = sorted(characters, key=sort_by_fuzz, reverse=True)
     characters = characters[skip : skip + limit]
 
     character_outs: list[model.CharacterOut] = []
