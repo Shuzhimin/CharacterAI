@@ -16,6 +16,9 @@ from app.database import DatabaseService, schema
 # TODO: need refactor, combine with common/crypt.py
 
 
+# This is good practise,
+# https://docs.sqlalchemy.org/en/20/orm/session_basics.html
+# https://docs.sqlalchemy.org/en/20/orm/session_basics.html#when-do-i-construct-a-session-when-do-i-commit-it-and-when-do-i-close-it
 def get_db() -> DatabaseService:
     return DatabaseService()
 
