@@ -237,3 +237,9 @@ class ChatMessage(BaseModel):
     is_end_of_stream: bool
     content: str
     images: list[str] = []
+
+
+# report
+class ReportRequestV2(BaseModel):
+    uid: int = Field(description="用户id")  # 根据uid获取对应用户的数据
+    question: str = Field(description="用户询问的问题")
