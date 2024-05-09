@@ -6,12 +6,8 @@ from typing import Annotated
 from fastapi import APIRouter, Body, Depends, WebSocket
 
 from app.common import model
-from app.common.model import (
-    RequestItemMeta,
-    RequestItemPrompt,
-    RequestPayload,
-    ResponseModel,
-)
+from app.common.model import (RequestItemMeta, RequestItemPrompt,
+                              RequestPayload, ResponseModel)
 from app.database import DatabaseService, schema
 from app.dependency import get_db, get_token_data, get_user
 from app.llm import glm
@@ -21,14 +17,26 @@ chat = APIRouter()
 
 @chat.websocket("/ws/chat")
 async def websocket_endpoint(
+    db: Annotated[DatabaseService, Depends(get_db)],
     websocket: WebSocket,
     cid: int,
     token: str,
-    db: Annotated[DatabaseService, Depends(get_db)],
+    chat_id: int | None = None,
 ):
     # 我们需要在这里验证token 并获得用户
     token_data = await get_token_data(token=token)
     user = get_user(token_data=token_data, db=db)
+
+    # 在这里如果chat_id 不是None的话，我们就读取历史消息放到history里面就行了
+    # 剩下的逻辑完全不用改变 非常简单
+    # 这样就需要实现一个db方法，来获取历史消息即可
+    history: list[RequestItemPrompt] = []
+    if chat_id is not None:
+        chat = db.get_chat(chat_id=chat_id)
+        for message in chat.messages:
+            role = "assistant" if message.sender == cid else "user"
+            content = message.content
+            history.append(RequestItemPrompt(role=role, content=content))
 
     await websocket.accept()
     character = db.get_character(cid=cid)
@@ -40,8 +48,6 @@ async def websocket_endpoint(
         character_name=character.name,
         character_info=character.description,
     )
-
-    history: list[RequestItemPrompt] = []
 
     try:
         while True:

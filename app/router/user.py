@@ -1,27 +1,16 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any
 
-from fastapi import (
-    APIRouter,
-    Body,
-    Depends,
-    FastAPI,
-    Form,
-    HTTPException,
-    Query,
-    status,
-)
+from fastapi import (APIRouter, Body, Depends, FastAPI, Form, HTTPException,
+                     Query, status)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
 from app.common import model
-from app.common.crypt import (
-    ACCESS_TOKEN_EXPIRE_MINUTES,
-    create_access_token,
-    pwd_context,
-)
+from app.common.crypt import (ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token,
+                              pwd_context)
 from app.common.minio import minio_service
 from app.database import DatabaseService, schema
 from app.dependency import get_admin, get_db, get_user
@@ -112,38 +101,6 @@ async def user_me(
 
 
 # only admin could get all users
-@user.get("/select")
-async def user_all(
-    db: Annotated[DatabaseService, Depends(dependency=get_db)],
-    admin: Annotated[schema.User, Depends(get_admin)],
-    page_num: Annotated[int, Query(description="页码")] = 1,
-    page_size: Annotated[int, Query(description="每页数量")] = 10,
-) -> model.UserSelectResponse:
-    skip = (page_num - 1) * page_size
-    limit = page_size
-    users = db.get_users(skip=skip, limit=limit)
-
-    user_outs: list[model.UserOut] = []
-    for user in users:
-        user_out = model.UserOut(**user.__dict__)
-        user_outs.append(user_out)
-
-    return model.UserSelectResponse(
-        users=user_outs,
-        total=db.get_user_count(),
-    )
-
-
-@user.post("/delete")
-async def delete_users(
-    db: Annotated[DatabaseService, Depends(dependency=get_db)],
-    admin: Annotated[schema.User, Depends(get_admin)],
-    uids: Annotated[list[int], Body(description="uid列表", examples=[[1, 2, 3]])],
-) -> None:
-    for uid in uids:
-        db.delete_user(uid=uid)
-
-
 @user.post("/update-password")
 async def update_password(
     db: Annotated[DatabaseService, Depends(dependency=get_db)],

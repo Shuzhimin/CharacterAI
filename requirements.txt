@@ -14,3 +14,4 @@ minio
 sqlalchemy
 psycopg2-binary
 pytest-mock
+thefuzz

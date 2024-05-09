@@ -8,6 +8,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.common import model
+from app.common.conf import conf
 from app.common.crypt import encrypt_password
 
 from . import schema
@@ -53,14 +54,15 @@ class DatabaseService:
         return db_user
 
     def get_admin(self) -> schema.User:
-        match self.get_user_by_name(name="admin"):
+        admin = conf.get_admin()
+        match self.get_user_by_name(name=admin.username):
             case schema.User() as admin:
                 return admin
             case _:
                 # password 需要hash
                 db_user = schema.User(
-                    name="admin",
-                    password=encrypt_password("admin"),
+                    name=admin.username,
+                    password=encrypt_password(admin.password),
                     avatar_description="admin",
                     avatar_url="admin",
                     role=model.Role.ADMIN.value,
@@ -72,6 +74,13 @@ class DatabaseService:
     def update_user_password(self, uid: int, password: str) -> schema.User:
         db_user = self._db.execute(select(schema.User).filter_by(uid=uid)).scalar_one()
         db_user.password = password
+        db_user.updated_at = datetime.now()
+        self._db.commit()
+        return db_user
+
+    def update_user_role(self, uid: int, role: model.Role) -> schema.User:
+        db_user = self._db.execute(select(schema.User).filter_by(uid=uid)).scalar_one()
+        db_user.role = role
         db_user.updated_at = datetime.now()
         self._db.commit()
         return db_user
@@ -192,7 +201,19 @@ class DatabaseService:
         if where.uid:
             query = query.filter(schema.Character.uid == where.uid)
         # query = query.offset(skip).limit(limit)
-        return [c for c in self._db.execute(query).scalars().all()]
+        return [
+            c for c in self._db.execute(query.offset(skip).limit(limit)).scalars().all()
+        ]
+
+    def get_character_count(self) -> int:
+        return self._db.query(schema.Character).filter_by(is_deleted=False).count()
+
+    def get_user_character_count(self, uid: int) -> int:
+        return (
+            self._db.query(schema.Character)
+            .filter_by(uid=uid, is_deleted=False)
+            .count()
+        )
 
     # def get_character_by_cid(self, cid: int) -> schema.Character:
     #     return (
