@@ -19,6 +19,10 @@ class TokenData(BaseModel):
     uid: int
 
 
+class UID(BaseModel):
+    uid: int
+
+
 class UserCreate(BaseModel):
     name: str = Field(description="用户名")
     password: str = Field(description="密码")
@@ -30,6 +34,10 @@ class UserUpdate(BaseModel):
     name: str | None = Field(default=None, description="用户名")
     avatar_description: str | None = Field(default=None, description="用户自我介绍")
     avatar_url: str | None = Field(default=None, description="头像url")
+
+
+class AdminUpdateUserProfile(UID, UserUpdate):
+    pass
 
 
 class UserPasswordUpdate(BaseModel):
@@ -167,9 +175,18 @@ class Role(str, Enum):
     ADMIN = "admin"
 
 
+class UpdateRole(UID):
+    role: Role
+
+
 class UserSelectResponse(BaseModel):
     users: list[UserOut] = Field(description="用户列表")
     total: int = Field(description="数据库中的用户总数")
+
+
+class CharacterSelectResponse(BaseModel):
+    characters: list[CharacterOut]
+    total: int
 
 
 class Property(BaseModel):

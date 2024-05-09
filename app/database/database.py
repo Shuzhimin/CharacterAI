@@ -76,6 +76,13 @@ class DatabaseService:
         self._db.commit()
         return db_user
 
+    def update_user_role(self, uid: int, role: model.Role) -> schema.User:
+        db_user = self._db.execute(select(schema.User).filter_by(uid=uid)).scalar_one()
+        db_user.role = role
+        db_user.updated_at = datetime.now()
+        self._db.commit()
+        return db_user
+
     # https://docs.sqlalchemy.org/en/20/tutorial/orm_data_manipulation.html#deleting-orm-objects-using-the-unit-of-work-pattern
     def delete_user(self, uid: int) -> None:
         # self._db.query(schema.User).filter(schema.User.uid == uid).delete()
@@ -192,7 +199,19 @@ class DatabaseService:
         if where.uid:
             query = query.filter(schema.Character.uid == where.uid)
         # query = query.offset(skip).limit(limit)
-        return [c for c in self._db.execute(query).scalars().all()]
+        return [
+            c for c in self._db.execute(query.offset(skip).limit(limit)).scalars().all()
+        ]
+
+    def get_character_count(self) -> int:
+        return self._db.query(schema.Character).filter_by(is_deleted=False).count()
+
+    def get_user_character_count(self, uid: int) -> int:
+        return (
+            self._db.query(schema.Character)
+            .filter_by(uid=uid, is_deleted=False)
+            .count()
+        )
 
     # def get_character_by_cid(self, cid: int) -> schema.Character:
     #     return (
