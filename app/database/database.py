@@ -8,6 +8,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.common import model
+from app.common.conf import conf
 from app.common.crypt import encrypt_password
 
 from . import schema
@@ -53,14 +54,15 @@ class DatabaseService:
         return db_user
 
     def get_admin(self) -> schema.User:
-        match self.get_user_by_name(name="admin"):
+        admin = conf.get_admin()
+        match self.get_user_by_name(name=admin.username):
             case schema.User() as admin:
                 return admin
             case _:
                 # password 需要hash
                 db_user = schema.User(
-                    name="admin",
-                    password=encrypt_password("admin"),
+                    name=admin.username,
+                    password=encrypt_password(admin.password),
                     avatar_description="admin",
                     avatar_url="admin",
                     role=model.Role.ADMIN.value,

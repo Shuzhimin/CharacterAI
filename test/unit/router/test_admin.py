@@ -7,7 +7,7 @@ from test.unit.utils import create_random_user, random_name, user_login
 from fastapi.testclient import TestClient
 from httpx import Response
 
-from app.common import model
+from app.common import conf, model
 from app.database import DatabaseService
 from app.database.schema import User
 from app.main import app
@@ -23,8 +23,8 @@ prefix = "/api/admin"
 def test_admin_user_update_profile(token: model.Token):
     user = create_random_user()
 
-    admin = db.get_admin()
-    token = user_login(username=admin.name, password="admin")
+    admin = conf.get_admin()
+    token = user_login(username=admin.username, password=admin.password)
     name = random_name()
 
     response = client.post(
@@ -42,8 +42,8 @@ def test_admin_user_update_profile(token: model.Token):
 def test_admin_user_update_role():
     user = create_random_user()
 
-    admin = db.get_admin()
-    token = user_login(username=admin.name, password="admin")
+    admin = conf.get_admin()
+    token = user_login(username=admin.username, password=admin.password)
 
     response = client.post(
         url=f"{prefix}/user/update-role",
@@ -60,8 +60,8 @@ def test_admin_user_update_role():
 def test_admin_user_delete():
     user = create_random_user()
 
-    admin = db.get_admin()
-    token = user_login(username=admin.name, password="admin")
+    admin = conf.get_admin()
+    token = user_login(username=admin.username, password=admin.password)
 
     response = client.post(
         url=f"{prefix}/user/delete",
@@ -76,9 +76,9 @@ def test_admin_user_delete():
 
 
 def test_admin_user_select():
-    admin = db.get_admin()
+    admin = conf.get_admin()
     # login first
-    token = user_login(username=admin.name, password="admin")
+    token = user_login(username=admin.username, password=admin.password)
     # then select all users
 
     page_num = 1
@@ -95,9 +95,9 @@ def test_admin_user_select():
 
 
 def test_character_all():
-    admin = db.get_admin()
+    admin = conf.get_admin()
     # login first
-    token = user_login(username=admin.name, password="admin")
+    token = user_login(username=admin.username, password=admin.password)
     # then select all users
     #
 
@@ -118,8 +118,8 @@ def test_character_all():
 
 
 def test_select_character_fuzzy():
-    admin = db.get_admin()
-    token = user_login(username=admin.name, password="admin")
+    admin = conf.get_admin()
+    token = user_login(username=admin.username, password=admin.password)
 
     page_num = 1
     page_size = 10
