@@ -113,12 +113,18 @@
           <div v-for="(item, index) in history_message" class="msgCss" :style="{textAlign: item.align}">
             <el-row style="padding-top: 20px">
               <div v-if="item.owner === 'bot'" class="block">
-                <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url"></el-avatar>
-                <span class="content">{{item.content}}</span>
+                <div style="width: 50px;height: 50px;flex-shrink: 0">
+                  <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>
+                </div>
+
+                <span style="background-color: gray;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
               </div>
               <div v-if="item.owner === 'user'" class="block" style="float: right">
-                <span class="content">{{item.content}}</span>
-                <el-avatar :size="50" :src="item.avatar_url"></el-avatar>
+                <span style="background-color: deepskyblue;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
+                <div style="width: 50px;height: 50px; flex-shrink: 0">
+                  <el-avatar :size="60" :src="item.avatar_url"></el-avatar>
+                </div>
+<!--                <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>-->
               </div>
             </el-row>
 
@@ -145,27 +151,29 @@ import Character from '@/components/dialog/Character';
 import { simulateAvatar, simulateCreateCharacter } from '@/api/createrole';
 import { character_delete, character_update } from '@/api/character';
 import { connectionWebSocket, send } from '@/plugins/websocket-client';
+import { chat_select } from '@/api/chat';
 export default {
   name: 'Dialogue',
   components: { Character, GenerateAvatarDialog, GenerateAvatar },
   props: ['value'],
   data() {
     return{
+      wbClient: null,
       input_message: '',
       history_message: [
-        {
-          content: '我是你的专属AI角色，请跟我聊天吧！',
-          owner: 'bot',
-          avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
-        },{
-          content: '你好，很高兴认识你，你能告诉我中国有哪些有名的小吃吗？',
-          owner: 'user',
-          avatar_url: '',
-        },{
-          content: '中国的小吃有很多，例如胡辣汤、油条、粽子等。',
-          owner: 'bot',
-          avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
-        },
+        // {
+        //   content: '我是你的专属AI角色，请跟我聊天吧！',
+        //   owner: 'bot',
+        //   avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+        // },{
+        //   content: '你好，很高兴认识你，你能告诉我中国有哪些有名的小吃吗？',
+        //   owner: 'user',
+        //   avatar_url: '',
+        // },{
+        //   content: '中国的小吃有很多，例如胡辣汤、油条、粽子等。',
+        //   owner: 'bot',
+        //   avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+        // },
       ],
       role: {
         id: 5,
@@ -192,7 +200,8 @@ export default {
 
     if (localStorage.getItem("roleMess_id") === null){
       console.log("zzzz")
-      return
+      this.$message.warning('请先到主页选择一个角色！')
+      this.$router.push('/mainpage')
     }
     this.role.category = localStorage.getItem('roleCategory')
     this.role.name = localStorage.getItem('roleMess_name')
@@ -212,9 +221,18 @@ export default {
     let token = localStorage.getItem('token')
     let cid = localStorage.getItem('roleMess_id')
     token = token.split(' ')[1]
-    connectionWebSocket(token, cid)
+    this.wbClient = connectionWebSocket(token, cid, this.handle_message)
   },
   methods: {
+    handle_message(msg) {
+      console.log(msg)
+      // const data = JSON.parse(msg.data)
+      this.history_message.push({
+        content: msg.data,
+        owner: 'bot',
+        avatar_url: this.role.img_url,
+      })
+    },
     sendMessage() {
       if (this.input_message === '' || this.input_message === null){
         this.$message.error('发送信息不能为空')
@@ -222,6 +240,16 @@ export default {
       }
       let mess = this.input_message
       send(mess)
+
+      this.history_message.push({
+        content: mess,
+        owner: 'user',
+        avatar_url: this.avatarUrl,
+        // avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+      })
+
+      this.input_message = ''
+
 
       // let mess = {
       //   content: this.input_message,
@@ -363,6 +391,12 @@ export default {
         }
         this.editDialogVisible = false
       })
+    },
+    getChatHistory() {
+      let params = {
+        chat_id: '',
+        cid: ''
+      }
     }
   }
 };

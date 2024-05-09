@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%; background-color: #242949">
-    <el-card style="background-color: #212529; border: 0">
+    <el-card style="background-color: #212529; border: 0;height: 100%">
       <el-row>
         <el-input
           v-model="character_name"
@@ -56,60 +56,27 @@ export default {
     return {
       character_list : [
         // 美食
-        [{
-          id: 1,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test1',
-          description: 'test1'
-        },{
-          id: 2,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test2',
-          description: 'test2'
-        },{
-          id: 3,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test3',
-          description: 'test3'
-        },{
-          id: 4,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test4',
-          description: 'test4'
-        },],
+        [],
         // 旅游
-        [{
-          id: 5,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test5',
-          description: 'test5'
-        },{
-          id: 6,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test6',
-          description: 'test6'
-        },],
+        [
+          // {
+          // id: 5,
+          // img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
+          // label: 'test5',
+          // description: 'test5'
+          // },{
+          //   id: 6,
+          //   img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
+          //   label: 'test6',
+          //   description: 'test6'
+          // },
+        ],
         // 科技
         [],
         // 健康
-        [{
-          id: 7,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test7',
-          description: 'test7'
-        },],
+        [],
         // 法律
-        [{
-          id: 8,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test8',
-          description: 'test8'
-        },{
-          id: 9,
-          img_url: 'https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300',
-          label: 'test9',
-          description: 'test9'
-        },],
+        [],
         // 其他
         [],
 
@@ -122,7 +89,15 @@ export default {
         '健康',
         '法律',
         '其他'
-      ]
+      ],
+      character_code: {
+        'food': 0,
+        'travel': 1,
+        'tech': 2,
+        'health': 3,
+        'law': 4,
+        'other': 5
+      },
     }
   },
   created() {
@@ -141,30 +116,41 @@ export default {
       this.$router.push('/dialogue')
     },
     getCharacter(){
-      let params = {
-        "cid": window.localStorage.getItem('uid'),
-        "category": 'other'
-      }
-      character_select().then(res => {
-        if (res.status === 200){
-          console.log(res)
-          for (var i=0;i<res.data.length;i++){
-            let d = {
-              cid: res.data[i].cid,
-              img_url: res.data[i].avatar_url,
-              name: res.data[i].name,
-              description: res.data[i].description,
-              avatar_description: res.data[i].avatar_description,
-              category: res.data[i].category
-            }
-            if (d.img_url === ""){
-              d.img_url = "https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300"
-            }
-            this.character_list[5].push(d)
-          }
+      // this.character_list.forEach((item, index) => {
 
+
+        let params = {
+          "cid": window.localStorage.getItem('uid'),
+          "category": this.character_code[0]
         }
-      })
+        character_select().then(res => {
+          if (res.status === 200){
+            console.log(res)
+            for (var i=0;i<res.data.length;i++){
+              let d = {
+                cid: res.data[i].cid,
+                img_url: res.data[i].avatar_url,
+                name: res.data[i].name,
+                description: res.data[i].description,
+                avatar_description: res.data[i].avatar_description,
+                category: res.data[i].category
+              }
+              if (d.img_url === ""){
+                d.img_url = "https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300"
+              }
+              if (d.category === ""){
+                d.category = "other"
+              }
+              this.character_list[this.character_code[d.category]].push(d)
+
+              // this.character_list[5].push(d)
+            }
+            // console.log(this.character_list)
+
+          }
+        })
+      // })
+
     }
   }
 };

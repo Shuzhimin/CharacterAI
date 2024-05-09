@@ -1,11 +1,12 @@
 let socket = null;
 
-export function connectionWebSocket(token, cid){
+export function connectionWebSocket(token, cid, handle_method){
     // socket = new WebSocket('ws://localhost:8888/webSocket/'+new Date().getTime())
     socket = new WebSocket('ws://211.81.248.216:8000/ws/chat?token='+token+'&cid='+cid)
     socket.onopen = open
     socket.onerror = error
-    socket.onmessage = getMessage;
+    socket.onmessage = handle_method;
+    return socket
 }
 export function open() {
     console.info("socket连接成功")
@@ -15,7 +16,7 @@ export function error() {
     console.info("socket连接失败")
 }
 export function getMessage(msg) {
-    console.log("zzzzzz")
+    // console.log("zzzzzz")
     console.log(msg)
     const data = JSON.parse(msg.data)
     console.log(data)
@@ -32,6 +33,7 @@ export function getMessage(msg) {
     // else if (data.procedure === "send_message" && data.result.code === 200){
     //
     // }
+
 }
 export function send(text) {
     console.log(text)

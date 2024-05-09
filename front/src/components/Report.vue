@@ -14,7 +14,14 @@
             <el-row style="padding-top: 20px">
               <div v-if="item.owner === 'bot'" class="block">
                 <el-avatar :size="50" :src="role.img_url"></el-avatar>
-                <span class="content">{{item.content}}</span>
+                <span v-if="item.content !== ''" class="content">{{item.content}}</span><br/>
+                <div v-if="item.img_url !== ''">
+                  <el-image
+                    style="width: 300px; height: 300px; padding-left: 20px"
+                    :src="item.img_url"
+                    :preview-src-list="[item.img_url]">
+                  </el-image>
+                </div>
               </div>
               <div v-if="item.owner === 'user'" class="block" style="float: right">
                 <span class="content">{{item.content}}</span>
@@ -52,7 +59,8 @@ export default {
         {
           content: '我是你的专属智能报表助手，请告诉我指令把！',
           owner: 'bot',
-          avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+          avata_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+          img_url: ''
         },{
           content: '你好，请问我都能向你发送什么指令呢？',
           owner: 'user',
@@ -61,6 +69,7 @@ export default {
           content: '你可以让我生成饼状图、柱状图等。',
           owner: 'bot',
           avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+          img_url: ''
         },
       ],
       role: {
@@ -103,17 +112,34 @@ export default {
       //   this.history_message.push(response)
       // }, 1000)
       let params = {
-        "content": "生成角色类别的饼状图"
+        "content": this.input_message
       }
+      this.history_message.push({
+        "content": this.input_message,
+        "owner": 'user',
+        "avatar_url": '',
+      })
+      this.input_message = ''
+
       report(params).then(res => {
         if (res.status === 200){
           console.log(res)
-          let message = {
-            "content": '我是你的专属智能报表助手，请告诉我指令把！',
+
+          let message1 = {
+            "content": res.data.content,
             "owner": 'bot',
             "avatar_url": 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+            "img_url": '',
           }
-          this.history_message.push()
+
+          let message2 = {
+            "content": '',
+            "owner": 'bot',
+            "avatar_url": 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
+            "img_url": res.data.url,
+          }
+          this.history_message.push(message1)
+          this.history_message.push(message2)
         }
       })
 

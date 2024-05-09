@@ -3,13 +3,14 @@
     <el-breadcrumb separator-class="el-icon-arrow-right">
       <el-breadcrumb-item :to="{path: '/userhome'}" style="color: white">首页</el-breadcrumb-item>
       <el-breadcrumb-item style="color: white">系统管理</el-breadcrumb-item>
-      <el-breadcrumb-item style="color: white">账号管理</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{path: '/accountmanagement'}" style="color: white">账号管理</el-breadcrumb-item>
+      <el-breadcrumb-item style="color: white">角色管理</el-breadcrumb-item>
     </el-breadcrumb>
     <el-card style="margin-top: 15px">
       <el-row :gutter="20" style="padding-bottom: 20px">
         <el-col :span="7">
           <!--  搜索区  -->
-          <el-input placeholder="请输入用户名" v-model="username_search" clearable>
+          <el-input placeholder="请输入角色名" v-model="character_name_search" clearable>
             <!--            <el-button slot="append" icon="el-icon-search" @click="getBookList()"></el-button>-->
           </el-input>
 
@@ -19,29 +20,16 @@
           <el-button type="primary" icon="el-icon-search" @click="searchUser">搜索</el-button>
         </el-col>
 
-        <el-col :span="2">
-          <el-button type="primary" icon="el-icon-search" @click="addAccount">新增用户</el-button>
-        </el-col>
 
       </el-row>
 
       <el-table :data="table_data" border fit stripe>
-        <el-table-column label="账号ID" prop="uid" align="center"></el-table-column>
-        <el-table-column label="账号名" prop="name" align="center"></el-table-column>
-        <el-table-column label="账户角色" prop="role" align="center">
-          <template slot-scope="scope">
-            <el-switch
-              v-model="scope.row.role"
-              active-text="admin"
-              active-color="#13ce66"
-              inactive-text="user"
-              inactive-color="#ff4949"
-              @change="handleAdminChange(scope.row)">
-            </el-switch>
-          </template>
-        </el-table-column>
+        <el-table-column label="角色id" prop="cid" align="center"></el-table-column>
+        <el-table-column label="角色名" prop="name" align="center"></el-table-column>
+        <el-table-column label="角色描述" prop="description" align="center"></el-table-column>
+        <el-table-column label="角色分类" prop="category" align="center"></el-table-column>
         <el-table-column label="头像描述" prop="avatar_description" align="center"></el-table-column>
-        <el-table-column label="头像链接" prop="avatar_url" align="center">
+        <el-table-column label="头像" prop="avatar_url" align="center">
           <template slot-scope="scope">
             <div>
               <el-image
@@ -54,25 +42,18 @@
         </el-table-column>
         <el-table-column label="注册时间" prop="created_at" align="center"></el-table-column>
         <el-table-column label="更新时间" prop="updated_at" align="center"></el-table-column>
+        <el-table-column label="共享情况" prop="is_shared" align="center">
+          <template slot-scope="scope">
+            <span>{{shared_status(scope.row)}}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作"  align="center">
           <template slot-scope="scope">
             <el-button size="medium" @click="openEdit(scope.row)" circle>编辑</el-button>
-            <el-button size="medium" @click="delete_user_check(scope.row)" circle>删除</el-button>
-            <el-button size="medium" @click="character_management(scope.row)" circle>角色管理</el-button>
+            <el-button size="medium" @click="delete_user(scope.row)" circle>删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog
-        title="提示"
-        :visible.sync="delDialogVisible"
-        width="30%"
-        :before-close="handleClose">
-        <span>是否确定删除此角色！(该操作无法恢复)</span>
-        <span slot="footer" class="dialog-footer">
-              <el-button @click="delDialogVisible = false">取 消</el-button>
-              <el-button type="primary" @click="delDialogVisible = false;delete_user()">确 定</el-button>
-            </span>
-      </el-dialog>
       <el-dialog title="个人信息" :visible.sync="dialogFormVisible">
         <el-form :model="form">
           <el-form-item label="" :label-width="formLabelWidth">
@@ -97,9 +78,9 @@
           <!--            <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">-->
           <!--              <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>-->
           <!--            </el-form-item>-->
-<!--          <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">-->
-<!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
-<!--          </el-form-item>-->
+          <!--          <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">-->
+          <!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+          <!--          </el-form-item>-->
           <el-form-item v-if="form.modifyFlag" label="头像" :label-width="formLabelWidth">
             <GenerateAvatar :avatarUrl="form.avatar_url" :description="form.description" @returnUrl="getAvatarUrl"></GenerateAvatar>
           </el-form-item>
@@ -130,12 +111,13 @@ import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
 import AddAccountDialog from '@/components/dialog/AddAccountDialog';
 import { user_select, user_delete, user_update, user_me } from '@/api/user';
+import { character_select } from '@/api/character';
 export default {
-  name: 'AccountManagement',
+  name: 'CharacterManagement',
   components: { AddAccountDialog, GenerateAvatarDialog, GenerateAvatar },
   data() {
     return {
-      username_search: '',
+      character_name_search: '',
       table_data: [
         {
           uid: 1,
@@ -166,16 +148,26 @@ export default {
         new_password: '',
         modifyFlag: false
       },
-      delDialogVisible: false,
-      delete_uid: [
-
-      ]
+      uid: null
     }
   },
   created() {
-    this.get_user()
+    if (localStorage.getItem("cm_uid") === null){
+      this.$message.warning("未选择用户！")
+      this.$router.push('/accountmanagement')
+    }
+    this.uid = localStorage.getItem('cm_uid')
+    this.get_character()
   },
   methods: {
+    shared_status(row){
+      if (row.is_shared){
+        return '共享'
+      }
+      else {
+        return '非共享'
+      }
+    },
     searchUser(){
       console.log('查询用户')
     },
@@ -198,29 +190,22 @@ export default {
       this.search_query.pagenum = newPage
       this.get_user()
     },
-    get_user(){
+    get_character(){
       let params = {
-        "page_num": this.search_query.pagenum,
-        "page_size": this.search_query.pagesize
+        cid: this.uid,
+        category: 'other'
       }
-      user_select(params).then(res => {
+      character_select(params).then(res => {
         if (res.status === 200){
-          console.log(res)
-          this.table_data = res.data.users
-          this.table_data.forEach((item, index) => {
-            item['role'] = item['role'] === 'admin'
-          })
-          this.search_query.total = res.data.total
+          this.table_data = res.data
+          console.log(this.table_data)
         }
       })
     },
-    delete_user_check(row){
-      this.delete_uid = [row.uid]
-      this.delDialogVisible = true
-    },
-
-    delete_user(){
-      let params = this.delete_uid
+    delete_user(row){
+      let params = [
+        row.uid
+      ]
       user_delete(params).then(res => {
         this.$message.success("删除成功！")
         this.get_user()
@@ -251,21 +236,6 @@ export default {
         }
       })
     },
-    character_management(row){
-      localStorage.setItem('cm_uid', row.uid)
-      this.$router.push('/charactermanagement')
-    },
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done();
-        })
-        .catch(_ => {});
-    },
-    handleAdminChange(row) {
-      console.log("权限变更")
-      console.log(row)
-    }
   }
 };
 </script>

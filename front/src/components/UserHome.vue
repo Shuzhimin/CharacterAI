@@ -11,7 +11,7 @@
         <el-button type="info" @click="openDialog1" style="background-color: #d0ba13;padding-right: 20px">
           修改密码
         </el-button>
-        <el-dialog title="个人信息" :visible.sync="dialogFormVisible1">
+        <el-dialog title="修改密码" :visible.sync="dialogFormVisible1">
           <el-form :model="form">
             <el-form-item label="用户名" :label-width="formLabelWidth">
               <el-input v-model="form.username" autocomplete="off" :disabled="true"></el-input>
@@ -25,11 +25,11 @@
                         :disabled="false"></el-input>
             </el-form-item>
 
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible1 = false">取 消</el-button>
-          <el-button type="primary" @click="modify1()">确 定</el-button>
-        </div>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible1 = false">取 消</el-button>
+            <el-button type="primary" @click="modify1()">确 定</el-button>
+          </div>
         </el-dialog>
         <el-dialog title="个人信息" :visible.sync="dialogFormVisible">
           <el-form :model="form">
@@ -55,9 +55,9 @@
 <!--            <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">-->
 <!--              <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>-->
 <!--            </el-form-item>-->
-            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">
-              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>
-            </el-form-item>
+<!--            <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">-->
+<!--              <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+<!--            </el-form-item>-->
             <el-form-item v-if="form.modifyFlag" label="头像" :label-width="formLabelWidth">
               <GenerateAvatar :avatarUrl="cur_account.avatar_url" :description="cur_account.description" @returnUrl="getAvatarUrl"></GenerateAvatar>
             </el-form-item>

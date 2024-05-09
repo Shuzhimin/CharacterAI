@@ -16,18 +16,21 @@
       <el-form-item label="确认密码" prop="repassword">
         <el-input type="password" v-model="dialog_data.repassword" autocomplete="off" :show-password="true"></el-input>
       </el-form-item>
-      <el-form-item label="用户角色" prop="role">
-        <el-select v-model="dialog_data.role" placeholder="请选择">
-          <el-option
-            v-for="item in options"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="用户头像" prop="avatar">
-        <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>
+<!--      <el-form-item label="用户角色" prop="role">-->
+<!--        <el-select v-model="dialog_data.role" placeholder="请选择">-->
+<!--          <el-option-->
+<!--            v-for="item in options"-->
+<!--            :key="item.value"-->
+<!--            :label="item.label"-->
+<!--            :value="item.value">-->
+<!--          </el-option>-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="用户头像" prop="avatar">-->
+<!--        <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+<!--      </el-form-item>-->
+      <el-form-item label="头像">
+        <GenerateAvatar :avatarUrl="dialog_data.avatar_url" @returnUrl="getAvatarUrl"></GenerateAvatar>
       </el-form-item>
 
     </el-form>
@@ -35,14 +38,17 @@
       <el-button @click="handleClose">取 消</el-button>
       <el-button type="primary" @click="create()">确 认</el-button>
     </div>
-    <GenerateAvatarDialog v-if="generateAvatarDialogVisible" @closeDialog="closeGenerateAvatarDialog" :DialogShowFlag="generateAvatarDialogVisible" :avatarUrl="dialog_data.avatarUrl"></GenerateAvatarDialog>
+<!--    <GenerateAvatarDialog v-if="generateAvatarDialogVisible" @closeDialog="closeGenerateAvatarDialog" :DialogShowFlag="generateAvatarDialogVisible" :avatarUrl="dialog_data.avatarUrl"></GenerateAvatarDialog>-->
 
   </el-dialog>
 </template>
 
 <script>
+import GenerateAvatar from '@/components/GenerateAvatar';
+import { register } from '@/api/user';
 export default {
   name: 'AddAccountDialog',
+  components: { GenerateAvatar },
   // props: ['DialogShowFlag', 'isEdit'],
   props: {
     DialogShowFlag: {
@@ -72,7 +78,7 @@ export default {
         password: '',
         repassword: '',
         role: '', // 用户角色
-        avatar: '',
+        avatar_url: '',
         isEdit: false
       },
 
@@ -151,11 +157,29 @@ export default {
       this.$refs['form'].validate((valid) => {
         if (valid) {
           console.log('创建成功！')
+          let params = {
+            "name": this.dialog_data.username,
+            "password": this.dialog_data.password,
+            "avatar_description": this.dialog_data.avatarDescription,
+            "avatar_url": this.dialog_data.avatar_url
+          }
+
+          register(params).then(res => {
+            console.log(res)
+            if (res.status === 200){
+              this.$message.success("注册成功！")
+            }
+          })
           this.dialog_data.dialogVisible = false
           this.handleClose()
         }
       })
     },
+    getAvatarUrl(url, avatarDescription){
+      this.dialog_data.avatar_url = url
+      this.dialog_data.avatarDescription = avatarDescription
+      console.log(url)
+    }
 
   }
 };
