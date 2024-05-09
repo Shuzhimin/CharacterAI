@@ -16,3 +16,4 @@ psycopg2-binary
 pytest-mock
 langchain
 langchain_experimental
+aiofiles
