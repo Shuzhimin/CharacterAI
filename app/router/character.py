@@ -2,9 +2,8 @@ import uuid
 from typing import Annotated
 
 import aiofiles
-from fastapi import APIRouter, Body, Depends, File, FileUpload, HTTPException
+from fastapi import APIRouter, Body, Depends, File, UploadFile, HTTPException
 
-from langchain
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 
 from app.common import conf, model
@@ -85,9 +84,8 @@ async def create_character(
     category: str = Field(description="机器人类型"),
     uid: int = Field(description="用户id"),
     is_shared: bool = Field(default=False, description="是否共享"),
-    file: Annotated[FileUpload | None, File(description="knowledge file")] = None,
+    file: Annotated[UploadFile | None, File(description="knowledge file")] = None,
 ) -> model.CharacterOut:
-
     filename = f"{str(uuid.uuid4())}-{file.filename}"
     if file is not None:
         # download file which is temprory
@@ -104,7 +102,7 @@ async def create_character(
 
         # now we need to analyze this file and store it in the vector store
         # and this function should be a async, cause it will cost lots of times
-        # 不对，我们不应该在这里实现 
+        # 不对，我们不应该在这里实现
         # 我们需要在一个单独的模块实现向量库才是对的
         # knowledge_id = vector_store.embed(file)
         # 然后我们把这个knowledge存到character表里面就ok了
