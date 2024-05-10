@@ -5,21 +5,28 @@ from typing import AsyncGenerator
 
 import requests
 
-from app.common.model import (ChatMessage, RequestItemMeta, RequestItemPrompt,
-                              RequestPayload, ResponseModel)
+from app.common.model import (
+    ChatMessage,
+    RequestItemMeta,
+    RequestItemPrompt,
+    RequestPayload,
+    ResponseModel,
+)
 from app.database.schema import Message
+from app.llm.glm import character_llm
 
 from .interface import AIBot
 
-
-def _character_llm(payload: RequestPayload) -> ResponseModel:
-    # 将两个字典作为参数发送到 FastAPI 接口
-    response = requests.post(
-        "http://211.81.248.213:8086/character_llm",
-        json=payload.model_dump(),
-    )
-    response_dict = eval(response.json()["message"])
-    return ResponseModel(message=response_dict["response"])
+# def _character_llm(payload: RequestPayload) -> ResponseModel:
+#     # 将两个字典作为参数发送到 FastAPI 接口
+#     # response = requests.post(
+#     #     "http://211.81.248.213:8086/character_llm",
+#     #     json=payload.model_dump(),
+#     # )
+#     # response_dict = eval(response.json()["message"])
+#     # return ResponseModel(message=response_dict["response"])
+#     #
+#     return ResponseModel(message="fake response")
 
 
 class RolePlayer(AIBot):
@@ -48,8 +55,9 @@ class RolePlayer(AIBot):
             self.chat_history.append(RequestItemPrompt(role=role, content=content))
 
     async def ainvoke(self, input: ChatMessage) -> AsyncGenerator[ChatMessage, None]:
+        # 我懂了，这是dict，这不是一个ChatMessage对象！
         self.chat_history.append(RequestItemPrompt(role="user", content=input.content))
-        response_content = _character_llm(
+        response_content = character_llm(
             payload=RequestPayload(meta=self.meta, prompt=self.chat_history)
         ).message
         self.chat_history.append(
@@ -59,7 +67,7 @@ class RolePlayer(AIBot):
             )
         )
         yield ChatMessage(
-            chat_id=input.chat_id,
+            # chat_id=input.chat_id,
             sender=input.receiver,
             receiver=input.sender,
             is_end_of_stream=True,

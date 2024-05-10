@@ -67,6 +67,7 @@ async def websocket_endpoint(
             # 我们会收到怎样的数据呢？
             # 其实简单来说应该就只有字符串而已
             user_input = await websocket.receive_json()
+            user_input = model.ChatMessage(**user_input)
             # insert data into db
             # history.append(RequestItemPrompt(role="user", content=content))
 
@@ -91,7 +92,7 @@ async def websocket_endpoint(
             # send answer to client
             content = ""
             async for ai_output in aibot.ainvoke(input=user_input):
-                await websocket.send_json(data=ai_output)
+                await websocket.send_json(data=ai_output.model_dump())
                 content += ai_output.content
 
             # 在最后在插入数据库吧 这样快一点
