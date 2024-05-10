@@ -1,13 +1,11 @@
+import json
+
 import httpx
 from fastapi.testclient import TestClient
-from app.common.model import ReportResponseV2
-from app.main import app
+
 from app.common import model
-from app.common.model import (
-    ChatMessage,
-    ReportResponseV2,
-)
-import json
+from app.common.model import ChatMessage, ReportResponseV2
+from app.main import app
 
 # from app.router.report import (
 #     character_num_line,
@@ -82,7 +80,7 @@ def test_report(
     ) as websocket:
         # 测试生成角色类别饼状图
         user_message = ChatMessage(
-            chat_id=1,
+            # chat_id=1,
             sender=1,
             receiver=1,
             is_end_of_stream=False,
@@ -94,7 +92,7 @@ def test_report(
 
         # 测试生成角色饼状图
         user_message = ChatMessage(
-            chat_id=1,
+            # chat_id=1,
             sender=1,
             receiver=1,
             is_end_of_stream=False,
@@ -106,7 +104,7 @@ def test_report(
 
         # 测试绘制不同角色类别数量的柱状图
         user_message = ChatMessage(
-            chat_id=1,
+            # chat_id=1,
             sender=1,
             receiver=1,
             is_end_of_stream=False,
@@ -118,7 +116,7 @@ def test_report(
 
         # # 测试与报表功能不符的输入
         user_message = ChatMessage(
-            chat_id=1,
+            # chat_id=1,
             sender=1,
             receiver=1,
             is_end_of_stream=False,

@@ -1,8 +1,5 @@
 from app.aibot.reporter import Reporter
-from app.common.model import (
-    ChatMessage,
-    ReportResponseV2,
-)
+from app.common.model import ChatMessage, ReportResponseV2
 
 
 def test_reporter():
@@ -42,7 +39,7 @@ def test_reporter():
 
     # 测试唤醒智能体
     input = ChatMessage(
-        chat_id=1,
+        # chat_id=1,
         sender=1,
         receiver=1,
         is_end_of_stream=False,

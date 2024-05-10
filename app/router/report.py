@@ -1,23 +1,26 @@
-import os
-import uuid
-from typing import Annotated, List
-import matplotlib.pyplot
-from fastapi import APIRouter, Depends, HTTPException, WebSocket
-from matplotlib import pyplot as plt
-from app.common import conf, minio, model
-from app.common.error import InternalException
-from app.common.model import FunctionToolResult
-from app.database import DatabaseService
-from app.llm import glm
-from app.llm.tool import Tool
-from app.common.minio import minio_service
-from app.dependency import get_db, get_token_data, get_user
-from app.aibot.reporter import Reporter
-from app.common.model import ChatMessage
-
-db = DatabaseService()
-report = APIRouter()
-
+# DEPRECATED
+#
+# import os
+# import uuid
+# from typing import Annotated, List
+#
+# import matplotlib.pyplot
+# from fastapi import APIRouter, Depends, HTTPException, WebSocket
+# from matplotlib import pyplot as plt
+#
+# from app.aibot.reporter import Reporter
+# from app.common import conf, minio, model
+# from app.common.error import InternalException
+# from app.common.minio import minio_service
+# from app.common.model import ChatMessage, FunctionToolResult
+# from app.database import DatabaseService
+# from app.dependency import get_db, get_token_data, get_user
+# from app.llm import glm
+# from app.llm.tool import Tool
+#
+# db = DatabaseService()
+# report = APIRouter()
+#
 # # implement tool in this file
 # # 支持中文
 # plt.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
@@ -210,31 +213,31 @@ report = APIRouter()
 
 
 # report V2
-@report.websocket("/ws/report")
-async def websocket_endpoint(
-    websocket: WebSocket,
-    token: str,
-    db: Annotated[DatabaseService, Depends(get_db)],
-):
-    # 验证token，获取用户
-    token_data = await get_token_data(token=token)
-    user = get_user(token_data=token_data, db=db)
-    # 创建一个报表智能体
-    reporter = Reporter()
-
-    await websocket.accept()
-
-    try:
-        while True:
-            # 从client接收一个ChatMessage类型的消息
-            user_content = await websocket.receive_json()
-            # 将消息传入报表智能体得到响应
-            # 得到的user_content是一个dict,用dict给ChatMessage赋值
-            user_content = ChatMessage.model_validate(user_content)
-            agent_content = reporter.ainvoke(input=user_content, uid=user.uid)
-            # 发送智能体的回复给client
-            # agent_content是一个ChatMessage类型的对象，将其转换为dict
-            await websocket.send_json(agent_content.model_dump())
-    except Exception as e:
-        print(e)
-        await websocket.close()
+# @report.websocket("/ws/report")
+# async def websocket_endpoint(
+#     websocket: WebSocket,
+#     token: str,
+#     db: Annotated[DatabaseService, Depends(get_db)],
+# ):
+#     # 验证token，获取用户
+#     token_data = await get_token_data(token=token)
+#     user = get_user(token_data=token_data, db=db)
+#     # 创建一个报表智能体
+#     reporter = Reporter()
+#
+#     await websocket.accept()
+#
+#     try:
+#         while True:
+#             # 从client接收一个ChatMessage类型的消息
+#             user_content = await websocket.receive_json()
+#             # 将消息传入报表智能体得到响应
+#             # 得到的user_content是一个dict,用dict给ChatMessage赋值
+#             user_content = ChatMessage.model_validate(user_content)
+#             agent_content = reporter.ainvoke(input=user_content, uid=user.uid)
+#             # 发送智能体的回复给client
+#             # agent_content是一个ChatMessage类型的对象，将其转换为dict
+#             await websocket.send_json(agent_content.model_dump())
+#     except Exception as e:
+#         print(e)
+#         await websocket.close()

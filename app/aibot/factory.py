@@ -7,6 +7,7 @@ from app.database.schema import Message
 
 from .character import RolePlayer
 from .interface import AIBot
+from .reporter import Reporter
 
 
 class AIBotFactory:
@@ -50,5 +51,7 @@ class AIBotFactory:
                     ),
                     chat_history=self.chat_history,
                 )
+            case AIBotCategory.REPORTER:
+                return Reporter()
             case _:
                 assert False, f"Unknown category: {self.category}"

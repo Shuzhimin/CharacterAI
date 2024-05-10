@@ -163,7 +163,7 @@ class Reporter(AIBot):
     ) -> AsyncGenerator[ChatMessage, None]:
         response_content = self.reporter_llm(question=input.content, uid=uid)
         yield ChatMessage(
-            chat_id=input.chat_id,
+            # chat_id=input.chat_id,
             sender=input.receiver,
             receiver=input.sender,
             is_end_of_stream=False,
