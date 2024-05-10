@@ -7,10 +7,10 @@
 # RAG is a technique for augmenting LLM knowledge with additional data.
 #
 
+from typing import AsyncGenerator
+
 # RAG Architecture
 # https://python.langchain.com/docs/use_cases/question_answering/#rag-architecture
-import bs4
-from langchain import hub
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import \
     create_history_aware_retriever
@@ -19,18 +19,12 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 # 所以embedding并没有添加到langchain里面
 from langchain_community.chat_models.zhipuai import ChatZhipuAI
 # langchain_community.embeddings 里面确实没有ZhipuAI的embedding
-from langchain_community.document_loaders import WebBaseLoader
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/
-from langchain_community.vectorstores import Qdrant
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
                                      SystemMessage)
-from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables import RunnablePassthrough
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from app.common import conf, model
 from app.common.model import ChatMessage
@@ -47,12 +41,12 @@ def from_schema_message_to_langchain_message(message: schema.Message) -> BaseMes
     # 仅仅依靠数据库中的数据却不能复现 这肯定是完全不合理的
     # sender 应该改成role 也就是一个字符串
     # human ai system tool 这种的，我可以知道这条消息是谁发的
-    match message.sender:
-        case "human":
+    match model.MessageSender(message.sender):
+        case model.MessageSender.HUMAN:
             return HumanMessage(content=message.content)
-        case "ai":
+        case model.MessageSender.AI:
             return AIMessage(content=message.content)
-        case "system":
+        case model.MessageSender.SYSTEM:
             return SystemMessage(content=message.content)
         case _:
             raise ValueError(f"unsupported message type: {message}")

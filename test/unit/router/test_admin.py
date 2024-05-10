@@ -23,7 +23,10 @@ prefix = "/api/admin"
 def test_admin_user_update_profile(token: model.Token):
     user = create_random_user()
 
+    # call this function once to create an admin
+    # db.get_admin()
     admin = conf.get_admin()
+    # 确实，我们应该首先在数据库中创建一个管理员
     token = user_login(username=admin.username, password=admin.password)
     name = random_name()
 

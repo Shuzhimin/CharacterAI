@@ -256,6 +256,13 @@ class ResponseModel(BaseModel):
 # /character_llm (RequestPayload) -> ResponseModel
 
 
+class MessageSender(str, Enum):
+    HUMAN = "user"
+    AI = "assitant"
+    SYSTEM = "system"
+    TOOL = "tool"
+
+
 class ChatMessage(BaseModel):
     # chat_id: int
     sender: int

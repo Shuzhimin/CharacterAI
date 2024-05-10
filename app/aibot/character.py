@@ -5,13 +5,8 @@ from typing import AsyncGenerator
 
 import requests
 
-from app.common.model import (
-    ChatMessage,
-    RequestItemMeta,
-    RequestItemPrompt,
-    RequestPayload,
-    ResponseModel,
-)
+from app.common.model import (ChatMessage, RequestItemMeta, RequestItemPrompt,
+                              RequestPayload, ResponseModel)
 from app.database.schema import Message
 from app.llm.glm import character_llm
 
@@ -50,7 +45,8 @@ class RolePlayer(AIBot):
         for message in chat_history:
             # 这里要怎么办，感觉需要修改数据库的设计
             # 要么就传入一个cidyexing
-            role = "assistant" if message.sender == cid else "user"
+            # role = "assistant" if message.sender == cid else "user"
+            role = message.sender
             content = message.content
             self.chat_history.append(RequestItemPrompt(role=role, content=content))
 

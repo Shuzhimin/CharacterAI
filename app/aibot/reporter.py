@@ -11,11 +11,8 @@ from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
 from langchain_community.utilities import SQLDatabase
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    PromptTemplate,
-)
+from langchain_core.prompts import (ChatPromptTemplate, MessagesPlaceholder,
+                                    PromptTemplate)
 from langchain_core.runnables import RunnablePassthrough
 from langchain_experimental.utilities import PythonREPL
 
@@ -114,7 +111,12 @@ class Reporter(AIBot):
 
     def _sanitize_output(self, text: str):
         # 从大模型的输出中提取出代码
-        _, after = text.split("```python")
+        # _, after =
+        texts = text.split("```python")
+        if len(texts) >= 1:
+            after = texts[-1]
+        else:
+            after = ""
         return after.split("```")[0]
 
     def code_plot(self, data_content: str, question: str, save_path: str) -> str:
@@ -170,9 +172,7 @@ class Reporter(AIBot):
                     url = minio_service.upload_file_from_file(filename=save_path)
         return ReportResponseV2(content=content, url=url)
 
-    async def ainvoke(
-        self, input: ChatMessage
-    ) -> AsyncGenerator[ChatMessage, None]:
+    async def ainvoke(self, input: ChatMessage) -> AsyncGenerator[ChatMessage, None]:
         response_content = self.reporter_llm(question=input.content, uid=self.uid)
         yield ChatMessage(
             # chat_id=input.chat_id,

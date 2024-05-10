@@ -102,12 +102,16 @@ async def websocket_endpoint(
             # TODO: 数据库的接口也应该写成异步的 sqlalchemy应该是支持的
             db.create_content(
                 content_create=model.MessageCreate(
-                    chat_id=chat.chat_id, content=user_input.content, sender=user.uid
+                    chat_id=chat.chat_id,
+                    content=user_input.content,
+                    sender=model.MessageSender.HUMAN,
                 )
             )
             db.create_content(
                 content_create=model.MessageCreate(
-                    chat_id=chat.chat_id, content=content, sender=cid
+                    chat_id=chat.chat_id,
+                    content=content,
+                    sender=model.MessageSender.AI,
                 )
             )
 
