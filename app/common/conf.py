@@ -135,6 +135,7 @@ class Conf:
 
     def get_max_file_length(self) -> int:
         return 50 * 1024
+
     def get_admin(self) -> AdminConf:
         return self.admin
 

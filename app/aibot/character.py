@@ -1,18 +1,14 @@
 # 2024/5/8
 # zhangzhong
 
+from typing import AsyncGenerator
+
 import requests
 
-from app.common.model import (
-    ChatMessage,
-    RequestItemMeta,
-    RequestItemPrompt,
-    RequestPayload,
-    ResponseModel,
-)
+from app.common.model import (ChatMessage, RequestItemMeta, RequestItemPrompt,
+                              RequestPayload, ResponseModel)
 
 from .interface import AIBot
-from typing import AsyncGenerator
 
 
 def _character_llm(payload: RequestPayload) -> ResponseModel:
