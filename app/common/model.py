@@ -77,6 +77,7 @@ class CharacterCreate(BaseModel):
     # 感觉这个东西作为字段名不太好
     uid: int = Field(description="用户id")
     is_shared: bool = Field(default=False, description="是否共享")
+    knowledge_id: str | None = Field(default=None, description="知识库ID")
 
 
 # 因为sqlalchemy的底层实现非常简单
@@ -130,12 +131,12 @@ class ChatCreate(BaseModel):
 class MessageCreate(BaseModel):
     chat_id: int = Field(description="聊天id")
     content: str = Field(description="聊天内容")
-    sender: int = Field(description="发送者id")
+    sender: str = Field(description="发送者")
 
 
 class MessageOut(BaseModel):
     content: str
-    sender: int
+    sender: str
     created_at: datetime
 
 

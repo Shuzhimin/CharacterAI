@@ -8,20 +8,23 @@ from app.database.schema import Message
 from .character import RolePlayer
 from .interface import AIBot
 from .reporter import Reporter
+from .retriever import RAG
 
 
 class AIBotFactory:
 
     def __init__(
         self,
-        uid: int, # 表示谁正在与此AIBot对话
+        chat_id: int,
+        uid: int,  # 表示谁正在与此AIBot对话
         cid: int,
         category: str,
         name: str,
         description: str,
+        knowledge_id: str,
         chat_history: list[Message] = [],
-        knowledge_id: str | None = None,
     ):
+        self.chat_id = chat_id
         self.uid = uid
         self.cid = cid
         # rag = Retrieval Augmented Generation
@@ -55,5 +58,13 @@ class AIBotFactory:
                 )
             case AIBotCategory.REPORTER:
                 return Reporter(uid=self.uid)
+            case AIBotCategory.DOC_RAG:
+                return RAG(
+                    cid=self.cid,
+                    uid=self.uid,
+                    chat_id=self.chat_id,
+                    knowledge_id=self.knowledge_id,
+                    chat_history=self.chat_history,
+                )
             case _:
                 assert False, f"Unknown category: {self.category}"

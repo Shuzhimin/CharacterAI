@@ -70,6 +70,7 @@ class Character(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.now())
     is_deleted: Mapped[bool] = mapped_column(default=False)
     is_shared: Mapped[bool] = mapped_column(default=False)
+    knowledge_id: Mapped[str] = mapped_column(default="")
 
     associated_user: Mapped[User] = relationship(back_populates="characters")
 
@@ -92,7 +93,7 @@ class Message(Base):
 
     mid: Mapped[int] = mapped_column(primary_key=True, index=True)
     chat_id: Mapped[int] = mapped_column(ForeignKey("chats.chat_id"))
-    sender: Mapped[int] = mapped_column()
+    sender: Mapped[str] = mapped_column()
     content: Mapped[str] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
 

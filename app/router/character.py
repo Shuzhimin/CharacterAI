@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from typing import Annotated
 
@@ -7,6 +8,7 @@ from fastapi import (APIRouter, Body, Depends, File, Form, HTTPException,
 
 from app.common import conf, model
 from app.common.minio import minio_service
+from app.common.vector_store import KnowledgeBase
 from app.database import DatabaseService, schema
 from app.dependency import get_db, get_user
 
@@ -70,6 +72,15 @@ async def character_select(
     )
 
 
+async def create_knowledge(file: str) -> str:
+    # TODO: cause our embedding is cost many time, so we should execute it in another thread
+    # because we are in fastapi, we could get eventloop directly
+    # loop = asyncio.get_event_loop()
+    # loop.run_in_executor()
+    knowledge_base = KnowledgeBase(files=[file])
+    return knowledge_base.get_knowledge_id()
+
+
 # 创建机器人信息 接口1.1 创建角色 /character/create  自己完成，等给他们看看
 # TODO: 这个要改，不能使用Body，因为只要需要上传文件，就只能用Form了
 @character.post(path="/create")
@@ -86,6 +97,7 @@ async def create_character(
     file: Annotated[UploadFile | None, File(description="knowledge file")] = None,
 ) -> model.CharacterOut:
 
+    knowledge_id: str | None = None
     if file is not None:
         # download file which is temprory
         filename = f"{str(uuid.uuid4())}-{file.filename}"
@@ -99,6 +111,9 @@ async def create_character(
                     raise ValueError(
                         f"File is too large, max file length is {conf.get_max_file_length()}KB"
                     )
+
+        # create knowledge
+        knowledge_id = await create_knowledge(file=filename)
 
         # now we need to analyze this file and store it in the vector store
         # and this function should be a async, cause it will cost lots of times
@@ -116,6 +131,7 @@ async def create_character(
         category=category,
         uid=uid,
         is_shared=is_shared,
+        knowledge_id=knowledge_id,
     )
     character = minio_service.update_avatar_url(obj=character)
     if not user.is_admin():

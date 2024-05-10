@@ -29,6 +29,8 @@ async def websocket_endpoint(
     token_data = await get_token_data(token=token)
     user = get_user(token_data=token_data, db=db)
 
+    await websocket.accept()
+    character = db.get_character(cid=cid)
     # 在这里如果chat_id 不是None的话，我们就读取历史消息放到history里面就行了
     # 剩下的逻辑完全不用改变 非常简单
     # 这样就需要实现一个db方法，来获取历史消息即可
@@ -37,23 +39,22 @@ async def websocket_endpoint(
     if chat_id is not None:
         chat = db.get_chat(chat_id=chat_id)
         chat_history = chat.messages
+    else:
+        chat = db.create_chat(chat_create=model.ChatCreate(uid=user.uid, cid=cid))
+        chat_id = chat.chat_id
 
-    await websocket.accept()
-    character = db.get_character(cid=cid)
-    chat = db.create_chat(chat_create=model.ChatCreate(uid=user.uid, cid=cid))
-
-    character = db.get_character(cid=cid)
     # 感觉这个参数不太合适 因为有的角色有knowledge 有的没有
     # 但是直接传递一个schema的话 会导致aibot模块和database模块耦合
     # 所以可以使用一个额外的knowledge参数
     aibot = AIBotFactory(
+        chat_id=chat_id,
         uid=user.uid,
         cid=character.cid,
         name=character.name,
         category=character.category,
         description=character.description,
         chat_history=chat_history,
-        knowledge_id=None,
+        knowledge_id=character.knowledge_id,
     ).new()
 
     # 我们需要定义meta信息
