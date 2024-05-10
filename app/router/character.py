@@ -1,6 +1,10 @@
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, HTTPException
+import aiofiles
+from fastapi import APIRouter, Body, Depends, File, FileUpload, HTTPException
+
+from langchain
 
 from app.common import conf, model
 from app.common.minio import minio_service
@@ -59,12 +63,43 @@ async def character_select(
 
 
 # 创建机器人信息 接口1.1 创建角色 /character/create  自己完成，等给他们看看
+# TODO: 这个要改，不能使用Body，因为只要需要上传文件，就只能用Form了
 @character.post(path="/create")
 async def create_character(
-    user: Annotated[schema.User, Depends(get_user)],
-    character: model.CharacterCreate,
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
+    user: Annotated[schema.User, Depends(get_user)],
+    name: str,
+    description: str = Field(description="机器人信息"),
+    avatar_description: str | None = Field(default=None, description="头像描述"),
+    avatar_url: str = Field(description="头像url"),
+    category: str = Field(description="机器人类型"),
+    uid: int = Field(description="用户id"),
+    is_shared: bool = Field(default=False, description="是否共享"),
+    file: Annotated[FileUpload | None, File(description="knowledge file")] = None,
 ) -> model.CharacterOut:
+
+    filename = f"{str(uuid.uuid4())}-{file.filename}"
+    if file is not None:
+        # download file which is temprory
+        file_length = 0
+        async with aiofiles.open(file=filename, mode="wb") as out_file:
+            chunk_size = 4096  # 4K
+            while content := await file.read(size=chunk_size):
+                await out_file.write(content)
+                file_length += chunk_size // 1024
+                if file_length > conf.get_max_file_length():
+                    raise ValueError(
+                        f"File is too large, max file length is {conf.get_max_file_length()}KB"
+                    )
+
+        # now we need to analyze this file and store it in the vector store
+        # and this function should be a async, cause it will cost lots of times
+        # 不对，我们不应该在这里实现 
+        # 我们需要在一个单独的模块实现向量库才是对的
+        # knowledge_id = vector_store.embed(file)
+        # 然后我们把这个knowledge存到character表里面就ok了
+        #
+
     character = minio_service.update_avatar_url(obj=character)
     if not user.is_admin():
         character.is_shared = False

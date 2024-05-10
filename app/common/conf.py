@@ -127,5 +127,8 @@ class Conf:
     def get_zhipuai_cog_view_key(self) -> str:
         return self.zhipuai.api_key
 
+    def get_max_file_length(self) -> int:
+        return 50 * 1024
+
 
 conf = Conf.new(file="conf.toml")

@@ -15,3 +15,4 @@ sqlalchemy
 psycopg2-binary
 pytest-mock
 aiofiles
+langchain
