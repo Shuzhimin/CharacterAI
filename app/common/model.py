@@ -181,11 +181,13 @@ class UpdateRole(UID):
 
 class UserSelectResponse(BaseModel):
     users: list[UserOut] = Field(description="用户列表")
+    scores: list[int]
     total: int = Field(description="数据库中的用户总数")
 
 
 class CharacterSelectResponse(BaseModel):
     characters: list[CharacterOut]
+    scores: list[int]
     total: int
 
 

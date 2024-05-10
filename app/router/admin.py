@@ -53,10 +53,23 @@ async def user_all(
     _: Annotated[schema.User, Depends(get_admin)],
     page_num: Annotated[int, Query(description="页码")] = 1,
     page_size: Annotated[int, Query(description="每页数量")] = 10,
+    query: str | None = None,
 ) -> model.UserSelectResponse:
+    # 实际上有没有query，这个接口的实现完全不一样啊
     skip = (page_num - 1) * page_size
     limit = page_size
-    users = db.get_users(skip=skip, limit=limit)
+
+    def sort_by_fuzz(user: schema.User) -> int:
+        return fuzz.ratio(user.name, query)
+
+    scores = []
+    if query is not None:
+        users = db.get_users(skip=0, limit=9999999999)
+        users = sorted(users, key=sort_by_fuzz, reverse=True)
+        users = users[skip : skip + limit]
+        scores = [fuzz.ratio(user.name, query) for user in users]
+    else:
+        users = db.get_users(skip=skip, limit=limit)
 
     user_outs: list[model.UserOut] = []
     for user in users:
@@ -65,6 +78,7 @@ async def user_all(
 
     return model.UserSelectResponse(
         users=user_outs,
+        scores=scores,
         total=db.get_user_count(),
     )
 
@@ -103,6 +117,7 @@ async def character_all(
 
     characters = sorted(characters, key=sort_by_fuzz, reverse=True)
     characters = characters[skip : skip + limit]
+    scores = [fuzz.ratio(character.name, query) for character in characters]
 
     character_outs: list[model.CharacterOut] = []
     for character in characters:
@@ -111,5 +126,6 @@ async def character_all(
 
     return model.CharacterSelectResponse(
         characters=character_outs,
+        scores=scores,
         total=total,
     )
