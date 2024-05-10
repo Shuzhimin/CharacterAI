@@ -19,3 +19,4 @@ langchain_experimental
 aiofiles
 langchain
 thefuzz
+qdrant-client

@@ -36,6 +36,44 @@ update_username = "update_username"
 #     )
 
 
+def create_rag(token: model.Token, avatar_url: str) -> schema.Character:
+    uid = parse_token(token.access_token).uid
+    file_path = "/Users/zhangzhong/src/CharacterAI/requirements.txt"
+    with open(file=file_path, mode="rb") as f:
+        response = client.post(
+            url="/api/character/create",
+            headers={"Authorization": f"{token.token_type} {token.access_token}"},
+            # data={
+            #     "name": "文档解读",
+            #     "description": "文档解读",
+            #     "avatar_url": avatar_url,
+            #     "category": model.AIBotCategory.DOC_RAG.value,
+            #     "uid": uid,
+            #     # https://github.com/tiangolo/fastapi/issues/1536
+            #     # "file": {"filename": "requirements.txt", "content": f.read()},
+            # },
+            data=model.CharacterCreate(
+                name="小明",
+                description="爱打游戏的大学生",
+                avatar_url=avatar_url,
+                category="旅游",
+                uid=uid,
+            ).model_dump(),
+            # files={"file": ("requirements.txt", f, "text/plain")},
+            files={"file": ("requirements.txt", f, "text/plain")},
+        )
+    assert response.status_code == 200
+    print(response.json())
+    character = model.CharacterOut(**response.json())
+    print(character)
+    return db.get_character(cid=character.cid)
+
+
+def test_create_rag(token: model.Token, avatar_url: str):
+    character = create_rag(token, avatar_url)
+    print(character)
+
+
 def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
     uid = parse_token(token.access_token).uid
     # TODO: 这里很明显的体现出了我们需要重构
@@ -236,3 +274,89 @@ def test_chat_with_reporter(token: model.Token, avatar_url: str):
         websocket.send_json(user_message.model_dump())
         agent_message = websocket.receive_json()
         print(agent_message)
+
+
+def test_chat_with_rag(token: model.Token, avatar_url: str):
+
+    character = create_rag(token, avatar_url)
+    token_data = parse_token(token=token.access_token)
+    uid = token_data.uid
+    cid = character.cid
+
+    # how to create a rag in code?
+    # how to translate file to the api?
+    with client.websocket_connect(
+        url=f"/ws/chat?token={token.access_token}&cid={character.cid}"
+    ) as websocket:
+
+        # 哎，不对啊，我怎么会知道chat_id呢？
+        # 除非我们在这里先进行一轮通信，拿到chat_id之后，才能传递
+        # 但是这有必要吗？前端并不需要这个chat_id呀
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="hello",
+            ).model_dump()
+        )
+        data = websocket.receive_json()
+        print(data)
+
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="how are you",
+            ).model_dump()
+        )
+        # websocket.send_text("how are you")
+        data = websocket.receive_json()
+        print(data)
+
+        # websocket.send_text("I am fine, thank you. and you?")
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="I an file, thank you, and you?",
+            ).model_dump()
+        )
+        data = websocket.receive_json()
+        print(data)
+
+        # websocket.send_text("bye!")
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="bye",
+            ).model_dump()
+        )
+        data = websocket.receive_json()
+        print(data)
+
+    # select chat
+    response = client.get(
+        url="/api/chat/select",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+    )
+    assert response.status_code == 200
+
+    chats = [model.ChatOut(**chat) for chat in response.json()]
+    print(chats)
+
+    # delete chat
+    response = client.post(
+        url="/api/chat/delete",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+        json=[chat.chat_id for chat in chats],
+    )
+    assert response.status_code == 200
+
+    for chat in chats:
+        db_chat = db.get_chat(chat_id=chat.chat_id)
+        assert db_chat.is_deleted
