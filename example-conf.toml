@@ -27,3 +27,7 @@ access_key = 'root'
 secret_key = '12345678'
 secure = false
 bucket_name = 'test'
+
+[admin]
+username = 'admin'
+password = 'admin'

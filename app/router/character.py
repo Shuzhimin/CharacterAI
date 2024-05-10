@@ -5,6 +5,7 @@ import aiofiles
 from fastapi import APIRouter, Body, Depends, File, FileUpload, HTTPException
 
 from langchain
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 
 from app.common import conf, model
 from app.common.minio import minio_service
@@ -58,8 +59,17 @@ async def character_select(
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
     cid: int | None = None,
     category: str | None = None,
+    page_num: Annotated[int, Query(description="页码")] = 1,
+    page_size: Annotated[int, Query(description="每页数量")] = 10,
 ) -> list[model.CharacterOut]:
-    return db.get_characters(where=model.CharacterWhere(uid=user.uid, cid=cid, category=category))  # type: ignore
+    # TODO: 所有带分页的都必须返回总数，否则前端无法正常的展示分页
+    skip = (page_num - 1) * page_size
+    limit = page_size
+    return db.get_characters(
+        where=model.CharacterWhere(uid=user.uid, cid=cid, category=category),
+        skip=skip,
+        limit=limit,
+    )
 
 
 # 创建机器人信息 接口1.1 创建角色 /character/create  自己完成，等给他们看看

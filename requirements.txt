@@ -18,3 +18,4 @@ langchain
 langchain_experimental
 aiofiles
 langchain
+thefuzz

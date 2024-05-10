@@ -15,7 +15,11 @@ from app.common import conf, model
 # Create a database URL for SQLAlchemy¶
 # This is the main line that you would have to modify if you wanted to use a different database.
 SQLALCHEMY_DATABASE_URL = conf.get_postgres_sqlalchemy_database_url()
-engine = create_engine(url=SQLALCHEMY_DATABASE_URL)
+# pool maintain the connections to database
+# when the session need to issue a sql, it retrieves a connection from this pool
+# and until the transaction related to the session is commit or rollback, this connection will end and returned to the poll
+# and session is not thread-safe or async-safe, so we need to add the pool_size
+engine = create_engine(url=SQLALCHEMY_DATABASE_URL, pool_size=32)
 
 # class factory
 # configured to create instances of Session bound to your specific database engine

@@ -8,6 +8,11 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
+class AdminConf(BaseModel):
+    username: str
+    password: str
+
+
 class Collections(BaseModel):
     character: str = Field(description="角色信息集合")
 
@@ -68,6 +73,7 @@ class Conf:
         self.fastapi = FastAPIConf(**conf["fastapi"])
         self.postgres = PostgresConf(**conf["postgres"])
         self.minio = MinioConf(**conf["minio"])
+        self.admin = AdminConf(**conf["admin"])
 
     def check_conf(self, conf: dict[str, Any]) -> None:
         keys: list[str] = ["mongo", "fastapi", "zhipuai"]
@@ -129,6 +135,8 @@ class Conf:
 
     def get_max_file_length(self) -> int:
         return 50 * 1024
+    def get_admin(self) -> AdminConf:
+        return self.admin
 
 
 conf = Conf.new(file="conf.toml")
