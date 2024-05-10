@@ -3,12 +3,13 @@ import uuid
 import pytest
 from fastapi.testclient import TestClient
 from pytest_mock import MockerFixture
+from sqlalchemy.orm.instrumentation import is_instrumented
 
 from app.common import model
 from app.database import DatabaseService, schema
 from app.dependency import parse_token
-from app.main import app
 from app.llm import glm
+from app.main import app
 
 client = TestClient(app)
 
@@ -37,10 +38,12 @@ update_username = "update_username"
 
 def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
     uid = parse_token(token.access_token).uid
+    # TODO: 这里很明显的体现出了我们需要重构
+    # 都是创建character 我改了另外一个 结果这里的重复冗余代码没有改 就导致出错了
     response = client.post(
         url="/api/character/create",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
-        json=model.CharacterCreate(
+        data=model.CharacterCreate(
             name="小明",
             description="爱打游戏的大学生",
             avatar_url=avatar_url,
@@ -48,6 +51,7 @@ def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
             uid=uid,
         ).model_dump(),
     )
+
     assert response.status_code == 200
     print(response.json())
     character = model.CharacterOut(**response.json())
@@ -73,25 +77,65 @@ def test_llm(token: model.Token, avatar_url: str):
 def test_create_chat(token: model.Token, avatar_url: str):
     character = create_character(token, avatar_url)
 
+    # 怎么从token中获取uid?
+    token_data = parse_token(token=token.access_token)
+    uid = token_data.uid
+    cid = character.cid
+
     # new websocket to create a new chat
     # https://indominusbyte.github.io/fastapi-jwt-auth/advanced-usage/websocket/
     with client.websocket_connect(
         url=f"/ws/chat?token={token.access_token}&cid={character.cid}"
     ) as websocket:
-        websocket.send_text("hello")
-        data = websocket.receive_text()
+
+        # 哎，不对啊，我怎么会知道chat_id呢？
+        # 除非我们在这里先进行一轮通信，拿到chat_id之后，才能传递
+        # 但是这有必要吗？前端并不需要这个chat_id呀
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="hello",
+            ).model_dump()
+        )
+        data = websocket.receive_json()
         print(data)
 
-        websocket.send_text("how are you")
-        data = websocket.receive_text()
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="how are you",
+            ).model_dump()
+        )
+        # websocket.send_text("how are you")
+        data = websocket.receive_json()
         print(data)
 
-        websocket.send_text("I am fine, thank you. and you?")
-        data = websocket.receive_text()
+        # websocket.send_text("I am fine, thank you. and you?")
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="I an file, thank you, and you?",
+            ).model_dump()
+        )
+        data = websocket.receive_json()
         print(data)
 
-        websocket.send_text("bye!")
-        data = websocket.receive_text()
+        # websocket.send_text("bye!")
+        websocket.send_json(
+            data=model.ChatMessage(
+                sender=uid,
+                receiver=cid,
+                is_end_of_stream=True,
+                content="bye",
+            ).model_dump()
+        )
+        data = websocket.receive_json()
         print(data)
 
     # select chat

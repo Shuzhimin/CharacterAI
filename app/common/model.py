@@ -256,7 +256,7 @@ class ResponseModel(BaseModel):
 
 
 class ChatMessage(BaseModel):
-    chat_id: int
+    # chat_id: int
     sender: int
     receiver: int
     is_end_of_stream: bool
