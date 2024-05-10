@@ -5,6 +5,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, WebSocket
 
+from app.aibot import AIBotFactory
 from app.common import model
 from app.common.model import (RequestItemMeta, RequestItemPrompt,
                               RequestPayload, ResponseModel)
@@ -42,25 +43,29 @@ async def websocket_endpoint(
     character = db.get_character(cid=cid)
     chat = db.create_chat(chat_create=model.ChatCreate(uid=user.uid, cid=cid))
 
+    character = db.get_character(cid=cid)
+    # 感觉这个参数不太合适 因为有的角色有knowledge 有的没有
+    # 但是直接传递一个schema的话 会导致aibot模块和database模块耦合
+    # 所以可以使用一个额外的knowledge参数
+    aibot = AIBotFactory(
+        category=character.category,
+        knowledge_id=character.knowledge_id,
+    ).new()
+
     # 我们需要定义meta信息
     # 就把模型实现的那些东西拿过来放到model里面就行了
-    meta = RequestItemMeta(
-        character_name=character.name,
-        character_info=character.description,
-    )
+    # meta = RequestItemMeta(
+    #     character_name=character.name,
+    #     character_info=character.description,
+    # )
 
     try:
         while True:
             # 我们会收到怎样的数据呢？
             # 其实简单来说应该就只有字符串而已
-            content = await websocket.receive_text()
+            user_input = await websocket.receive_json()
             # insert data into db
-            db.create_content(
-                content_create=model.MessageCreate(
-                    chat_id=chat.chat_id, content=content, sender=user.uid
-                )
-            )
-            history.append(RequestItemPrompt(role="user", content=content))
+            # history.append(RequestItemPrompt(role="user", content=content))
 
             # 在这里，我们需要获取历史记录
 
@@ -73,17 +78,33 @@ async def websocket_endpoint(
             #     content=content,
             # )
 
-            content = glm.character_llm(
-                payload=RequestPayload(meta=meta, prompt=history)
-            ).message
+            # 这里需要改成创建一个智能体或者角色
+            # 就是创建一个AIBot啊 用factory
+            # content = glm.character_llm(
+            #     payload=RequestPayload(meta=meta, prompt=history)
+            # ).message
+            # ai_output = aibot.ainvoke(input=user_input)
+            # history.append(RequestItemPrompt(role="assistant", content=content))
+            # send answer to client
+            content = ""
+            async for ai_output in aibot.ainvoke(input=user_input):
+                await websocket.send_json(data=ai_output)
+                content += ai_output.content
+
+            # 在最后在插入数据库吧 这样快一点
+            # TODO: 可以再写一个可以一次性插入多条数据的接口
+            # TODO: 数据库的接口也应该写成异步的 sqlalchemy应该是支持的
+            db.create_content(
+                content_create=model.MessageCreate(
+                    chat_id=chat.chat_id, content=user_input.content, sender=user.uid
+                )
+            )
             db.create_content(
                 content_create=model.MessageCreate(
                     chat_id=chat.chat_id, content=content, sender=cid
                 )
             )
-            history.append(RequestItemPrompt(role="assistant", content=content))
-            # send answer to client
-            await websocket.send_text(content)
+
     except Exception as e:
         print(e)
         await websocket.close()

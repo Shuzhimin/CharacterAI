@@ -1,29 +1,25 @@
-import requests
 import os
 import uuid
-from app.common.model import (
-    ChatMessage,
-    ReportResponseV2,
-)
-from app.common import conf
-from .interface import AIBot
+from operator import itemgetter
 from typing import AsyncGenerator
 
-from langchain_community.llms.chatglm3 import ChatGLM3
-from langchain_community.utilities import SQLDatabase
-from langchain_core.prompts import PromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
-from operator import itemgetter
-from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
+import requests
 from langchain.chains import create_sql_query_chain
-from langchain_core.prompts import (
-    ChatPromptTemplate,
-)
+from langchain_community.llms.chatglm3 import ChatGLM3
+from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
+from langchain_community.utilities import SQLDatabase
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import (ChatPromptTemplate, MessagesPlaceholder,
+                                    PromptTemplate)
+from langchain_core.runnables import RunnablePassthrough
 from langchain_experimental.utilities import PythonREPL
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.prompts import MessagesPlaceholder
+
+from app.common import conf
 from app.common.minio import minio_service
+from app.common.model import ChatMessage, ReportResponseV2
+
+from .interface import AIBot
 
 
 class Reporter(AIBot):
@@ -162,9 +158,11 @@ class Reporter(AIBot):
                     url = minio_service.upload_file_from_file(filename=save_path)
         return ReportResponseV2(content=content, url=url)
 
-    def ainvoke(self, input: ChatMessage, uid: int) -> ChatMessage:
+    async def ainvoke(
+        self, input: ChatMessage, uid: int
+    ) -> AsyncGenerator[ChatMessage, None]:
         response_content = self.reporter_llm(question=input.content, uid=uid)
-        return ChatMessage(
+        yield ChatMessage(
             chat_id=input.chat_id,
             sender=input.receiver,
             receiver=input.sender,
