@@ -14,6 +14,7 @@ class AIBotFactory:
 
     def __init__(
         self,
+        uid: int, # 表示谁正在与此AIBot对话
         cid: int,
         category: str,
         name: str,
@@ -21,6 +22,7 @@ class AIBotFactory:
         chat_history: list[Message] = [],
         knowledge_id: str | None = None,
     ):
+        self.uid = uid
         self.cid = cid
         # rag = Retrieval Augmented Generation
         if category == "doc_rag":
@@ -52,6 +54,6 @@ class AIBotFactory:
                     chat_history=self.chat_history,
                 )
             case AIBotCategory.REPORTER:
-                return Reporter()
+                return Reporter(uid=self.uid)
             case _:
                 assert False, f"Unknown category: {self.category}"

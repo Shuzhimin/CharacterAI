@@ -5,13 +5,17 @@ from typing import AsyncGenerator
 
 import requests
 from langchain.chains import create_sql_query_chain
+from langchain_community.chat_models.zhipuai import ChatZhipuAI
 from langchain_community.llms.chatglm3 import ChatGLM3
 from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
 from langchain_community.utilities import SQLDatabase
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import (ChatPromptTemplate, MessagesPlaceholder,
-                                    PromptTemplate)
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    PromptTemplate,
+)
 from langchain_core.runnables import RunnablePassthrough
 from langchain_experimental.utilities import PythonREPL
 
@@ -23,9 +27,17 @@ from .interface import AIBot
 
 
 class Reporter(AIBot):
-    def __init__(self):
-        self.llm = ChatGLM3(
-            temperature=0, endpoint_url="http://211.81.248.218:8000/v1/chat/completions"
+    def __init__(self, uid: int):
+        self.uid = uid
+        # 如果把这个替换一下的哈，我们就可以在本地进行测试了
+        # 还是先暂时换一下吧
+        # self.llm = ChatGLM3(
+        #     temperature=0, endpoint_url="http://211.81.248.218:8000/v1/chat/completions"
+        # )
+        self.llm = ChatZhipuAI(
+            temperature=0.95,
+            model="glm-4",
+            api_key="e54f639e52dcef61c2ebb2e06064cfb4.PJoQicvUhttPC9nn",
         )
         self.db_url = conf.get_postgres_sqlalchemy_database_url()
 
@@ -159,9 +171,9 @@ class Reporter(AIBot):
         return ReportResponseV2(content=content, url=url)
 
     async def ainvoke(
-        self, input: ChatMessage, uid: int
+        self, input: ChatMessage
     ) -> AsyncGenerator[ChatMessage, None]:
-        response_content = self.reporter_llm(question=input.content, uid=uid)
+        response_content = self.reporter_llm(question=input.content, uid=self.uid)
         yield ChatMessage(
             # chat_id=input.chat_id,
             sender=input.receiver,

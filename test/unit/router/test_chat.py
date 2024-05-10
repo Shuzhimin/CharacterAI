@@ -159,3 +159,80 @@ def test_create_chat(token: model.Token, avatar_url: str):
     for chat in chats:
         db_chat = db.get_chat(chat_id=chat.chat_id)
         assert db_chat.is_deleted
+
+
+def create_reporter(token: model.Token, avatar_url: str) -> model.CharacterOut:
+    # 我们就让这个角色放在管理员下面吧
+    admin = db.get_admin()
+
+    reporter = model.CharacterCreate(
+        name="reporter",
+        description="reporter",
+        avatar_url=avatar_url,
+        category="reporter",
+        uid=admin.uid,
+        is_shared=True,
+    )
+    response = client.post(
+        url="/api/character/create",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+        data=reporter.model_dump(),
+    )
+    assert response.status_code == 200
+    character = model.CharacterOut(**response.json())
+    return character
+
+
+def test_chat_with_reporter(token: model.Token, avatar_url: str):
+    reporter = create_reporter(token, avatar_url)
+
+    with client.websocket_connect(
+        url=f"/ws/chat?token={token.access_token}&cid={reporter.cid}"
+    ) as websocket:
+        # 测试生成角色类别饼状图
+        user_message = model.ChatMessage(
+            # chat_id=1,
+            sender=1,
+            receiver=1,
+            is_end_of_stream=False,
+            content="根据各个角色类型的数量生成饼状图",
+        )
+        websocket.send_json(user_message.model_dump())
+        agent_message = websocket.receive_json()
+        print(agent_message)
+
+        # 测试生成角色饼状图
+        user_message = model.ChatMessage(
+            # chat_id=1,
+            sender=1,
+            receiver=1,
+            is_end_of_stream=False,
+            content="绘制共享角色与非共享角色数量的饼状图",
+        )
+        websocket.send_json(user_message.model_dump())
+        agent_message = websocket.receive_json()
+        print(agent_message)
+
+        # 测试绘制不同角色类别数量的柱状图
+        user_message = model.ChatMessage(
+            # chat_id=1,
+            sender=1,
+            receiver=1,
+            is_end_of_stream=False,
+            content="绘制不同角色类别数量的柱状图",
+        )
+        websocket.send_json(user_message.model_dump())
+        agent_message = websocket.receive_json()
+        print(agent_message)
+
+        # # 测试与报表功能不符的输入
+        user_message = model.ChatMessage(
+            # chat_id=1,
+            sender=1,
+            receiver=1,
+            is_end_of_stream=False,
+            content="你叫什么名字",
+        )
+        websocket.send_json(user_message.model_dump())
+        agent_message = websocket.receive_json()
+        print(agent_message)

@@ -47,6 +47,7 @@ async def websocket_endpoint(
     # 但是直接传递一个schema的话 会导致aibot模块和database模块耦合
     # 所以可以使用一个额外的knowledge参数
     aibot = AIBotFactory(
+        uid=user.uid,
         cid=character.cid,
         name=character.name,
         category=character.category,
