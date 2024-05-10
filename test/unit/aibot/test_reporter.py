@@ -3,14 +3,14 @@ from app.common.model import ChatMessage, ReportResponseV2
 
 
 def test_reporter():
-    reporter = Reporter()
+    uid = 21
+    reporter = Reporter(uid=uid)
     # 测试是否能拒绝不符合规定的输入
     check_result = reporter.check_question(question="今天天气怎么样")
     print(check_result)
 
     # 测试能否获得数据
     question = "绘制角色类别的饼状图"
-    uid = 21
     check_result = reporter.check_question(question=question)
     print(check_result)
     data_question, data_content = reporter.get_data(question=question, uid=uid)
@@ -46,5 +46,5 @@ def test_reporter():
         content="根据各个角色类别的数量生成饼状图",
     )
     uid = 21
-    response = reporter.ainvoke(input=input, uid=uid)
+    response = reporter.ainvoke(input=input)
     print(response)
