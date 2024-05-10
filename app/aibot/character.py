@@ -7,6 +7,7 @@ import requests
 
 from app.common.model import (ChatMessage, RequestItemMeta, RequestItemPrompt,
                               RequestPayload, ResponseModel)
+from app.databse.schema import Message
 
 from .interface import AIBot
 
@@ -23,7 +24,7 @@ def _character_llm(payload: RequestPayload) -> ResponseModel:
 
 class RolePlayer(AIBot):
 
-    def __init__(self, meta: RequestItemMeta):
+    def __init__(self, cid: int, meta: RequestItemMeta, chat_history: list[Message]):
         self.meta = meta
         # 还是在外面进行保存
         # 我们需要在这里自己保存历史记录吗？
@@ -34,7 +35,17 @@ class RolePlayer(AIBot):
         # 不对啊，但是ChatMessage是一样的呀！
         # 我们可以只根据ChatMessage就可以进行数据库的操作了呀
         # 也就是将每个模型的历史记录和数据库的存取解耦即可
+        # self.chat_history: list[RequestItemPrompt] = []
         self.chat_history: list[RequestItemPrompt] = []
+        # 不对啊，他还需要历史记录呀
+        # 所有的智能体都需要历史记录
+        # 而且他们获取历史记录的方式并不一样
+        for message in chat_history:
+            # 这里要怎么办，感觉需要修改数据库的设计
+            # 要么就传入一个cidyexing
+            role = "assistant" if message.sender == cid else "user"
+            content = message.content
+            self.chat_history.append(RequestItemPrompt(role=role, content=content))
 
     async def ainvoke(self, input: ChatMessage) -> AsyncGenerator[ChatMessage, None]:
         self.chat_history.append(RequestItemPrompt(role="user", content=input.content))

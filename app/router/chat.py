@@ -10,6 +10,7 @@ from app.common import model
 from app.common.model import (RequestItemMeta, RequestItemPrompt,
                               RequestPayload, ResponseModel)
 from app.database import DatabaseService, schema
+from app.database.schema import Message
 from app.dependency import get_db, get_token_data, get_user
 from app.llm import glm
 
@@ -31,13 +32,11 @@ async def websocket_endpoint(
     # 在这里如果chat_id 不是None的话，我们就读取历史消息放到history里面就行了
     # 剩下的逻辑完全不用改变 非常简单
     # 这样就需要实现一个db方法，来获取历史消息即可
-    history: list[RequestItemPrompt] = []
+    # history: list[RequestItemPrompt] = []
+    chat_history: list[Message] = []
     if chat_id is not None:
         chat = db.get_chat(chat_id=chat_id)
-        for message in chat.messages:
-            role = "assistant" if message.sender == cid else "user"
-            content = message.content
-            history.append(RequestItemPrompt(role=role, content=content))
+        chat_history = chat.messages
 
     await websocket.accept()
     character = db.get_character(cid=cid)
@@ -48,8 +47,12 @@ async def websocket_endpoint(
     # 但是直接传递一个schema的话 会导致aibot模块和database模块耦合
     # 所以可以使用一个额外的knowledge参数
     aibot = AIBotFactory(
+        cid=character.cid,
+        name=character.name,
         category=character.category,
-        knowledge_id=character.knowledge_id,
+        description=character.description,
+        chat_history=chat_history,
+        knowledge_id=None,
     ).new()
 
     # 我们需要定义meta信息

@@ -59,6 +59,14 @@ class UserOut(BaseModel):
         from_attributes = True
 
 
+class AIBotCategory(str, Enum):
+    ROLE_PLAYER = "role_player"
+    DOC_RAG = "doc_rag"
+    WEB_RAG = "web_rag"
+    REPORTER = "reporter"
+    PAINTER = "painter"
+
+
 # character
 class CharacterCreate(BaseModel):
     name: str = Field(description="机器人名称")
