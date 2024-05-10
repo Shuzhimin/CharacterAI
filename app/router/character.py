@@ -2,9 +2,8 @@ import uuid
 from typing import Annotated
 
 import aiofiles
-from fastapi import APIRouter, Body, Depends, File, UploadFile, HTTPException
-
-from fastapi import APIRouter, Body, Depends, HTTPException, Query
+from fastapi import (APIRouter, Body, Depends, File, Form, HTTPException,
+                     Query, UploadFile)
 
 from app.common import conf, model
 from app.common.minio import minio_service
@@ -77,18 +76,19 @@ async def character_select(
 async def create_character(
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
     user: Annotated[schema.User, Depends(get_user)],
-    name: str,
-    description: str = Field(description="机器人信息"),
-    avatar_description: str | None = Field(default=None, description="头像描述"),
-    avatar_url: str = Field(description="头像url"),
-    category: str = Field(description="机器人类型"),
-    uid: int = Field(description="用户id"),
-    is_shared: bool = Field(default=False, description="是否共享"),
+    name: Annotated[str, Form()],
+    description: Annotated[str, Form()],
+    avatar_url: Annotated[str, Form()],
+    category: Annotated[str, Form()],
+    uid: Annotated[int, Form()],
+    is_shared: Annotated[bool, Form()],
+    avatar_description: Annotated[str | None, Form()] = None,
     file: Annotated[UploadFile | None, File(description="knowledge file")] = None,
 ) -> model.CharacterOut:
-    filename = f"{str(uuid.uuid4())}-{file.filename}"
+
     if file is not None:
         # download file which is temprory
+        filename = f"{str(uuid.uuid4())}-{file.filename}"
         file_length = 0
         async with aiofiles.open(file=filename, mode="wb") as out_file:
             chunk_size = 4096  # 4K
@@ -108,6 +108,15 @@ async def create_character(
         # 然后我们把这个knowledge存到character表里面就ok了
         #
 
+    character = model.CharacterCreate(
+        name=name,
+        description=description,
+        avatar_url=avatar_url,
+        avatar_description=avatar_description,
+        category=category,
+        uid=uid,
+        is_shared=is_shared,
+    )
     character = minio_service.update_avatar_url(obj=character)
     if not user.is_admin():
         character.is_shared = False

@@ -7,7 +7,7 @@ import requests
 
 from app.common.model import (ChatMessage, RequestItemMeta, RequestItemPrompt,
                               RequestPayload, ResponseModel)
-from app.databse.schema import Message
+from app.database.schema import Message
 
 from .interface import AIBot
 
