@@ -117,7 +117,9 @@ async def character_all(
 
     characters = sorted(characters, key=sort_by_fuzz, reverse=True)
     characters = characters[skip : skip + limit]
-    scores = [fuzz.ratio(character.name, query) for character in characters]
+    scores = []
+    if query is not None:
+        scores = [fuzz.ratio(character.name, query) for character in characters]
 
     character_outs: list[model.CharacterOut] = []
     for character in characters:
