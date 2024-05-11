@@ -1,4 +1,5 @@
 import asyncio
+import os
 import uuid
 from typing import Annotated
 
@@ -96,11 +97,14 @@ async def create_character(
     avatar_description: Annotated[str | None, Form()] = None,
     file: Annotated[UploadFile | None, File(description="knowledge file")] = None,
 ) -> model.CharacterOut:
+    # 在这里需要创建文件夹
+    os.makedirs(conf.get_knowledge_file_base_dir(), exist_ok=True)
 
     knowledge_id: str | None = None
     if file is not None:
         # download file which is temprory
         filename = f"{str(uuid.uuid4())}-{file.filename}"
+        filename = os.path.join(conf.get_knowledge_file_base_dir(), filename)
         file_length = 0
         async with aiofiles.open(file=filename, mode="wb") as out_file:
             chunk_size = 4096  # 4K

@@ -94,6 +94,28 @@ def test_admin_user_select():
     user_select_response = model.UserSelectResponse(**response.json())
     print(user_select_response)
     assert len(user_select_response.users) <= page_size
+    assert len(user_select_response.scores) == 0
+    assert user_select_response.total == db.get_user_count()
+
+
+def test_admin_user_select_with_query():
+    admin = conf.get_admin()
+    # login first
+    token = user_login(username=admin.username, password=admin.password)
+    # then select all users
+
+    page_num = 1
+    page_size = 10
+    query = "test"
+    response = client.get(
+        url=f"{prefix}/user/select?page_num={page_num}&page_size={page_size}&query={query}",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+    )
+    assert response.status_code == 200
+    user_select_response = model.UserSelectResponse(**response.json())
+    print(user_select_response)
+    assert len(user_select_response.users) <= page_size
+    assert len(user_select_response.scores) == len(user_select_response.users)
     assert user_select_response.total == db.get_user_count()
 
 
@@ -117,6 +139,7 @@ def test_character_all():
     character_select_response = model.CharacterSelectResponse(**response.json())
     print(character_select_response)
     assert len(character_select_response.characters) <= page_size
+    assert len(character_select_response.scores) == 0
     assert character_select_response.total == db.get_character_count()
 
 
@@ -138,4 +161,7 @@ def test_select_character_fuzzy():
     character_select_response = model.CharacterSelectResponse(**response.json())
     print(character_select_response)
     assert len(character_select_response.characters) <= page_size
+    assert len(character_select_response.scores) == len(
+        character_select_response.characters
+    )
     assert character_select_response.total == db.get_character_count()

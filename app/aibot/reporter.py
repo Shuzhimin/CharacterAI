@@ -28,14 +28,14 @@ class Reporter(AIBot):
         self.uid = uid
         # 如果把这个替换一下的哈，我们就可以在本地进行测试了
         # 还是先暂时换一下吧
-        # self.llm = ChatGLM3(
-        #     temperature=0, endpoint_url="http://211.81.248.218:8000/v1/chat/completions"
-        # )
-        self.llm = ChatZhipuAI(
-            temperature=0.95,
-            model="glm-4",
-            api_key="e54f639e52dcef61c2ebb2e06064cfb4.PJoQicvUhttPC9nn",
+        self.llm = ChatGLM3(
+            temperature=0, endpoint_url="http://211.81.248.218:8000/v1/chat/completions"
         )
+        # self.llm = ChatZhipuAI(
+        #     temperature=0.95,
+        #     model="glm-4",
+        #     api_key="e54f639e52dcef61c2ebb2e06064cfb4.PJoQicvUhttPC9nn",
+        # )
         self.db_url = conf.get_postgres_sqlalchemy_database_url()
 
     def check_question(self, question: str) -> str:
