@@ -37,7 +37,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # 反而简单了
 # 这里只需要放一个这个就行？
 # 不对 我还要实现get_current_uid
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/user/login")
 
 
 # 提供一个函数，用于将token转换为用户信息
