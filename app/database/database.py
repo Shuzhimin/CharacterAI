@@ -135,7 +135,11 @@ class DatabaseService:
 
     def get_users(self, skip: int, limit: int) -> list[schema.User]:
         result = self._db.execute(
-            select(schema.User).filter_by(is_deleted=False).offset(skip).limit(limit)
+            select(schema.User)
+            .filter_by(is_deleted=False)
+            .order_by(schema.User.created_at.desc())
+            .offset(skip)
+            .limit(limit)
         )
         users = result.scalars().all()
         return [u for u in users]
@@ -202,7 +206,14 @@ class DatabaseService:
             query = query.filter(schema.Character.uid == where.uid)
         # query = query.offset(skip).limit(limit)
         return [
-            c for c in self._db.execute(query.offset(skip).limit(limit)).scalars().all()
+            c
+            for c in self._db.execute(
+                query.order_by(schema.Character.created_at.desc())
+                .offset(skip)
+                .limit(limit)
+            )
+            .scalars()
+            .all()
         ]
 
     def get_character_count(self) -> int:
