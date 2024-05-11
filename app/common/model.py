@@ -260,7 +260,7 @@ class ResponseModel(BaseModel):
 
 class MessageSender(str, Enum):
     HUMAN = "user"
-    AI = "assitant"
+    AI = "assistant"
     SYSTEM = "system"
     TOOL = "tool"
 
