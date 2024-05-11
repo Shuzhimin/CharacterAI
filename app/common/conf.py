@@ -139,5 +139,8 @@ class Conf:
     def get_admin(self) -> AdminConf:
         return self.admin
 
+    def get_knowledge_file_base_dir(self) -> str:
+        return "deploy/knowledge"
+
 
 conf = Conf.new(file="conf.toml")

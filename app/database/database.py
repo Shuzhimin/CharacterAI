@@ -137,6 +137,7 @@ class DatabaseService:
         result = self._db.execute(
             select(schema.User)
             .filter_by(is_deleted=False)
+            # https://stackoverflow.com/questions/4186062/sqlalchemy-order-by-descending
             .order_by(schema.User.created_at.desc())
             .offset(skip)
             .limit(limit)
