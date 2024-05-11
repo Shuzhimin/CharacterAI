@@ -59,6 +59,14 @@ class UserOut(BaseModel):
         from_attributes = True
 
 
+class AIBotCategory(str, Enum):
+    ROLE_PLAYER = "role_player"
+    DOC_RAG = "doc_rag"
+    WEB_RAG = "web_rag"
+    REPORTER = "reporter"
+    PAINTER = "painter"
+
+
 # character
 class CharacterCreate(BaseModel):
     name: str = Field(description="机器人名称")
@@ -69,6 +77,7 @@ class CharacterCreate(BaseModel):
     # 感觉这个东西作为字段名不太好
     uid: int = Field(description="用户id")
     is_shared: bool = Field(default=False, description="是否共享")
+    knowledge_id: str | None = Field(default=None, description="知识库ID")
 
 
 # 因为sqlalchemy的底层实现非常简单
@@ -122,12 +131,12 @@ class ChatCreate(BaseModel):
 class MessageCreate(BaseModel):
     chat_id: int = Field(description="聊天id")
     content: str = Field(description="聊天内容")
-    sender: int = Field(description="发送者id")
+    sender: str = Field(description="发送者")
 
 
 class MessageOut(BaseModel):
     content: str
-    sender: int
+    sender: str
     created_at: datetime
 
 
@@ -245,3 +254,25 @@ class ResponseModel(BaseModel):
 
 
 # /character_llm (RequestPayload) -> ResponseModel
+
+
+class MessageSender(str, Enum):
+    HUMAN = "user"
+    AI = "assitant"
+    SYSTEM = "system"
+    TOOL = "tool"
+
+
+class ChatMessage(BaseModel):
+    # chat_id: int
+    sender: int
+    receiver: int
+    is_end_of_stream: bool
+    content: str
+    images: list[str] = []
+
+
+# report
+class ReportRequestV2(BaseModel):
+    uid: int = Field(description="用户id")  # 根据uid获取对应用户的数据
+    question: str = Field(description="用户询问的问题")

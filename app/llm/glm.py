@@ -65,12 +65,13 @@ client = ZhipuAI(api_key=conf.get_zhipuai_key())
 # 返回值就是responsemodel就行 就完全和接口的定义一样就行了
 def character_llm(payload: RequestPayload) -> ResponseModel:
     # 将两个字典作为参数发送到 FastAPI 接口
-    response = requests.post(
-        "http://211.81.248.213:8086/character_llm",
-        json=payload.model_dump(),
-    )
-    response_dict = eval(response.json()["message"])
-    return ResponseModel(message=response_dict["response"])
+    # response = requests.post(
+    #     "http://211.81.248.213:8086/character_llm",
+    #     json=payload.model_dump(),
+    # )
+    # response_dict = eval(response.json()["message"])
+    # return ResponseModel(message=response_dict["response"])
+    return ResponseModel(message="fake response")
 
 
 # 为了防止写错，这个函数还是直接重写吧

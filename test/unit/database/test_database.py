@@ -110,12 +110,16 @@ def test_chat():
 
     db.create_content(
         content_create=model.MessageCreate(
-            chat_id=chat.chat_id, content="test", sender=user.uid
+            chat_id=chat.chat_id,
+            content="test",
+            sender=model.MessageSender.HUMAN,
         )
     )
     db.create_content(
         content_create=model.MessageCreate(
-            chat_id=chat.chat_id, content="test", sender=character.cid
+            chat_id=chat.chat_id,
+            content="test",
+            sender=model.MessageSender.AI,
         )
     )
     print(chat.messages)

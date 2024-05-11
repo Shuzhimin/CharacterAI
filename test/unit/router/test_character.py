@@ -21,10 +21,11 @@ def test_character(token: model.Token, avatar_url: str):
     uid = parse_token(token.access_token).uid
 
     # create character
+    # 这里就必须换成form了
     response = client.post(
         url=f"{prefix}/create",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
-        json=model.CharacterCreate(
+        data=model.CharacterCreate(
             name=str(uuid.uuid4()),
             description=str(uuid.uuid4()),
             avatar_description=str(uuid.uuid4()),

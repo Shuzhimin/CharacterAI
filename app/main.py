@@ -11,7 +11,7 @@ app = FastAPI()
 app.include_router(router=router.user, tags=["user"])
 app.include_router(router=router.character, tags=["character"])
 app.include_router(router=router.chat, tags=["chat"])
-app.include_router(router=router.report, tags=["report"])
+# app.include_router(router=router.report, tags=["report"])
 app.include_router(router=router.generation, tags=["generation"])
 app.include_router(router=router.admin, tags=["admin"])
 
