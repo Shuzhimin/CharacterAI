@@ -31,3 +31,8 @@ bucket_name = 'test'
 [admin]
 username = 'admin'
 password = 'admin'
+
+[qdrant]
+host = 'localhost'
+collection_name = 'my_collections'
+prefer_grpc = true

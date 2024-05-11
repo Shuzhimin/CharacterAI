@@ -57,9 +57,9 @@ class KnowledgeBase:
         self.vector_store = Qdrant.from_documents(
             documents=documents,
             embedding=ZhipuAIEmbeddings(api_key=conf.get_zhipuai_key()),
-            url="localhost",
-            prefer_grpc=True,
-            collection_name=self.collection_name,
+            url=conf.get_qdrant_host(),
+            prefer_grpc=conf.get_qdrant_prefer_grpc(),
+            collection_name=conf.get_qdrant_collection_name(),
         )
 
     @staticmethod
@@ -67,7 +67,7 @@ class KnowledgeBase:
         vector_store = Qdrant.from_documents(
             documents=[],
             embedding=ZhipuAIEmbeddings(api_key=conf.get_zhipuai_key()),
-            url=conf.get_qdrant_url(),
+            url=conf.get_qdrant_host(),
             prefer_grpc=conf.get_qdrant_prefer_grpc(),
             collection_name=conf.get_qdrant_collection_name(),
         )
