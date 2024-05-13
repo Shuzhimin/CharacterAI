@@ -1,20 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict
+from typing import List
 import uvicorn
 import os
 import torch
 from transformers import AutoConfig, AutoModel, AutoTokenizer
-import json
 
-
+model_path = "/data/shuzhimin/chatglm2-6b/"
+tuning_model_path = "./tuned_model"
 app = FastAPI()
 
 # 载入Tokenizer
-tokenizer = AutoTokenizer.from_pretrained("/data/zhimin/ChatGLM2-6B/model/chatglm2-6b/", trust_remote_code=True)
-config = AutoConfig.from_pretrained("/data/zhimin/ChatGLM2-6B/model/chatglm2-6b/", trust_remote_code=True, pre_seq_len=128)
-model = AutoModel.from_pretrained("/data/zhimin/ChatGLM2-6B/model/chatglm2-6b/", config=config, trust_remote_code=True)
-prefix_state_dict = torch.load(os.path.join("/data/zhimin/ptuning/output/cjz-roleglm-128-2e-2/checkpoint-3000/", "pytorch_model.bin"))
+tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+config = AutoConfig.from_pretrained(model_path, trust_remote_code=True, pre_seq_len=128)
+model = AutoModel.from_pretrained(model_path, config=config, trust_remote_code=True)
+prefix_state_dict = torch.load(os.path.join(tuning_model_path, "pytorch_model.bin"))
 new_prefix_state_dict = {}
 for k, v in prefix_state_dict.items():
     if k.startswith("transformer.prefix_encoder."):
