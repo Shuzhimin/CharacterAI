@@ -1,6 +1,6 @@
 ## 部署微调后的 chatglm2-6b
 
-## 部署微调后的模型文件在 tuned_model 文件夹中
+### 部署微调后的模型文件在 tuned_model 文件夹中
 
 1. conda create -n glm2 python=3.10
 2. conda activate glm2
