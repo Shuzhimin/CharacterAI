@@ -1,19 +1,12 @@
-# CharacterAI
+## 部署微调后的 chatglm2-6b
 
-AI虚拟角色养成系统
+## 部署微调后的模型文件在 tuned_model 文件夹中
 
-## 后端环境搭建
-
-1. `docker-compose -f docker-compose.yaml up -d`
-
-## 后端部署
-
-1. cd to project root dir
-2. `cp example-conf.toml conf.toml` and configure it correctly
-3. `export PYTHONPATH=.`
-4. `export no_proxy="211.81.248.213"` and 218
-5. conda create -n character_ai python=3.12
-6. conda activate character_ai
-7. `pip install -r requirements.txt`
-8. run all unit test to make sure everything is ok: `pytest .`, you should see no errors.
-9. `python app/main.py`, you should see fastapi correctly start and show its url.
+1. conda create -n glm2 python=3.10
+2. conda activate glm2
+3. install pytorch
+   Please select the corresponding version based on the actual situation.
+   e.g. conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+4. pip installrequirements.txt
+5. export no_proxy="211.81.248.218"
+6. nohup python character_llm_api.py > character_llm_api.log 2>&1 &
