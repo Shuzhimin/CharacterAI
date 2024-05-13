@@ -6,8 +6,8 @@ import os
 import torch
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
-model_path = "/data/shuzhimin/chatglm2-6b/"
-tuning_model_path = "/data/shuzhimin/test/CharacterAI/ptuning/tuned_model"
+model_path = "./chatglm2-6b"
+tuning_model_path = "./tuned_model"
 
 app = FastAPI()
 
