@@ -77,6 +77,10 @@ export default {
         [],
         // 法律
         [],
+        // 文档分析
+        [],
+        // 智能报表
+        [],
         // 其他
         [],
 
@@ -88,6 +92,8 @@ export default {
         '科技',
         '健康',
         '法律',
+        '文档分析',
+        '智能报表',
         '其他'
       ],
       character_code: {
@@ -96,7 +102,9 @@ export default {
         'tech': 2,
         'health': 3,
         'law': 4,
-        'other': 5
+        'doc_rag': 5,
+        'reporter': 6,
+        'other': 7
       },
     }
   },
@@ -138,7 +146,9 @@ export default {
               if (d.img_url === ""){
                 d.img_url = "https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300"
               }
-              if (d.category === ""){
+              console.log(d.category)
+              if (this.character_code[d.category] === undefined){
+              // if (d.category === ""){
                 d.category = "other"
               }
               this.character_list[this.character_code[d.category]].push(d)

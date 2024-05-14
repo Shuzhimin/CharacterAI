@@ -26,6 +26,6 @@ export function user_update_password(params){
   return http.postJson('/api/user/update-password', params)
 }
 
-export function user_delete(params){
-  return http.postList('/api/user/delete', params)
-}
+// export function user_delete(params){
+//   return http.postList('/api/user/delete', params)
+// }

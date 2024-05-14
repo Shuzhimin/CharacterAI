@@ -1,7 +1,7 @@
 <template>
   <div style="height: 100%; background-color: #242949">
     <el-card style="height: 100%; min-height: 100%">
-      <el-container style="height: 100%">
+      <el-container style="height: 100%; max-height: 100vh">
         <el-header class="block" style="white-space: pre-wrap">
           <el-row style="width: 100%;display: flex;align-items: center">
             <div style="justify-content: left">
@@ -109,26 +109,29 @@
           <!--            </div>-->
           <!--          </el-dialog>-->
         </el-header>
-        <el-main>
-          <div v-for="(item, index) in history_message" class="msgCss" :style="{textAlign: item.align}">
-            <el-row style="padding-top: 20px">
-              <div v-if="item.owner === 'bot'" class="block">
-                <div style="width: 50px;height: 50px;flex-shrink: 0">
-                  <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>
-                </div>
+        <el-main style="height: 100%; width: 100%;">
+          <div >
+            <div v-for="(item, index) in history_message" class="msgCss" :style="{textAlign: item.align}">
+              <el-row style="padding-top: 20px">
+                <div v-if="item.owner === 'bot'" class="block">
+                  <div style="width: 50px;height: 50px;flex-shrink: 0">
+                    <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>
+                  </div>
 
-                <span style="background-color: gray;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
-              </div>
-              <div v-if="item.owner === 'user'" class="block" style="float: right">
-                <span style="background-color: deepskyblue;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
-                <div style="width: 50px;height: 50px; flex-shrink: 0">
-                  <el-avatar :size="60" :src="item.avatar_url"></el-avatar>
+                  <span style="background-color: gray;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
                 </div>
-<!--                <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>-->
-              </div>
-            </el-row>
+                <div v-if="item.owner === 'user'" class="block" style="float: right; padding-right: 20px">
+                  <span style="background-color: deepskyblue;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
+                  <div style="width: 50px;height: 50px; flex-shrink: 0">
+                    <el-avatar :size="60" :src="item.avatar_url"></el-avatar>
+                  </div>
+                  <!--                <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>-->
+                </div>
+              </el-row>
 
+            </div>
           </div>
+
         </el-main>
         <el-footer>
           <el-input
@@ -409,12 +412,12 @@ export default {
   border-radius: 10px;
 }
 .el-main {
-  height: 70%;
+  height: 60%;
   background-color: #212529;
   border-radius: 10px;
 }
 .el-footer {
-  height: 20%;
+  height: 30%;
   padding-bottom: 20px;
   background-color: #212529;
   display: flex;

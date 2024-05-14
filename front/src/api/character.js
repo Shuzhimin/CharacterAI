@@ -1,13 +1,30 @@
 import http from '../plugins/http'
-
+import axios from 'axios';
+import global from '../plugins/global'
 let request = ""
-
+const ax = axios.create({
+  baseURL: global.domain,
+  timeout: 5000
+})
 export function character_select(){
   return http.get('/api/character/select')
 }
 
 export function character_create(params){
-  return http.postJson('/api/character/create', params)
+
+  // const token = localStorage.getItem("token");//这里取token之前，你肯定需要先拿到token,存一下
+  // return ax({
+  //   url: '/api/character/create',
+  //   method: 'POST',
+  //   headers: {
+  //     "content-type": "multipart/form-data",
+  //     "Authorization": token
+  //   },
+  //   data: params,
+  // })
+
+
+  return http.postToFile('/api/character/create', params)
 }
 
 export function character_delete(params){

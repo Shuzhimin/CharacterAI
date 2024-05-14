@@ -10,23 +10,23 @@
       <el-row :gutter="20" style="padding-bottom: 20px">
         <el-col :span="7">
           <!--  搜索区  -->
-          <el-input placeholder="请输入角色名" v-model="character_name_search" clearable>
+          <el-input placeholder="请输入角色名" v-model="character_name_search" @input="get_character" clearable>
             <!--            <el-button slot="append" icon="el-icon-search" @click="getBookList()"></el-button>-->
           </el-input>
 
         </el-col>
 
         <el-col :span="2">
-          <el-button type="primary" icon="el-icon-search" @click="searchUser">搜索</el-button>
+          <el-button type="primary" icon="el-icon-search" @click="get_character">搜索</el-button>
         </el-col>
 
 
       </el-row>
 
-      <el-table :data="table_data" border fit stripe>
+      <el-table :data="table_data" border fit :row-class-name="tableRowClassName">
         <el-table-column label="角色id" prop="cid" align="center"></el-table-column>
         <el-table-column label="角色名" prop="name" align="center"></el-table-column>
-        <el-table-column label="角色描述" prop="description" align="center"></el-table-column>
+        <el-table-column label="角色描述" prop="description" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column label="角色分类" prop="category" align="center"></el-table-column>
         <el-table-column label="头像描述" prop="avatar_description" align="center"></el-table-column>
         <el-table-column label="头像" prop="avatar_url" align="center">
@@ -40,8 +40,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="注册时间" prop="created_at" align="center"></el-table-column>
-        <el-table-column label="更新时间" prop="updated_at" align="center"></el-table-column>
+        <el-table-column label="注册时间" prop="created_at" align="center" :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column label="更新时间" prop="updated_at" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column label="共享情况" prop="is_shared" align="center">
           <template slot-scope="scope">
             <span>{{shared_status(scope.row)}}</span>
@@ -110,8 +110,9 @@
 import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
 import AddAccountDialog from '@/components/dialog/AddAccountDialog';
-import { user_select, user_delete, user_update, user_me } from '@/api/user';
+import { user_select, user_update, user_me } from '@/api/user';
 import { character_select } from '@/api/character';
+import { admin_character_select } from '@/api/admin';
 export default {
   name: 'CharacterManagement',
   components: { AddAccountDialog, GenerateAvatarDialog, GenerateAvatar },
@@ -182,23 +183,31 @@ export default {
     handleSizeChange (newSize) {
       console.log(newSize)
       this.search_query.pagesize = newSize
-      this.get_user()
+      this.get_character()
     },
     // 监听 页码值 改变的时间
     handleCurrentChange (newPage) {
       console.log(newPage)
       this.search_query.pagenum = newPage
-      this.get_user()
+      this.get_character()
     },
     get_character(){
       let params = {
-        cid: this.uid,
-        category: 'other'
+        uid: this.uid,
+        query: this.character_name_search,
+        page_num: this.search_query.pagenum,
+        page_size: this.search_query.pagesize
       }
-      character_select(params).then(res => {
+      admin_character_select(params).then(res => {
         if (res.status === 200){
-          this.table_data = res.data
+          this.table_data = res.data.characters
           console.log(this.table_data)
+          this.search_query.total = res.data.total
+          if (this.character_name_search !== ''){
+            this.table_data.forEach((item, index) => {
+              item['score'] = res.data.scores[index]
+            })
+          }
         }
       })
     },
@@ -233,9 +242,19 @@ export default {
         if (res.status === 200){
           this.$message.success("修改成功！")
           this.dialogFormVisible = false
+
         }
       })
     },
+    tableRowClassName({ row, rowIndex }) {
+      if (row['score'] < 50){
+        console.log('irrelevance')
+        return 'warning-row'
+      }
+      else {
+        return ''
+      }
+    }
   }
 };
 </script>

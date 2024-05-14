@@ -11,6 +11,8 @@
               <el-option label="健康" value="health"></el-option>
               <el-option label="法律" value="law"></el-option>
               <el-option label="其他" value="other"></el-option>
+              <el-option label="长文档分析" value="doc_rag"></el-option>
+              <el-option label="智能报表" value="reporter"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="创建角色名称" :prop="'bot_name'" required>
@@ -21,6 +23,15 @@
                       :autosize="{ minRows: 6, maxRows: 8 }"
                       placeholder="请输入身份背景"></el-input>
             <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>
+          </el-form-item>
+          <el-form-item label="是否共享" prop="isShared">
+            <el-switch
+              v-model="createForm.isShared"
+              active-text="共享"
+              active-color="#13ce66"
+              inactive-text="不共享"
+              inactive-color="#606266">
+            </el-switch>
           </el-form-item>
           <!--          <el-form-item label="人物角色头像生成" class="a">-->
           <!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
@@ -62,8 +73,30 @@
           <!--            <el-image v-if="dialogueAvatarUrl" :src="dialogueAvatarUrl"-->
           <!--                      style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>-->
           <!--          </el-form-item>-->
+          <el-form-item label="资料文档">
+            <el-upload
+              ref="upload"
+              class="upload-demo"
+              drag
+              action="#"
+              :limit="1"
+              :on-success="handleSuccess"
+              :on-preview="handlePreview"
+              :on-remove="handleRemove"
+              :before-remove="beforeRemove"
+              :auto-upload="false"
+              :on-exceed="handleExceed"
+              :file-list="fileList"
+              :http-request="handleFileUpload">
+              <i class="el-icon-upload"></i>
+              <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+              <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+<!--              <el-button size="small" type="primary">点击上传</el-button>-->
+<!--              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>-->
+            </el-upload>
+          </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="handleCreate">立即创建</el-button>
+            <el-button type="primary" @click="submitUpload">立即创建</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -101,12 +134,14 @@ export default {
         // user_info: ''
         selectedCategory: '',
         avatarUrl: '',// 生成的头像 URL
+        isShared: false
       },
       dialogVisible: false, // 对话框可见性
       avatarDescription: '', // 头像描述
       createdCharacterId: '', // 用于保存创建的角色 ID
       // characterAvatarUrl: '', // 存储生成的角色头像 URL
       // dialogueAvatarUrl: '' // 存储生成的对话人物头像 URL
+      fileList: []
     }
   },
   computed: {
@@ -118,7 +153,7 @@ export default {
     }
   },
   methods: {
-    handleCreate() {
+    handleCreate(file) {
       // // 处理创建角色的逻辑，可以发送请求给后端进行处理
       // // 调用模拟接口函数，并传入角色信息
       // const response1 = simulateCreateCharacter(this.createForm);
@@ -131,15 +166,29 @@ export default {
       //   // 弹出提示框
       //   this.showSuccessMessageBox();
       // }
-
-      let params = {
-        "name": this.createForm.bot_name,
-        "description": this.createForm.bot_info,
-        "avatar_description":this.createForm.avatarDescription,
-        "avatar_url":this.createForm.avatar_url,
-        "category": this.createForm.selectedCategory,
-        "uid": window.localStorage.getItem("uid"),
-      }
+      console.log('zzz')
+      console.log(file)
+      // file.filename = file.name
+      // let params = {
+      //   "name": this.createForm.bot_name,
+      //   "description": this.createForm.bot_info,
+      //   "avatar_description":this.createForm.avatarDescription,
+      //   "avatar_url":this.createForm.avatar_url,
+      //   "category": this.createForm.selectedCategory,
+      //   "uid": window.localStorage.getItem("uid"),
+      //   "is_shared": this.createForm.isShared,
+      //   "file": file
+      // }
+      const params = new FormData()
+      params.append("name", this.createForm.bot_name)
+      params.append("description", this.createForm.bot_info)
+      params.append("avatar_description", this.createForm.avatarDescription)
+      params.append("avatar_url", this.createForm.avatar_url)
+      params.append("category", this.createForm.selectedCategory)
+      params.append("uid", window.localStorage.getItem("uid"))
+      params.append("is_shared", this.createForm.isShared)
+      params.append("file", file)
+      this.$message.info("解析上传的文件需要一定的时间，请耐心等待~")
       character_create(params).then(res => {
         console.log(res)
         if (res.status === 200){
@@ -176,48 +225,6 @@ export default {
         }
       })
     },
-    // showSuccessMessageBox() {
-    //   this.$confirm(`角色创建成功，您的角色 ID 是 ${this.createdCharacterId}，可以选择与创建角色对话或回到首页查看角色`, {
-    //     confirmButtonText: '与创建角色对话',
-    //     cancelButtonText: '回到首页查看角色',
-    //     type: 'success'
-    //   }).then(() => {
-    //     // 点击与创建角色对话按钮的逻辑
-    //     console.log('与创建角色对话');
-    //     console.log(this.createForm)
-    //     localStorage.setItem('roleCategory', this.createForm.selectedCategory)
-    //     localStorage.setItem('roleMess_name', this.createForm.bot_name)
-    //     localStorage.setItem('roleMess_avatar_url', this.createForm.avatar_url)
-    //     localStorage.setItem('roleMess_id', window.localStorage.getItem("uid"))
-    //     localStorage.setItem('roleMess_description', this.createForm.bot_info)
-    //     localStorage.setItem('roleMess_avatar_description', this.createForm.avatarDescription)
-    //     // 跳转到与创建角色对话的页面
-    //     this.$router.push('/dialogue');
-    //   }).catch(() => {
-    //     // 点击回到首页查看角色按钮的逻辑
-    //     console.log('回到首页查看角色');
-    //     // 跳转到首页的页面
-    //     this.$router.push('/mainpage');
-    //   }).finally(() => {
-    //     // 清空表单数据
-    //     this.createForm = {
-    //       bot_name: '',
-    //       bot_info: '',
-    //       selectedCategory: '',
-    //       avatarUrl: '',
-    //     };
-    //   });
-    // },
-    // generateCharacterAvatar() {
-    //   const response2 = simulateAvatar(this.createForm);
-    //   this.characterAvatarUrl = response2.data.AvatarUrl;
-    //   console.log('创建角色头像生成：', response2);
-    //   // 假设后端接口返回头像 URL
-    //   setTimeout(() => {
-    //     this.characterAvatarUrl
-    //   }, 1000);
-    //
-    // },
     getAvatarUrl(url, avatarDescription){
       this.createForm.avatar_url = url
       this.createForm.avatarDescription = avatarDescription
@@ -251,7 +258,38 @@ export default {
     //     this.dialogueAvatarUrl
     //   }, 1000);
     // },
+    handleSuccess(response, file, fileList){
+      console.log(fileList)
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePreview(file) {
+      console.log(file);
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(`当前限制选择 1 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+    },
+    beforeRemove(file, fileList) {
+      console.log(fileList)
+      return this.$confirm(`确定移除 ${ file.name }？`);
+    },
+    handleFileUpload(file) {
+      console.log(111)
+      console.log(file)
+      this.handleCreate(file.file)
+    },
+    submitUpload() {
+      console.log("创建")
+      console.log(this.fileList)
+      // if (this.fileList.length === 0){
+      //   this.handleCreate()
+      // }
+      // else {
+        this.$refs.upload.submit();
+      // }
 
+    }
   }
 }
 </script>

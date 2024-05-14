@@ -9,7 +9,7 @@
       <el-row :gutter="20" style="padding-bottom: 20px">
         <el-col :span="7">
           <!--  搜索区  -->
-          <el-input placeholder="请输入用户名" v-model="username_search" clearable>
+          <el-input placeholder="请输入用户名" v-model="username_search" clearable @input="get_user">
             <!--            <el-button slot="append" icon="el-icon-search" @click="getBookList()"></el-button>-->
           </el-input>
 
@@ -25,7 +25,7 @@
 
       </el-row>
 
-      <el-table :data="table_data" border fit stripe>
+      <el-table :data="table_data" border fit :row-class-name="tableRowClassName">
         <el-table-column label="账号ID" prop="uid" align="center"></el-table-column>
         <el-table-column label="账号名" prop="name" align="center"></el-table-column>
         <el-table-column label="账户角色" prop="role" align="center">
@@ -40,7 +40,7 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="头像描述" prop="avatar_description" align="center"></el-table-column>
+        <el-table-column label="头像描述" prop="avatar_description" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column label="头像链接" prop="avatar_url" align="center">
           <template slot-scope="scope">
             <div>
@@ -52,8 +52,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="注册时间" prop="created_at" align="center"></el-table-column>
-        <el-table-column label="更新时间" prop="updated_at" align="center"></el-table-column>
+        <el-table-column label="注册时间" prop="created_at" align="center" :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column label="更新时间" prop="updated_at" align="center" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column label="操作"  align="center">
           <template slot-scope="scope">
             <el-button size="medium" @click="openEdit(scope.row)" circle>编辑</el-button>
@@ -129,7 +129,8 @@
 import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
 import AddAccountDialog from '@/components/dialog/AddAccountDialog';
-import { user_select, user_delete, user_update, user_me } from '@/api/user';
+import { user_select, user_update, user_me } from '@/api/user';
+import { admin_user_select, admin_user_delete, admin_user_update_profile, admin_user_update_role } from '@/api/admin';
 export default {
   name: 'AccountManagement',
   components: { AddAccountDialog, GenerateAvatarDialog, GenerateAvatar },
@@ -200,17 +201,23 @@ export default {
     },
     get_user(){
       let params = {
+        "query": this.username_search,
         "page_num": this.search_query.pagenum,
         "page_size": this.search_query.pagesize
       }
-      user_select(params).then(res => {
+      admin_user_select(params).then(res => {
         if (res.status === 200){
           console.log(res)
           this.table_data = res.data.users
           this.table_data.forEach((item, index) => {
             item['role'] = item['role'] === 'admin'
+            if (this.username_search !== ''){
+              item['score'] = res.data.scores[index]
+            }
           })
           this.search_query.total = res.data.total
+          console.log("数据")
+          console.log(this.table_data)
         }
       })
     },
@@ -221,13 +228,14 @@ export default {
 
     delete_user(){
       let params = this.delete_uid
-      user_delete(params).then(res => {
+      admin_user_delete(params).then(res => {
         this.$message.success("删除成功！")
         this.get_user()
       })
     },
     openEdit(row) {
       this.dialogFormVisible = true
+      this.form.uid = row.uid
       this.form.username = row.name
       this.form.avatar_url = row.avatar_url
       this.form.description = row.avatar_description
@@ -240,13 +248,15 @@ export default {
     },
     modify(){
       let params = {
+        "uid": this.form.uid,
         "name": this.form.username,
-        "avatar_description": this.form.avatarDescription,
+        "avatar_description": this.form.description,
         "avatar_url": this.form.avatar_url
       }
-      user_update(params).then(res => {
+      admin_user_update_profile(params).then(res => {
         if (res.status === 200){
           this.$message.success("修改成功！")
+          this.get_user()
           this.dialogFormVisible = false
         }
       })
@@ -265,6 +275,25 @@ export default {
     handleAdminChange(row) {
       console.log("权限变更")
       console.log(row)
+      let params = {
+        uid: row.uid,
+        role: row.role ? "admin" : "user"
+      }
+      admin_user_update_role(params).then(res => {
+        if (res.status === 200){
+          console.log(res.data)
+          this.get_user()
+        }
+      })
+    },
+    tableRowClassName({ row, rowIndex }) {
+      if (row['score'] < 50){
+        console.log('irrelevance')
+        return 'warning-row'
+      }
+      else {
+        return ''
+      }
     }
   }
 };

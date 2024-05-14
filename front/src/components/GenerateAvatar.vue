@@ -3,7 +3,8 @@
     <div class="avatar-dialog-content">
       <el-input v-model="dialog_data.avatarDescription" :rows="4" type="textarea"
                 :autosize="{ minRows: 6, maxRows: 8 }"
-                placeholder="请输入头像的描述"></el-input>
+                placeholder="请输入头像的描述"
+                @change="handleChange()"></el-input>
       <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ avatarDescriptionLength }}/100</span>
 
       <el-button @click="generateAvatar" class="generate-avatar-button">生成头像</el-button>
@@ -74,6 +75,9 @@ export default {
       this.dialog_data.dialogVisible = false;
       this.handleClose()
     },
+    handleChange() {
+      this.$emit("returnUrl", this.dialog_data.avatarUrl, this.dialog_data.avatarDescription)
+    }
   }
 };
 </script>

@@ -31,7 +31,7 @@ service.interceptors.request.use(config => {
      }else if(config.type==='file'){
          config.headers = {
              'X-Requested-With':'XMLHttpRequest',
-             'Content-Type':'multipart/form-data;charset=UTF-8' //配置请求头
+             'Content-Type':'multipart/form-data' //配置请求头
          }
      }else {
          config.headers = {
