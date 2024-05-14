@@ -8,8 +8,14 @@ from zhipuai import ZhipuAI
 from zhipuai.types.chat.chat_completion import Completion
 
 from app.common import conf
-from app.common.model import (FunctionToolResult, RequestItemMeta,
-                              RequestItemPrompt, RequestPayload, ResponseModel)
+from app.common.model import (
+    FunctionToolResult,
+    RequestItemMeta,
+    RequestItemPrompt,
+    RequestPayload,
+    ResponseModel,
+)
+
 # from app.llm.all_tools import Tool
 from app.llm.tool import Tool
 
@@ -60,7 +66,7 @@ client = ZhipuAI(api_key=conf.get_zhipuai_key())
 def character_llm(payload: RequestPayload) -> ResponseModel:
     # 将两个字典作为参数发送到 FastAPI 接口
     response = requests.post(
-        "http://211.81.248.213:8086/character_llm",
+        conf.get_glm2_url(),
         json=payload.model_dump(),
     )
     response_dict = eval(response.json()["message"])
