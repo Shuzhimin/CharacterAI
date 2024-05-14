@@ -8,6 +8,17 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
+class QdrantConf(BaseModel):
+    host: str
+    prefer_grpc: bool
+    collection_name: str
+
+
+class LLMConf(BaseModel):
+    glm2_url: str
+    glm3_url: str
+
+
 class AdminConf(BaseModel):
     username: str
     password: str
@@ -74,6 +85,8 @@ class Conf:
         self.postgres = PostgresConf(**conf["postgres"])
         self.minio = MinioConf(**conf["minio"])
         self.admin = AdminConf(**conf["admin"])
+        self.qdrant = QdrantConf(**conf["qdrant"])
+        self.llm = LLMConf(**conf["llm"])
 
     def check_conf(self, conf: dict[str, Any]) -> None:
         keys: list[str] = ["mongo", "fastapi", "zhipuai"]
@@ -141,6 +154,21 @@ class Conf:
 
     def get_knowledge_file_base_dir(self) -> str:
         return "deploy/knowledge"
+
+    def get_qdrant_host(self) -> str:
+        return self.qdrant.host
+
+    def get_qdrant_prefer_grpc(self) -> bool:
+        return self.qdrant.prefer_grpc
+
+    def get_qdrant_collection_name(self) -> str:
+        return self.qdrant.collection_name
+
+    def get_glm2_url(self) -> str:
+        return self.llm.glm2_url
+
+    def get_glm3_url(self) -> str:
+        return self.llm.glm3_url
 
 
 conf = Conf.new(file="conf.toml")

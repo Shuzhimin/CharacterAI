@@ -31,3 +31,12 @@ bucket_name = 'test'
 [admin]
 username = 'admin'
 password = 'admin'
+
+[qdrant]
+host = 'localhost'
+collection_name = 'my_collections'
+prefer_grpc = true
+
+[llm]
+glm2_url = 'http://localhost:8086/character_llm'
+glm3_url = 'http://localhost:8001/v1/chat/completions'
