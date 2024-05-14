@@ -116,7 +116,7 @@ async def character_all(
         return fuzz.ratio(character.name, query)
 
     characters = sorted(characters, key=sort_by_fuzz, reverse=True)
-    characters = characters[skip : skip + limit]
+    # characters = characters[skip : skip + limit]
     scores = []
     if query is not None:
         scores = [fuzz.ratio(character.name, query) for character in characters]

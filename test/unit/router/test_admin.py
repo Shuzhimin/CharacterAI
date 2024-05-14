@@ -143,6 +143,30 @@ def test_character_all():
     assert character_select_response.total == db.get_character_count()
 
 
+def test_character_all_get_last_page():
+    admin = conf.get_admin()
+    # login first
+    token = user_login(username=admin.username, password=admin.password)
+    # then select all users
+    #
+    count = db.get_character_count()
+    page_size = 10
+    page_num = count // page_size + 1
+
+    # select without paramters
+    response = client.get(
+        url=f"{prefix}/character/select?page_num={page_num}&page_size={page_size}",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+    )
+    assert response.status_code == 200
+
+    character_select_response = model.CharacterSelectResponse(**response.json())
+    print(character_select_response)
+    assert len(character_select_response.characters) == count % page_size
+    assert len(character_select_response.scores) == 0
+    assert character_select_response.total == db.get_character_count()
+
+
 def test_select_character_fuzzy():
     admin = conf.get_admin()
     token = user_login(username=admin.username, password=admin.password)

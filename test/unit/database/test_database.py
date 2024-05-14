@@ -123,3 +123,21 @@ def test_chat():
         )
     )
     print(chat.messages)
+
+
+def test_character_all():
+    count = db.get_character_count()
+    page_size = 10
+    last_page_num = count // page_size + 1
+
+    page_num = last_page_num
+    skip = (page_num - 1) * page_size
+    limit = page_size
+    characters = db.get_characters(where=model.CharacterWhere(), skip=skip, limit=limit)
+    assert len(characters) == count % page_size
+
+    page_num = last_page_num + 1
+    skip = (page_num - 1) * page_size
+    limit = page_size
+    characters = db.get_characters(where=model.CharacterWhere(), skip=skip, limit=limit)
+    assert len(characters) == 0
