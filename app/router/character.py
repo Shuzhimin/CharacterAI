@@ -6,6 +6,7 @@ from typing import Annotated
 import aiofiles
 from fastapi import (APIRouter, Body, Depends, File, Form, HTTPException,
                      Query, UploadFile)
+from thefuzz import fuzz, process
 
 from app.common import conf, model
 from app.common.minio import minio_service
@@ -60,16 +61,38 @@ async def character_select(
     db: Annotated[DatabaseService, Depends(dependency=get_db)],
     cid: int | None = None,
     category: str | None = None,
-    page_num: Annotated[int, Query(description="页码")] = 1,
-    page_size: Annotated[int, Query(description="每页数量")] = 10,
-) -> list[model.CharacterOut]:
+    query: str | None = None,
+    # page_num: Annotated[int, Query(description="页码")] = 1,
+    # page_size: Annotated[int, Query(description="每页数量")] = 10,
+) -> model.CharacterSelectResponse:
     # TODO: 所有带分页的都必须返回总数，否则前端无法正常的展示分页
-    skip = (page_num - 1) * page_size
-    limit = page_size
-    return db.get_characters(
+    # skip = (page_num - 1) * page_size
+    # limit = page_size
+    characters = db.get_characters(
         where=model.CharacterWhere(uid=user.uid, cid=cid, category=category),
-        skip=skip,
-        limit=limit,
+        skip=0,
+        limit=99999999,
+    )
+    total = db.get_user_character_count(uid=user.uid)
+
+    scores = []
+    if query is not None:
+
+        def sort_by_fuzz(character: schema.Character) -> int:
+            return fuzz.ratio(character.name, query)
+
+        characters = sorted(characters, key=sort_by_fuzz, reverse=True)
+        scores = [fuzz.ratio(character.name, query) for character in characters]
+
+    character_outs: list[model.CharacterOut] = []
+    for character in characters:
+        character_out = model.CharacterOut(**character.__dict__)
+        character_outs.append(character_out)
+
+    return model.CharacterSelectResponse(
+        characters=character_outs,
+        scores=scores,
+        total=total,
     )
 
 
