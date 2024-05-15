@@ -46,7 +46,21 @@ def test_character(token: model.Token, avatar_url: str):
     )
     assert response.status_code == 200
     print(response.json())
-    characters = [model.CharacterOut(**c) for c in response.json()]
+    select_response = model.CharacterSelectResponse(**response.json())
+    characters = select_response.characters
+    print(characters)
+    assert len(characters) > 0
+    character = characters[0]
+
+    # select character by query
+    response = client.get(
+        url=f"{prefix}/select?query={character.name}",
+        headers={"Authorization": f"{token.token_type} {token.access_token}"},
+    )
+    assert response.status_code == 200
+    print(response.json())
+    select_response = model.CharacterSelectResponse(**response.json())
+    characters = select_response.characters
     print(characters)
     assert len(characters) > 0
     character = characters[0]
@@ -89,5 +103,6 @@ def test_character(token: model.Token, avatar_url: str):
         url=f"{prefix}/select",
         headers={"Authorization": f"{token.token_type} {token.access_token}"},
     )
-    characters = [model.CharacterOut(**c) for c in response.json()]
+    select_response = model.CharacterSelectResponse(**response.json())
+    characters = select_response.characters
     assert len(characters) == 0
