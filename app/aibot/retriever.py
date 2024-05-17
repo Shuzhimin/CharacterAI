@@ -10,7 +10,6 @@
 # https://python.langchain.com/docs/use_cases/question_answering/#rag-architecture
 
 from typing import AsyncGenerator
-
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains.retrieval import create_retrieval_chain
@@ -20,7 +19,7 @@ from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
-
+from app.common.vector_store import KnowledgeBase
 from app.common import conf, model
 from app.common.model import ChatMessage
 from app.database import schema
