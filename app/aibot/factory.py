@@ -2,7 +2,7 @@
 # zhangzhong
 # AIBotFactory
 
-from app.common.model import AIBotCategory, RequestItemMeta, Role
+from app.common.model import AIBotCategory, RequestItemMeta
 from app.database.schema import Message
 
 from .character import RolePlayer
@@ -16,7 +16,7 @@ class AIBotFactory:
     def __init__(
         self,
         chat_id: int,
-        uid: int,  # 表示谁正在与此AIBot对话
+        uid: int,
         cid: int,
         category: str,
         name: str,
@@ -47,7 +47,6 @@ class AIBotFactory:
         pass
         match self.category:
             case AIBotCategory.ROLE_PLAYER:
-                # meta
                 return RolePlayer(
                     cid=self.cid,
                     meta=RequestItemMeta(
