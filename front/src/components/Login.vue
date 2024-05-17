@@ -15,7 +15,7 @@
     <div class="login_box">
       <!--头像区域-->
       <div class="avatar_box">
-        <img src="../assets/logo.png" alt="">
+        <img :src="login_logo_img" alt="">
       </div>
       <!--登陆表单区域-->
       <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules"  label-width="0px" class="login_form">
@@ -103,6 +103,7 @@ export default {
       }
     }
     return {
+      login_logo_img: '/image/login_logo.png',
       radio: 1,
       // 这是登陆表单的数据绑定对象
       loginForm: {

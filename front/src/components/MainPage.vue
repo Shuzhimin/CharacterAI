@@ -1,13 +1,15 @@
 <template>
   <div style="height: 100%; background-color: #242949">
     <el-card style="background-color: #212529; border: 0;height: 100%">
+
       <el-row>
         <el-input
           v-model="character_name"
           style="padding-left: 20px;padding-right: 20px; padding-top: 20px;width: 50%;"
           placeholder="请输入角色名"
-          clearable>
-          <el-button slot="append" icon="el-icon-search"></el-button>
+          clearable
+          @input="getCharacter">
+          <el-button slot="append" icon="el-icon-search" @click="getCharacter"></el-button>
         </el-input>
         <div v-for="(type, i) in character_type" v-if="character_list[i].length !== 0" style="padding-top: 20px; background-color: transparent">
           <div>
@@ -128,34 +130,50 @@ export default {
 
 
         let params = {
-          "cid": window.localStorage.getItem('uid'),
-          "category": this.character_code[0]
+          // "cid": window.localStorage.getItem('uid'),
+          // "category": this.character_code[0],
+          "query": this.character_name
         }
-        character_select().then(res => {
+        console.log(this.character_list)
+        character_select(params).then(res => {
+
           if (res.status === 200){
-            console.log(res)
-            for (var i=0;i<res.data.length;i++){
+            // for (var i=0;i<this.character_list.length;i++){
+            //   this.character_list[i] = []
+            // }
+            let cl = [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ]
+            for (var i=0;i<res.data.characters.length;i++){
               let d = {
-                cid: res.data[i].cid,
-                img_url: res.data[i].avatar_url,
-                name: res.data[i].name,
-                description: res.data[i].description,
-                avatar_description: res.data[i].avatar_description,
-                category: res.data[i].category
+                cid: res.data.characters[i].cid,
+                img_url: res.data.characters[i].avatar_url,
+                name: res.data.characters[i].name,
+                description: res.data.characters[i].description,
+                avatar_description: res.data.characters[i].avatar_description,
+                category: res.data.characters[i].category
               }
               if (d.img_url === ""){
                 d.img_url = "https://aitopia-1302942961.cos.ap-beijing.myqcloud.com/lingyou/1688809087917a4bed63a-5757-48d5-b6a9-1b6d4c81be00.png?imageView2/1/w/300/h/300"
               }
-              console.log(d.category)
               if (this.character_code[d.category] === undefined){
               // if (d.category === ""){
                 d.category = "other"
               }
-              this.character_list[this.character_code[d.category]].push(d)
+              cl[this.character_code[d.category]].push(d)
 
               // this.character_list[5].push(d)
             }
-            // console.log(this.character_list)
+            this.character_list = cl
+            console.log('zzz')
+            console.log(this.character_list)
 
           }
         })

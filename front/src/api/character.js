@@ -6,8 +6,8 @@ const ax = axios.create({
   baseURL: global.domain,
   timeout: 5000
 })
-export function character_select(){
-  return http.get('/api/character/select')
+export function character_select(params){
+  return http.get('/api/character/select', params)
 }
 
 export function character_create(params){

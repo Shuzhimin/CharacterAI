@@ -90,7 +90,7 @@
               :http-request="handleFileUpload">
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-              <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+              <div class="el-upload__tip" slot="tip">只能上传txt/pdf文件，且不超过50MB</div>
 <!--              <el-button size="small" type="primary">点击上传</el-button>-->
 <!--              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>-->
             </el-upload>

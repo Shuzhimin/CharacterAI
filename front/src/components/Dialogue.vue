@@ -13,6 +13,7 @@
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="a">删除角色</el-dropdown-item>
                   <el-dropdown-item command="b">修改角色</el-dropdown-item>
+                  <el-dropdown-item command="c">新建对话</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </div>
@@ -153,7 +154,7 @@ import GenerateAvatar from '@/components/GenerateAvatar';
 import Character from '@/components/dialog/Character';
 import { simulateAvatar, simulateCreateCharacter } from '@/api/createrole';
 import { character_delete, character_update } from '@/api/character';
-import { connectionWebSocket, send } from '@/plugins/websocket-client';
+import { connectionWebSocket, connectionWebSocketWithoutChatId, send } from '@/plugins/websocket-client';
 import { chat_select } from '@/api/chat';
 export default {
   name: 'Dialogue',
@@ -196,6 +197,7 @@ export default {
       delDialogVisible: false,
       editDialogVisible: false,
       generateAvatarDialogVisible: false,
+      chat_id: -1,
     }
   },
   created() {
@@ -221,17 +223,58 @@ export default {
     },
   },
   mounted() {
-    let token = localStorage.getItem('token')
-    let cid = localStorage.getItem('roleMess_id')
-    token = token.split(' ')[1]
-    this.wbClient = connectionWebSocket(token, cid, this.handle_message)
+    this.getChat()
+
+
   },
   methods: {
+    getChat(){
+      let params = {
+        cid: this.role.id
+      }
+      chat_select(params).then(res => {
+        // console.log(res)
+        if (res.status === 200){
+          if (res.data.length === 0){
+            let token = localStorage.getItem('token')
+            let cid = localStorage.getItem('roleMess_id')
+            token = token.split(' ')[1]
+            this.wbClient = connectionWebSocketWithoutChatId(token, cid, this.handle_message)
+            return
+          }
+          let d = res.data[res.data.length-1]
+          // console.log(res.data[res.data.length-1])
+          this.chat_id = d.chat_id
+          for (var i = 0;i < d.history.length;i++){
+            let c = d.history[i]
+            let h = {
+              content: c.content,
+              owner: '',
+              avatar_url: '',
+            }
+            if (c.sender === 'user'){
+              h.owner = 'user'
+              h.avatar_url = localStorage.getItem('avatarUrl')
+            }
+            else {
+              h.owner = 'bot'
+              h.avatar_url = this.role.img_url
+            }
+            this.history_message.push(h)
+          }
+
+          let token = localStorage.getItem('token')
+          let cid = localStorage.getItem('roleMess_id')
+          token = token.split(' ')[1]
+          this.wbClient = connectionWebSocket(token, cid, this.chat_id, this.handle_message)
+        }
+      })
+    },
     handle_message(msg) {
       console.log(msg)
-      // const data = JSON.parse(msg.data)
+      const data = JSON.parse(msg.data)
       this.history_message.push({
-        content: msg.data,
+        content: data.content,
         owner: 'bot',
         avatar_url: this.role.img_url,
       })
@@ -242,7 +285,7 @@ export default {
         return
       }
       let mess = this.input_message
-      send(mess)
+      send(this.wbClient, mess, this.role.id)
 
       this.history_message.push({
         content: mess,
@@ -289,6 +332,18 @@ export default {
         this.editForm.id = this.role.id
         this.editForm.description = this.role.description
         this.editForm.avatar_description = this.role.avatar_description
+      }
+      else if (command === 'c'){
+        this.$confirm('新建对话当前对话内容将会被清空。是否新建对话？').then(_ => {
+          console.log("新建")
+          this.wbClient.close()
+          let token = localStorage.getItem('token')
+          let cid = localStorage.getItem('roleMess_id')
+          token = token.split(' ')[1]
+          this.wbClient = connectionWebSocketWithoutChatId(token, cid, this.handle_message)
+          this.history_message = []
+          this.getChat()
+        }).catch(_ => {})
       }
     },
     generateAvatar() {

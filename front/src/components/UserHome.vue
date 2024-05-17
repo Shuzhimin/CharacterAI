@@ -157,7 +157,7 @@ export default {
       menulist: [
         {
           id: 101,
-          authName: "查看",
+          authName: "功能",
           path: null,
           childrens: [
             {
@@ -175,11 +175,11 @@ export default {
               authName: '创建角色',
               path: '/createrole'
             },
-            {
-              id: 1014,
-              authName: '智能报表',
-              path: '/report'
-            }
+            // {
+            //   id: 1014,
+            //   authName: '智能报表',
+            //   path: '/report'
+            // }
           ]
         }
       ],
@@ -187,7 +187,7 @@ export default {
         125: 'iconfont icon-user',
         103: 'el-icon-document',
         101: 'el-icon-location',
-        102: 'iconfont icon-danju',
+        102: 'el-icon-s-tools',
         145: 'iconfont icon-baobiao'
       },
       // 是否折叠
@@ -235,11 +235,23 @@ export default {
 
     user_me().then(res => {
       if (res.data.role === "admin"){
-        this.menulist[0].childrens.push({
-          id: 1015,
-          authName: "账号管理",
-          path: '/accountmanagement'
-        },)
+        this.menulist.push({
+          id: 102,
+          authName: "管理",
+          path: null,
+          childrens: [
+            {
+              id: 1015,
+              authName: "账号管理",
+              path: '/accountmanagement'
+            }
+          ]
+        })
+        // this.menulist[0].childrens.push({
+        //   id: 1015,
+        //   authName: "账号管理",
+        //   path: '/accountmanagement'
+        // },)
       }
     })
   },
