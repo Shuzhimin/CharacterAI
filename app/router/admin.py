@@ -4,14 +4,13 @@
 
 from typing import Annotated
 
-from fastapi import (APIRouter, Body, Depends, FastAPI, Form, HTTPException,
-                     Query, status)
+from fastapi import APIRouter, Body, Depends, Query
 from thefuzz import fuzz, process
 
 from app.common import model
 from app.common.minio import minio_service
 from app.database import DatabaseService, schema
-from app.dependency import get_admin, get_db, get_user
+from app.dependency import get_admin, get_db
 
 admin = APIRouter(prefix="/api/admin")
 
@@ -22,8 +21,6 @@ async def admin_user_update(
     _: Annotated[schema.User, Depends(get_admin)],
     update: model.AdminUpdateUserProfile,
 ) -> model.UserOut:
-    # 那这样的话 uid应该是可选的
-    # TODO: 我感觉管理员的接口应该另外写一套才对, 目前的写法都是妥协
     update = minio_service.update_avatar_url(obj=update)
     return db.update_user(uid=update.uid, user_update=update)
 
@@ -55,7 +52,6 @@ async def user_all(
     page_size: Annotated[int, Query(description="每页数量")] = 10,
     query: str | None = None,
 ) -> model.UserSelectResponse:
-    # 实际上有没有query，这个接口的实现完全不一样啊
     skip = (page_num - 1) * page_size
     limit = page_size
 
@@ -95,11 +91,6 @@ async def character_all(
     skip = (page_num - 1) * page_size
     limit = page_size
 
-    # 如果所有的参数都不提供，就返回所有的角色
-    # 如果提供了uid 那么就只返回改用户创建的角色
-    # 如果提供了name，就首先根据前面两个条件获取角色之后
-    # 再从这些角色的名字中进行模糊匹配选出最后的角色
-
     total = 0
     if uid is None:
         total = db.get_character_count()
@@ -116,7 +107,6 @@ async def character_all(
         return fuzz.ratio(character.name, query)
 
     characters = sorted(characters, key=sort_by_fuzz, reverse=True)
-    # characters = characters[skip : skip + limit]
     scores = []
     if query is not None:
         scores = [fuzz.ratio(character.name, query) for character in characters]
