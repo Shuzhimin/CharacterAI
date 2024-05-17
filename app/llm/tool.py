@@ -6,7 +6,6 @@ import inspect
 from types import UnionType
 from typing import Callable, Union, get_args, get_origin, get_type_hints
 
-import app.common.model
 from app.common.model import (
     Function,
     FunctionTool,
@@ -60,7 +59,6 @@ class Tool:
             # all the parameters must have type hint
             assert name in type_hints, f"parameter {name} must have type hint"
             properties[name] = Property(
-                # 我们还要实现一个从type 到字符串的转换
                 type=type_to_str(type_hints[name]),
                 description=param.annotation.__metadata__[0],
             )
@@ -74,7 +72,6 @@ class Tool:
                 parameters=Parameters(properties=properties, required=required),
             )
         )
-        # how to get the arguments of a function
         self.tools.append(function_tool.model_dump())
         self.functions[func.__name__] = func
 
@@ -86,6 +83,4 @@ class Tool:
 
     @classmethod
     def dispatch(cls, name: str, *args, **kwargs) -> FunctionToolResult:
-        # 这里需要dispatch的话，我就需要找到对应的函数才行，那么这些函数就必须在注册时候放起来
-        # 只有这样我们才能进行一个访问
         return cls.functions[name](*args, **kwargs)

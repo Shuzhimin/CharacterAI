@@ -3,7 +3,6 @@ import uuid
 from operator import itemgetter
 from typing import AsyncGenerator
 
-import requests
 from langchain.chains import create_sql_query_chain
 from langchain_community.chat_models.zhipuai import ChatZhipuAI
 from langchain_community.llms.chatglm3 import ChatGLM3
@@ -171,7 +170,6 @@ class Reporter(AIBot):
     async def ainvoke(self, input: ChatMessage) -> AsyncGenerator[ChatMessage, None]:
         response_content = self.reporter_llm(question=input.content, uid=self.uid)
         yield ChatMessage(
-            # chat_id=input.chat_id,
             sender=input.receiver,
             receiver=input.sender,
             is_end_of_stream=False,

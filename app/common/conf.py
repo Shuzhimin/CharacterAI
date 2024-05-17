@@ -47,14 +47,6 @@ class ZhipuAIConf(BaseModel):
     api_key: str = Field(description="zhipuai API Key")
 
 
-# 这个或许没什么用
-# class PostgresTables(BaseModel):
-#     user: str = Field(  description="用户表")
-#     character: str = Field(  description="角色表")
-#     chat: str = Field(  description="聊天记录表")
-#     user_character: str = Field(  description="用户角色关联表")
-
-
 class PostgresConf(BaseModel):
     host: str = Field(description="主机")
     port: int = Field(description="端口")
