@@ -1,10 +1,10 @@
 import qs from 'qs';
-
+import global from './global'
 let socket = null;
 
 export function connectionWebSocket(token, cid, chat_id, handle_method){
     // socket = new WebSocket('ws://localhost:8888/webSocket/'+new Date().getTime())
-    socket = new WebSocket('ws://211.81.248.218:8001/ws/chat?token='+token+'&cid='+cid+'&chat_id='+chat_id)
+    socket = new WebSocket('ws://'+global.socket+'/ws/chat?token='+token+'&cid='+cid+'&chat_id='+chat_id)
     socket.onopen = open
     socket.onerror = error
     socket.onmessage = handle_method;
@@ -12,7 +12,7 @@ export function connectionWebSocket(token, cid, chat_id, handle_method){
 }
 export function connectionWebSocketWithoutChatId(token, cid, handle_method){
     // socket = new WebSocket('ws://localhost:8888/webSocket/'+new Date().getTime())
-    socket = new WebSocket('ws://211.81.248.218:8001/ws/chat?token='+token+'&cid='+cid)
+    socket = new WebSocket('ws://'+global.socket+'/ws/chat?token='+token+'&cid='+cid)
     socket.onopen = open
     socket.onerror = error
     socket.onmessage = handle_method;
