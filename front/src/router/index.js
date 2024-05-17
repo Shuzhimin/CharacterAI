@@ -11,7 +11,6 @@ import Report from '@/components/Report';
 import GenerateAvatar from '@/components/GenerateAvatar';
 import AccountManagement from '@/components/AccountManagement';
 import CharacterManagement from '@/components/CharacterManagement';
-import TestUpload from '@/components/TestUpload';
 Vue.use(VueRouter)
 
 const routes = [
@@ -29,7 +28,6 @@ const routes = [
       { path: '/report', component: Report },
       { path: '/accountmanagement', component: AccountManagement },
       { path: '/charactermanagement', component: CharacterManagement },
-      { path: '/test', component: TestUpload }
     ]
   },
 ]
