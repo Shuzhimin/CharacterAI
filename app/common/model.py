@@ -53,7 +53,6 @@ class UserOut(BaseModel):
     role: str = Field(description="用户角色")
     created_at: datetime = Field(description="创建时间")
     updated_at: datetime | None = Field(description="更新时间")
-    # is_deleted: bool = Field(description="是否删除")
 
     class Config:
         from_attributes = True
@@ -74,14 +73,11 @@ class CharacterCreate(BaseModel):
     avatar_description: str | None = Field(default=None, description="头像描述")
     avatar_url: str = Field(description="头像url")
     category: str = Field(description="机器人类型")
-    # 感觉这个东西作为字段名不太好
     uid: int = Field(description="用户id")
     is_shared: bool = Field(default=False, description="是否共享")
     knowledge_id: str | None = Field(default=None, description="知识库ID")
 
 
-# 因为sqlalchemy的底层实现非常简单
-# 所以提供一个where的model非常方便
 class CharacterWhere(BaseModel):
     uid: int | None = None
     cid: int | None = None
@@ -114,15 +110,6 @@ class CharacterOut(BaseModel):
         from_attributes = True
 
 
-# user or uid
-# uid is better, cause we would like the 'user' to indicate the whole object
-# so uid , user
-# cid, character
-# chat_id, chat
-# content_id, content
-# why not message, so we could use mid
-
-
 class ChatCreate(BaseModel):
     uid: int = Field(description="用户id")
     cid: int = Field(description="机器人id")
@@ -145,7 +132,6 @@ class ChatOut(BaseModel):
     uid: int = Field(description="用户id")
     cid: int = Field(description="机器人id")
     create_at: datetime = Field(description="创建时间")
-    # 所有的聊天记录也要保证按照时间排序
     history: list[MessageOut]
 
     class Config:
