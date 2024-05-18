@@ -50,46 +50,79 @@
         <el-table-column label="操作"  align="center">
           <template slot-scope="scope">
             <el-button size="medium" @click="openEdit(scope.row)" circle>编辑</el-button>
-            <el-button size="medium" @click="delete_user(scope.row)" circle>删除</el-button>
+            <el-button size="medium" @click="openDel(scope.row)" circle>删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog title="个人信息" :visible.sync="dialogFormVisible">
-        <el-form :model="form">
-          <el-form-item label="" :label-width="formLabelWidth">
-            <el-switch
-              v-model="form.modifyFlag"
-              active-text="修改"
-              active-color="#13ce66"
-              inactive-text="不修改"
-              inactive-color="#ff4949">
-            </el-switch>
+      <el-dialog
+        title="提示"
+        :visible.sync="editDialogVisible"
+        width="30%"
+        :before-close="handleClose">
+        <el-form :model="editForm" label-position="top" style="max-width: 400px; margin: 0 auto; ">
+          <el-form-item label="角色分类" :prop="'selectedCategory'" required>
+            <el-select v-model="editForm.selectedCategory" placeholder="请选择角色分类" style="border: 2px solid whitesmoke;background-color: white; ">
+              <el-option label="美食" value="food"></el-option>
+              <el-option label="旅游" value="travel"></el-option>
+              <el-option label="科技" value="technology"></el-option>
+              <el-option label="健康" value="health"></el-option>
+              <el-option label="法律" value="law"></el-option>
+              <el-option label="其他" value="other"></el-option>
+            </el-select>
           </el-form-item>
-          <el-form-item label="用户名" :label-width="formLabelWidth">
-            <el-input v-model="form.username" autocomplete="off" :disabled="true"></el-input>
+          <el-form-item label="角色名称" :prop="'bot_name'" required>
+            <el-input v-model="editForm.bot_name" class="character_name_input" style="border: 2px solid whitesmoke;background-color: white"></el-input>
           </el-form-item>
-          <el-form-item v-if="!form.modifyFlag" label="用户头像" :label-width="formLabelWidth">
-            <el-image :src="form.avatar_url" style="max-width: 150px; max-height: 150px;"></el-image>
+          <!--              <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>-->
+          <!--                <el-input v-model="editForm.description" :rows="4" type="textarea"-->
+          <!--                          :autosize="{ minRows: 6, maxRows: 8 }"-->
+          <!--                          placeholder="请输入身份背景"></el-input>-->
+          <!--                <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ bot_infoLength }}/100</span>-->
+          <!--              </el-form-item>-->
+          <!--              <el-form-item label="人物角色头像生成" class="a">-->
+          <!--                <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+          <!--              </el-form-item>-->
+          <el-form-item label="角色描述">
+            <el-input v-model="editForm.description" :rows="4" type="textarea"
+                      :autosize="{ minRows: 6, maxRows: 8 }"
+                      placeholder="请输入角色的描述"></el-input>
           </el-form-item>
-
-          <!--            <el-form-item v-if="form.modifyFlag" label="新密码" :label-width="formLabelWidth">-->
-          <!--              <el-input v-model="form.new_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>-->
-          <!--            </el-form-item>-->
-          <!--            <el-form-item v-if="form.modifyFlag" label="再次确认新密码" :label-width="formLabelWidth">-->
-          <!--              <el-input v-model="form.check_password" :show-password="true" autocomplete="off" :disabled="!form.modifyFlag"></el-input>-->
-          <!--            </el-form-item>-->
-          <!--          <el-form-item v-if="form.modifyFlag" label="人物角色头像生成" class="a">-->
-          <!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
+          <el-form-item label="头像" >
+            <GenerateAvatar :key="editForm.key" :avatarUrl="editForm.avatarUrl" :description="editForm.avatar_description" @returnUrl="getAvatarUrl"></GenerateAvatar>
+          </el-form-item>
+          <!--          <el-form-item label="对话人物名称" :prop="'user_name'" required>-->
+          <!--            <el-input v-model="createForm.user_name" class="a"></el-input>-->
           <!--          </el-form-item>-->
-          <el-form-item v-if="form.modifyFlag" label="头像" :label-width="formLabelWidth">
-            <GenerateAvatar :avatarUrl="form.avatar_url" :description="form.description" @returnUrl="getAvatarUrl"></GenerateAvatar>
-          </el-form-item>
-
+          <!--          <el-form-item label="对话人物身份背景" :prop="'user_info'" required>-->
+          <!--            <el-input v-model="createForm.user_info" class="user_info_input" :rows="4" type="textarea"-->
+          <!--                      :autosize="{ minRows: 6, maxRows: 8 }"-->
+          <!--                      placeholder="请输入身份背景"></el-input>-->
+          <!--            <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ user_infoLength }}/100</span>-->
+          <!--          </el-form-item>-->
+          <!--          <el-form-item label="对话人物头像生成" class="a">-->
+          <!--            <el-button @click="generateDialogueAvatar">一键生成对话人物头像</el-button>-->
+          <!--            <el-image v-if="dialogueAvatarUrl" :src="dialogueAvatarUrl"-->
+          <!--                      style="max-width: 100px; max-height: 100px; margin-top: 10px;"></el-image>-->
+          <!--          </el-form-item>-->
+          <!--              <el-form-item>-->
+          <!--                <el-button type="primary" @click="handleCreate">立即创建</el-button>-->
+          <!--              </el-form-item>-->
         </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="modify()">确 定</el-button>
-        </div>
+        <span slot="footer" class="dialog-footer">
+              <el-button @click="editDialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="update_user">确 定</el-button>
+            </span>
+      </el-dialog>
+      <el-dialog
+        title="提示"
+        :visible.sync="delDialogVisible"
+        width="30%"
+        :before-close="handleClose">
+        <span>是否确定删除此角色！(该操作无法恢复)</span>
+        <span slot="footer" class="dialog-footer">
+              <el-button @click="delDialogVisible = false">取 消</el-button>
+              <el-button type="primary" @click="delDialogVisible = false;delete_user()">确 定</el-button>
+            </span>
       </el-dialog>
       <el-pagination
         style="padding-top: 20px"
@@ -111,7 +144,7 @@ import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
 import AddAccountDialog from '@/components/dialog/AddAccountDialog';
 import { user_select, user_update, user_me } from '@/api/user';
-import { character_select } from '@/api/character';
+import { character_delete, character_select, character_update } from '@/api/character';
 import { admin_character_select } from '@/api/admin';
 export default {
   name: 'CharacterManagement',
@@ -149,7 +182,19 @@ export default {
         new_password: '',
         modifyFlag: false
       },
-      uid: null
+      uid: null,
+      editForm: {
+        bot_name: '',
+        description: '',
+        // user_name: '',
+        // user_info: ''
+        selectedCategory: '',
+        avatarUrl: '',// 生成的头像 URL
+        key: null
+      },
+      editDialogVisible: false,
+      delDialogVisible: false,
+      delId: null
     }
   },
   created() {
@@ -211,25 +256,40 @@ export default {
         }
       })
     },
-    delete_user(row){
+    openDel(row){
+      this.delId = row.cid
+      this.delDialogVisible = true
+    },
+    delete_user(){
       let params = [
-        row.uid
+        this.delId
       ]
-      user_delete(params).then(res => {
-        this.$message.success("删除成功！")
-        this.get_user()
+      console.log("zzz")
+      console.log(params)
+      character_delete(params).then(res => {
+        if (res.status === 200){
+          console.log(res)
+          console.log("删除！")
+          this.$message.success("删除角色成功！")
+          this.get_character()
+        }
+
       })
     },
-    openEdit(row) {
-      this.dialogFormVisible = true
-      this.form.username = row.name
-      this.form.avatar_url = row.avatar_url
-      this.form.description = row.avatar_description
-
+    openEdit(row){
+      this.editDialogVisible = true
+      this.editForm.selectedCategory = row.category
+      this.editForm.bot_name = row.name
+      this.editForm.avatarUrl = row.avatar_url
+      this.editForm.id = row.cid
+      this.editForm.description = row.description
+      console.log(row.avatar_description)
+      this.editForm.avatar_description = row.avatar_description
+      this.editForm.key = new Date().getTime()
     },
     getAvatarUrl(url, avatarDescription){
-      this.form.avatar_url = url
-      this.form.description = avatarDescription
+      this.editForm.avatarUrl = url
+      this.editForm.avatar_description = avatarDescription
       console.log(url)
     },
     modify(){
@@ -254,7 +314,31 @@ export default {
       else {
         return ''
       }
-    }
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
+    },
+    update_user(){
+      let params = {
+        "name": this.editForm.bot_name,
+        "description": this.editForm.description,
+        "category": this.editForm.selectedCategory,
+        "avatar_description": this.editForm.avatar_description,
+        "avatar_url": this.editForm.avatarUrl
+      }
+      character_update(params, this.editForm.id).then(res => {
+        if (res.status === 200){
+          console.log(res)
+          this.$message.success("修改成功")
+        }
+        this.editDialogVisible = false
+        this.get_character()
+      })
+    },
   }
 };
 </script>

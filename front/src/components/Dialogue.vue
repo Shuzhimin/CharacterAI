@@ -116,7 +116,7 @@
               <el-row style="padding-top: 20px">
                 <div v-if="item.owner === 'bot'" class="block">
                   <div style="width: 50px;height: 50px;flex-shrink: 0">
-                    <el-avatar @click.native="editDialogVisible = true" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>
+                    <el-avatar @click.native="openEdit" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>
                   </div>
 
                   <span style="background-color: gray;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
@@ -320,18 +320,21 @@ export default {
         })
         .catch(_ => {});
     },
+    openEdit(){
+      this.editDialogVisible = true
+      this.editForm.selectedCategory = this.role.category
+      this.editForm.bot_name = this.role.name
+      this.editForm.avatarUrl = this.role.img_url
+      this.editForm.id = this.role.id
+      this.editForm.description = this.role.description
+      this.editForm.avatar_description = this.role.avatar_description
+    },
     handleCommand(command) {
       if (command === 'a'){
         this.delDialogVisible = true
       }
       else if (command === 'b'){
-        this.editDialogVisible = true
-        this.editForm.selectedCategory = this.role.category
-        this.editForm.bot_name = this.role.name
-        this.editForm.avatarUrl = this.role.img_url
-        this.editForm.id = this.role.id
-        this.editForm.description = this.role.description
-        this.editForm.avatar_description = this.role.avatar_description
+        this.openEdit()
       }
       else if (command === 'c'){
         this.$confirm('新建对话当前对话内容将会被清空。是否新建对话？').then(_ => {
