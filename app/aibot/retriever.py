@@ -12,22 +12,23 @@ from typing import AsyncGenerator
 # RAG Architecture
 # https://python.langchain.com/docs/use_cases/question_answering/#rag-architecture
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains.history_aware_retriever import \
-    create_history_aware_retriever
+from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain_community.chat_message_histories import ChatMessageHistory
+
 # 所以embedding并没有添加到langchain里面
 from langchain_community.chat_models.zhipuai import ChatZhipuAI
+
 # langchain_community.embeddings 里面确实没有ZhipuAI的embedding
 # https://python.langchain.com/docs/integrations/vectorstores/qdrant/
 from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_core.messages import (AIMessage, BaseMessage, HumanMessage,
-                                     SystemMessage)
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from app.common import conf, model
 from app.common.model import ChatMessage
+from app.common.vector_store import KnowledgeBase
 from app.database import schema
 from app.llm import ZhipuAIEmbeddings
 
@@ -156,18 +157,30 @@ class RAG(AIBot):
         )
 
     async def ainvoke(self, input: ChatMessage) -> AsyncGenerator[ChatMessage, None]:
-        async for output in self.rag.ainvoke(
+        # https://python.langchain.com/v0.1/docs/use_cases/question_answering/streaming/
+        async for output in self.rag.astream(
             {"input": input.content},
             # session id 应该是chatid吧
             # 这是异步的但是不是多线程的 所以不用加锁
             config={"configurable": {"session_id": self.session_id}},
         ):
-            yield ChatMessage(
-                sender=self.cid,
-                receiver=self.uid,
-                is_end_of_stream=False,
-                content=output["answer"],
-            )
+            if "answer" in output:
+                yield ChatMessage(
+                    sender=self.cid,
+                    receiver=self.uid,
+                    is_end_of_stream=False,
+                    content=output["answer"],
+                )
         yield ChatMessage(
             sender=self.cid, receiver=self.uid, is_end_of_stream=True, content=""
         )
+        # output = await self.rag.ainvoke(
+        #     input={"input": input.content},
+        #     config={"configurable": {"session_id": self.session_id}},
+        # )
+        # yield ChatMessage(
+        #     sender=self.cid,
+        #     receiver=self.uid,
+        #     is_end_of_stream=False,
+        #     content=output["answer"],
+        # )
