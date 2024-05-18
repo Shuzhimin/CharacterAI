@@ -20,3 +20,4 @@ aiofiles
 langchain
 thefuzz
 qdrant-client
+httpx_sse

@@ -69,13 +69,17 @@ class Reporter(AIBot):
         )
         data_content = chain.invoke(
             {
-                "question": f"""请判断characters表中是否有uid={uid}。
+                "question": f"""请判断characters表中是否有字段“uid”的值为{uid}的数据。
                                 如果没有，你只需要回复“no”。
                                 如果有，你只需要回复“yes”。
                                 请不要回复其它无关内容。"""
             }
         )
-        data_question = f"分析“{question}”应该需要用到哪些数据来绘图，并从characters表且uid={uid}中获取这些数据。你只需要用dict类型返回获取到的数据，不要输出其它无关信息。"
+        data_question = f'''首先，分析“{question}”应该需要用到哪些数据来绘图，请选择合适的数据。
+                            然后，从数据库的characters表且uid={uid}中获取这些数据。
+                            最后，你只需要用dict类型返回获取到的数据，一定不要输出其它无关信息。
+                            回复格式为 data: "dict"
+                            '''
         if data_content == "yes":
             data_content = chain.invoke({"question": data_question})
         return data_question, data_content
@@ -133,7 +137,7 @@ class Reporter(AIBot):
         chain = prompt | self.llm | StrOutputParser()
         output = chain.invoke(
             {
-                "input": f"数据为{data_content}，请将数据改为字典类型，在根据数据编写代码完成“{question}”任务。一定要根据指定路径保存图片"
+                "input": f"数据为{data_content}，请将数据改为字典类型，在根据数据编写代码完成“{question}”任务。一定要根据指定路径“保存”图片"
             }
         )
         code_text = self._sanitize_output(output)
