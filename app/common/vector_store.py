@@ -4,12 +4,17 @@
 
 import uuid
 
+# 所以embedding并没有添加到langchain里面
+# langchain_community.embeddings 里面确实没有ZhipuAI的embedding
+
 from langchain_community.document_loaders import (
     PDFMinerLoader,
     TextLoader,
     WebBaseLoader,
 )
 from langchain_community.document_loaders.base import BaseLoader
+# https://python.langchain.com/docs/integrations/vectorstores/qdrant/
+
 from langchain_community.vectorstores.qdrant import Qdrant
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -61,7 +66,7 @@ class KnowledgeBase:
     @staticmethod
     def as_retriever(knowledge_id: str):
         vector_store = Qdrant.from_documents(
-            documents=[],
+            documents=[Document(page_content="hello")],
             embedding=ZhipuAIEmbeddings(api_key=conf.get_zhipuai_key()),
             url=conf.get_qdrant_host(),
             prefer_grpc=conf.get_qdrant_prefer_grpc(),

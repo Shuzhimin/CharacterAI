@@ -56,7 +56,7 @@ def create_rag(token: model.Token, avatar_url: str) -> schema.Character:
                 name="小明",
                 description="爱打游戏的大学生",
                 avatar_url=avatar_url,
-                category="旅游",
+                category=model.AIBotCategory.DOC_RAG.value,
                 uid=uid,
             ).model_dump(),
             # files={"file": ("requirements.txt", f, "text/plain")},
@@ -72,6 +72,7 @@ def create_rag(token: model.Token, avatar_url: str) -> schema.Character:
 def test_create_rag(token: model.Token, avatar_url: str):
     character = create_rag(token, avatar_url)
     print(character)
+    assert character.category == model.AIBotCategory.DOC_RAG.value
 
 
 def create_character(token: model.Token, avatar_url: str) -> model.CharacterOut:
