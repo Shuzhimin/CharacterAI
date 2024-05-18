@@ -20,18 +20,13 @@ SQLALCHEMY_DATABASE_URL = conf.get_postgres_sqlalchemy_database_url()
 # and until the transaction related to the session is commit or rollback, this connection will end and returned to the poll
 # and session is not thread-safe or async-safe, so we need to add the pool_size
 engine = create_engine(url=SQLALCHEMY_DATABASE_URL, pool_size=32)
-
 # class factory
 # configured to create instances of Session bound to your specific database engine
 # Each instance of SessionLocal represents a standalone conversation (or session) with the database
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# base model like pydantic?
+# base model like pydantic
 # Later we will inherit from this class to create each of the database models or classes (the ORM models):
 Base = declarative_base()
-
-# In a very simplistic way create the database tables:
-# https://fastapi.tiangolo.com/tutorial/sql-databases/#alembic-note
 
 
 class User(Base):

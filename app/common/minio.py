@@ -50,7 +50,6 @@ class MinIOService:
         return self.upload_file_from_file(filename)
 
     def upload_file_from_file(self, filename: str) -> str:
-        # destination_file = "my-test-file.txt"
         self.minio_client.fput_object(
             self.bucket_name, os.path.basename(filename), filename
         )

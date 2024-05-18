@@ -7,7 +7,7 @@ from app.common import conf
 
 
 def generate_image(description: str) -> str:
-    client = ZhipuAI(api_key=conf.get_zhipuai_cog_view_key())  # 请填写您自已的APIKey
+    client = ZhipuAI(api_key=conf.get_zhipuai_cog_view_key())
 
     response = client.images.generations(
         model="cogview-3",

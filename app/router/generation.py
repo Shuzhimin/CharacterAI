@@ -6,8 +6,6 @@ from fastapi import APIRouter
 from app import llm
 from app.common.model import GenerationRequestBody
 
-# /api/generate/image
-
 generation = APIRouter(prefix="/api/generation")
 
 
