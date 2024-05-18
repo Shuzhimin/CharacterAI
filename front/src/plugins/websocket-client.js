@@ -20,6 +20,7 @@ export function connectionWebSocketWithoutChatId(token, cid, handle_method){
 }
 export function open() {
     console.info("socket连接成功")
+
     // send('hello')
 }
 export function error() {

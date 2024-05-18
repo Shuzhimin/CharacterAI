@@ -118,8 +118,17 @@
                   <div style="width: 50px;height: 50px;flex-shrink: 0">
                     <el-avatar @click.native="openEdit" :size="50" :src="item.avatar_url" style="width: 50px"></el-avatar>
                   </div>
-
-                  <span style="background-color: gray;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
+                  <div v-if="item.content !== ''" style="background-color: gray;padding-top: 10px;padding-bottom: 10px;" class="content">
+                    <span :style="{ whiteSpace: 'pre-wrap' }">{{item.content}}</span>
+                  </div>
+<!--                  <span v-if="item.content !== ''" style="background-color: gray;padding-top: 10px;padding-bottom: 10px;" class="content">{{item.content}}</span>-->
+                  <div v-if="item.img_url !== ''">
+                    <el-image
+                      style="width: 300px; height: 300px; padding-left: 20px"
+                      :src="item.img_url"
+                      :preview-src-list="[item.img_url]">
+                    </el-image>
+                  </div>
                 </div>
                 <div v-if="item.owner === 'user'" class="block" style="float: right; padding-right: 20px">
                   <span style="background-color: deepskyblue;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
@@ -153,7 +162,7 @@ import GenerateAvatarDialog from '@/components/dialog/GenerateAvatarDialog';
 import GenerateAvatar from '@/components/GenerateAvatar';
 import Character from '@/components/dialog/Character';
 import { simulateAvatar, simulateCreateCharacter } from '@/api/createrole';
-import { character_delete, character_update } from '@/api/character';
+import { character_delete, character_update, character_select } from '@/api/character';
 import { connectionWebSocket, connectionWebSocketWithoutChatId, send } from '@/plugins/websocket-client';
 import { chat_select } from '@/api/chat';
 export default {
@@ -198,6 +207,7 @@ export default {
       editDialogVisible: false,
       generateAvatarDialogVisible: false,
       chat_id: -1,
+      cur_message: ''
     }
   },
   created() {
@@ -212,6 +222,17 @@ export default {
     this.role.name = localStorage.getItem('roleMess_name')
     this.role.img_url = localStorage.getItem('roleMess_avatar_url')
     this.role.id = localStorage.getItem('roleMess_id')
+    let params = {
+      "cid": this.role.id
+    }
+    character_select(params).then(res => {
+      if (res.status === 200){
+        if (res.data.characters.length === 0){
+          this.$message.error("该角色不存在！")
+          this.$router.push('/mainpage')
+        }
+      }
+    })
     this.role.description = localStorage.getItem('roleMess_description')
     this.role.avatar_description = localStorage.getItem('roleMess_avatar_description')
     window.sessionStorage.setItem('activePath', '/dialogue')
@@ -251,6 +272,7 @@ export default {
               content: c.content,
               owner: '',
               avatar_url: '',
+              img_url: ''
             }
             if (c.sender === 'user'){
               h.owner = 'user'
@@ -271,13 +293,28 @@ export default {
       })
     },
     handle_message(msg) {
+      console.log("接受到消息")
       console.log(msg)
       const data = JSON.parse(msg.data)
-      this.history_message.push({
-        content: data.content,
-        owner: 'bot',
-        avatar_url: this.role.img_url,
-      })
+      // console.log(data)
+      this.cur_message += data.content
+      if (data.is_end_of_stream === true){
+        this.history_message.push({
+          content: this.cur_message,
+          owner: 'bot',
+          avatar_url: this.role.img_url,
+          img_url: ''
+        })
+        for (var i=0;i<data.images.length;i++){
+          this.history_message.push(({
+            content: '',
+            owner: 'bot',
+            avatar_url: this.role.img_url,
+            img_url: data.images[i]
+          }))
+        }
+      }
+
     },
     sendMessage() {
       if (this.input_message === '' || this.input_message === null){
@@ -527,7 +564,7 @@ export default {
 }
 .block {
   display: flex;
-  align-items: center;     /* 垂直居中 */
+  align-items: flex-start;     /* center 垂直居中 flex-start 在开头  */
 }
 .content {
   color: white;
