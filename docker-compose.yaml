@@ -1,6 +1,3 @@
-# 2024/5/10
-# zhangzhong
-
 services:
   qdrant:
     image: qdrant/qdrant:latest
