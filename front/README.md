@@ -1,24 +1,23 @@
-# character_front
+# 前端部署
 
-首先确保你在命令行中已经进入 CharacterAI\front 目录。<br>
-接着确认NodeJs环境已经安装完毕。<br>
-接下来根据下面的步骤执行命令即可。
+在 CharacterAI\front 路径下：<br>
 
-## Project setup（安装项目所需的包，生成 node_modules文件夹）
-```
-npm install
-```
+1. 修改“/CharacterAI/front/src/plugins”路径下的 global.js 文件中的后端部署 IP 和端口 <br>
 
-### Compiles and hot-reloads for development（编译运行项目）
+2. 修改 nginx.conf 中的 server_name 为你的服务器 IP <br>
+
+3. 创建前端的 docker 镜像，其中 agent_ai 是设置的镜像名称：
+
 ```
-npm run serve
+docker build . -t agent_ai
 ```
 
-### Compiles and minifies for production（打包项目为dist文件夹，用于Nginx或其他工具部署）
+4. 在后台运行前端，其中 8900 是主机端口，80 是容器内部端口
+
 ```
-npm run build
+docker run -d -p 8900:80 agent_ai
 ```
 
+### 参考资料
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+https://cli.vuejs.org/guide/deployment.html#docker-nginx
