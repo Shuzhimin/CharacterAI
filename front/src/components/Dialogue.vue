@@ -124,14 +124,20 @@
 <!--                  <span v-if="item.content !== ''" style="background-color: gray;padding-top: 10px;padding-bottom: 10px;" class="content">{{item.content}}</span>-->
                   <div v-if="item.img_url !== ''">
                     <el-image
-                      style="width: 300px; height: 300px; padding-left: 20px"
+                      style="width: auto; height: auto; padding-left: 20px"
                       :src="item.img_url"
                       :preview-src-list="[item.img_url]">
                     </el-image>
                   </div>
+                  <div style="width: 80px;height: 80px; flex-shrink: 0">
+<!--                    <el-avatar :size="60"></el-avatar>-->
+                  </div>
                 </div>
                 <div v-if="item.owner === 'user'" class="block" style="float: right; padding-right: 20px">
-                  <span style="background-color: deepskyblue;padding-top: 10px;padding-bottom: 10px" class="content">{{item.content}}</span>
+                  <div style="width: 80px;height: 80px;flex-shrink: 0">
+<!--                    <el-avatar :size="50" style="width: 50px"></el-avatar>-->
+                  </div>
+                  <span style="background-color: deepskyblue;padding-top: 10px;padding-bottom: 10px;" class="content">{{item.content}}</span>
                   <div style="width: 50px;height: 50px; flex-shrink: 0">
                     <el-avatar :size="60" :src="item.avatar_url"></el-avatar>
                   </div>
@@ -305,6 +311,7 @@ export default {
           avatar_url: this.role.img_url,
           img_url: ''
         })
+        this.cur_message = ''
         for (var i=0;i<data.images.length;i++){
           this.history_message.push(({
             content: '',
@@ -312,7 +319,9 @@ export default {
             avatar_url: this.role.img_url,
             img_url: data.images[i]
           }))
+          // console.log(data.images[i])
         }
+
       }
 
     },

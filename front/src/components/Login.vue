@@ -1,6 +1,6 @@
 <template>
   <div class="login_container">
-    <div class="title">
+    <div class="title" style="background: transparent">
       <p>AI虚拟角色养成系统 V1.0</p>
     </div>
 <!--    <div class="skip">-->
@@ -348,11 +348,14 @@ export default {
   position: absolute;
   height: 100%;
   width: 100%;
+  background-image: url("/image/back.jpg");
+  background-size: cover;
 }
 .login_box{
   width: 450px;
   height: 300px;
   background-color: #fff;
+  background: rgba(0, 0, 0, .2);
   border-radius: 3px;
   position: absolute;
   left: 50%;
@@ -404,7 +407,7 @@ export default {
   Font-Family: "华文彩云";
   font-weight:bold;
   text-align:center;
-  color: #000000;
+  color: white;
   display : inline
 }
 </style>
