@@ -1,17 +1,59 @@
 # CharacterAI
-AI虚拟角色养成系统
 
-# FastAPI
-1. [https://fastapi.tiangolo.com/] 对FastAPI的介绍，可以浏览一遍，并根据其中的例子在自己的机器上搭建一个fastapi服务器
-2. [https://fastapi.tiangolo.com/python-types/] 类型系统在FastAPI中扮演非常重要的地位，这一部分需要看一下
-3. [https://fastapi.tiangolo.com/async/#in-a-hurry] 浏览一下最开始的部分即可
-4. [https://fastapi.tiangolo.com/tutorial/] 这是FastAPI的官方教程，先看下面几个章节
-   - https://fastapi.tiangolo.com/tutorial/first-steps/
-   - https://fastapi.tiangolo.com/tutorial/path-params/
-   - https://fastapi.tiangolo.com/tutorial/query-params/
-   - https://fastapi.tiangolo.com/tutorial/body/
-   - https://fastapi.tiangolo.com/tutorial/response-model/
-   - https://fastapi.tiangolo.com/tutorial/handling-errors/
-    最后可以看一下fastapi是怎么组织一个大型项目的
-   - https://fastapi.tiangolo.com/tutorial/bigger-applications/
-5. [https://fastapi.tiangolo.com/tutorial/dependencies/] 依赖注入同样是非常重要的部分，但是这一部分比较多，不用一口气看完，或者先浏览一遍，等开发需要的时候再来看
+AI 虚拟角色养成系统 V1.0
+
+## 后端环境搭建
+
+1. 安装 Qdrant、PostgreSQL 和 Minio
+
+```
+docker-compose -f docker-compose.yaml up -d
+```
+
+2. 部署 chatglm3-6b, 详细部署进入 langchain_glm3 文件夹内查看
+3. 部署微调后的模型, 详细部署进入 ptuning 文件夹内查看
+
+## 后端部署
+
+1. 进入工程根目录/CharacterAI
+2. 执行下面命令创建配置文件，并按照实际情况修改 conf.toml 内的信息
+
+```
+cp example-conf.toml conf.toml
+```
+
+3. 设置 Python 解释器搜索模块的路径为当前目录
+
+```
+export PYTHONPATH=.
+```
+
+4. 设置 部署后端的服务器 IP 不走代理
+
+```
+   export no_proxy="211.81.248.218"
+```
+
+5. 创建 conda 环境，character_ai 是环境名称
+
+```
+   conda create -n character_ai python=3.12
+```
+
+6. 进入创建好的环境
+
+```
+conda activate character_ai
+```
+
+7. 安装需要的包
+
+```
+pip install -r requirements.txt
+```
+
+8. 在服务器后台运行后端
+
+```
+nohup python app/main.py > app.log 2>&1 &
+```
