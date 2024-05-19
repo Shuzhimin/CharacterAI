@@ -19,9 +19,9 @@ services:
     environment:
       # all set to default so you could just type
       # psql -h localhost to connent
-      - POSTGRES_USER=zhangzhong
+      - POSTGRES_USER=ysukeg
       - POSTGRES_PASSWORD=123456
-      - POSTGRES_DB=zhangzhong
+      - POSTGRES_DB=characterai
 
   minio:
     image: bitnami/minio
