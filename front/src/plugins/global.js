@@ -4,7 +4,6 @@ const menuList = [];
 let lockPage = false;
 let lockPagePassword = "";
 
-
 export let minioConfig = {
     host: 'files.lulinyuan.com',
     port: 443,
