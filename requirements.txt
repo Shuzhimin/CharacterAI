@@ -21,3 +21,4 @@ langchain
 thefuzz
 qdrant-client
 httpx_sse
+pdfminer.six
