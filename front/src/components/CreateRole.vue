@@ -83,6 +83,7 @@
               :on-success="handleSuccess"
               :on-preview="handlePreview"
               :on-remove="handleRemove"
+              :on-change="handleChange"
               :before-remove="beforeRemove"
               :auto-upload="false"
               :on-exceed="handleExceed"
@@ -141,8 +142,13 @@ export default {
       createdCharacterId: '', // 用于保存创建的角色 ID
       // characterAvatarUrl: '', // 存储生成的角色头像 URL
       // dialogueAvatarUrl: '' // 存储生成的对话人物头像 URL
-      fileList: []
+      fileList: [],
+      fileCount: 0,
     }
+  },
+  created() {
+    window.sessionStorage.setItem('activePath', '/createrole')
+    this.$emit('updateParentValue', '/createrole')
   },
   computed: {
     bot_infoLength() {
@@ -277,6 +283,9 @@ export default {
       console.log(fileList)
       return this.$confirm(`确定移除 ${ file.name }？`);
     },
+    handleChange(file, fileList){
+      this.fileCount = fileList.length
+    },
     handleFileUpload(file) {
       console.log(111)
       console.log(file)
@@ -285,7 +294,7 @@ export default {
     submitUpload() {
       console.log("创建")
       console.log(this.fileList)
-      if (this.fileList.length === 0){
+      if (this.fileCount === 0){
         this.handleCreate(null)
       }
       else {

@@ -11,6 +11,9 @@
           @input="getCharacter">
           <el-button slot="append" icon="el-icon-search" @click="getCharacter"></el-button>
         </el-input>
+        <div v-if="character_num === 0" style="display: flex;flex-direction: column;justify-content: center;align-items: center;margin-top: 10%">
+          <span style="color: white;font-size: large" @click="$router.push('/createrole')">快去创建你的第一个角色吧！点击即可跳转！</span>
+        </div>
         <div v-for="(type, i) in character_type" v-if="character_list[i].length !== 0" style="padding-top: 20px; background-color: transparent">
           <div>
             <i class="el-icon-s-opportunity" style="font-weight: 50;font-size: 30px; color: white"></i>
@@ -21,7 +24,7 @@
             <el-col :span="3" v-for="(item, index) in character_list[i]" style="background-color: transparent;">
               <el-menu-item style="width: 100%; height: 100%; background-color: transparent" @click="selectRole(item)">
                 <div>
-                  <el-image :src="item.img_url" style="width: 100%; height: 100%">
+                  <el-image :src="item.img_url" style="width: 100%; height: 100%;border-radius: 20%">
 
                   </el-image>
                   <p class="clabel" style="color: white">{{item.name}}</p>
@@ -87,6 +90,7 @@ export default {
         [],
 
       ],
+      character_num: 0,
       character_name: '',
       character_type: [
         '美食',
@@ -151,6 +155,7 @@ export default {
               [],
               []
             ]
+            this.character_num = res.data.total
             for (var i=0;i<res.data.characters.length;i++){
               let d = {
                 cid: res.data.characters[i].cid,

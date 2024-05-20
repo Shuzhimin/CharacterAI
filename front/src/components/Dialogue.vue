@@ -112,6 +112,9 @@
         </el-header>
         <el-main style="height: 100%; width: 100%;">
           <div >
+            <div v-if="history_message.length === 0" style="display: flex;flex-direction: column;justify-content: center;align-items: center">
+              <span style="color: white">快开始与角色进行对话吧！</span>
+            </div>
             <div v-for="(item, index) in history_message" class="msgCss" :style="{textAlign: item.align}">
               <el-row style="padding-top: 20px">
                 <div v-if="item.owner === 'bot'" class="block">
@@ -579,6 +582,7 @@ export default {
   color: white;
   padding-left: 20px;
   padding-right: 20px;
+  border-radius: 95px;
 }
 :deep(.el-card__body) {
   height: 100%;
