@@ -7,8 +7,8 @@
         <span>AI虚拟角色养成系统 V1.0</span>
       </div>
       <div>
-        <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 50px;"></el-avatar>
-        <el-button type="info" @click="openDialog1" style="background-color: #d0ba13;padding-right: 20px">
+        <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 50px;;margin-right: 20px"></el-avatar>
+        <el-button type="info" @click="openDialog1" style="background-color: #d0ba13;padding-right: 20px;margin-right: 20px">
           修改密码
         </el-button>
         <el-dialog title="修改密码" :visible.sync="dialogFormVisible1">
