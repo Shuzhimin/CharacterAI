@@ -10,6 +10,8 @@ from sqlalchemy.orm import Session
 from app.common import model
 from app.common.conf import conf
 from app.common.crypt import encrypt_password
+from app.common.minio import minio_service
+from app.llm.cog_view import generate_image
 
 from . import schema
 from .schema import SessionLocal
@@ -49,11 +51,15 @@ class DatabaseService:
             case schema.User() as admin:
                 return admin
             case _:
+                avatar_description = "管理员"
+                url = generate_image(description=avatar_description)
+                avatar_url = minio_service.upload_file_from_url(url=url)
+
                 db_user = schema.User(
                     name=admin.username,
                     password=encrypt_password(admin.password),
-                    avatar_description="admin",
-                    avatar_url="admin",
+                    avatar_description=avatar_description,
+                    avatar_url=avatar_url,
                     role=model.Role.ADMIN.value,
                 )
                 self._db.add(db_user)
@@ -208,3 +214,9 @@ class DatabaseService:
     def get_content(self, content_id: int) -> schema.Message:
         db_content = self._db.get(schema.Message, content_id)
         return db_content
+
+
+def create_admin():
+    db = DatabaseService()
+    db.get_admin()
+    db.close()

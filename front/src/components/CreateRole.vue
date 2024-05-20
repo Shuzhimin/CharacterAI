@@ -187,7 +187,10 @@ export default {
       params.append("category", this.createForm.selectedCategory)
       params.append("uid", window.localStorage.getItem("uid"))
       params.append("is_shared", this.createForm.isShared)
-      params.append("file", file)
+      if (file !== null){
+        params.append("file", file)
+      }
+
       this.$message.info("解析上传的文件需要一定的时间，请耐心等待~")
       character_create(params).then(res => {
         console.log(res)
@@ -282,12 +285,12 @@ export default {
     submitUpload() {
       console.log("创建")
       console.log(this.fileList)
-      // if (this.fileList.length === 0){
-      //   this.handleCreate()
-      // }
-      // else {
+      if (this.fileList.length === 0){
+        this.handleCreate(null)
+      }
+      else {
         this.$refs.upload.submit();
-      // }
+      }
 
     }
   }

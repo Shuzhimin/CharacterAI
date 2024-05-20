@@ -336,7 +336,7 @@ export default {
       this.history_message.push({
         content: mess,
         owner: 'user',
-        avatar_url: this.avatarUrl,
+        avatar_url: localStorage.getItem('avatarUrl'),
         // avatar_url: 'https://lingyou-1302942961.cos.ap-beijing.myqcloud.com/lingyou/16790385261248df6fb83-63b0-4497-826e-b5f2cfbe97a3.jpg',
       })
 

@@ -6,7 +6,7 @@ uvicorn
 psycopg[binary,pool]
 python-multipart
 python-jose[cryptography]
-passlib[bcrypt]
+passlib
 httpx
 matplotlib
 requests
