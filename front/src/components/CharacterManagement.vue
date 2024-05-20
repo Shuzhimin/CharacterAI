@@ -33,7 +33,7 @@
           <template slot-scope="scope">
             <div>
               <el-image
-                style="width: 100px; height: 100px"
+                style="width: 100px; height: 100px;border-radius: 20%"
                 :src="scope.row.avatar_url"
                 :preview-src-list="[scope.row.avatar_url]">
               </el-image>
