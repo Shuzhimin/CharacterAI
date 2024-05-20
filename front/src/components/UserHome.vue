@@ -4,7 +4,7 @@
     <el-header>
       <div>
         <img src="src/assets/heima.png" alt="">
-        <span>AI角色</span>
+        <span>AI虚拟角色养成系统 V1.0</span>
       </div>
       <div>
         <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="padding-right: 50px;"></el-avatar>
