@@ -1,6 +1,6 @@
 // const domain = "https://appadmin.lulinyuan.com";
 
-const socket = '211.81.248.218:8001'
+const socket = '211.81.248.218:8000'
 const domain = "http://" + socket;
 const menuList = [];
 let lockPage = false;
