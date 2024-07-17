@@ -350,7 +350,8 @@ export default {
   position: absolute;
   height: 100%;
   width: 100%;
-  background-image: url("/image/back.jpg");
+  //background-image: url("/image/back.jpg");
+  background-image: url("/image/back3.png");
   background-size: cover;
 }
 .login_box{

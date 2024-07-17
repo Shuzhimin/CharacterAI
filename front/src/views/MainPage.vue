@@ -32,7 +32,7 @@
         <!--      <el-row>-->
 
         <div v-if="character_num === 0" style="display: flex;flex-direction: column;justify-content: center;align-items: center;margin-top: 10%">
-          <span style="color: black;font-size: large" @click="$router.push('/createrole')">快去创建你的第一个角色吧！点击即可跳转！</span>
+          <span style="color: black;font-size: large" @click="$router.push('/createrole')">快去创建你的第一个智能体吧！点击即可跳转！</span>
         </div>
         <template v-for="(type, i) in character_type">
           <el-row :id="i">
@@ -48,7 +48,7 @@
                   <el-icon style="font-size: 30px;"><ArrowLeft /></el-icon>
                   <!--                          <el-icon><ArrowLeftBold /></el-icon>-->
                 </a>
-                <div id="adv-pad-scroll" :class="`category-${i}`" style="width: 80%">
+                <div id="adv-pad-scroll" :class="`category-${i}`" style="width: 80%; height: 250px">
                   <div class="adv-pad" >
                     <!--                            <div style="width: 100%; height: 100%; background-color: transparent; " v-for="(item) in character_list[i]" @click="selectRole(item)">-->
                     <!--                            <img-->
