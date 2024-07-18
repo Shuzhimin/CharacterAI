@@ -2,7 +2,7 @@
   <el-input
       v-model="character_name"
       style=";padding-right: 20px; padding-top: 10px;width: 50%"
-      placeholder="请输入角色名"
+      placeholder="请输入智能体名"
       clearable
       @input="getCharacter">
     <template #append>

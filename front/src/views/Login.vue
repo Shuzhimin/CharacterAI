@@ -1,7 +1,7 @@
 <template>
   <div class="login_container">
     <div class="title" style="background: transparent">
-      <p>AI虚拟角色养成系统 V1.0</p>
+      <p>基于GLM智能体虚拟角色养成系统</p>
     </div>
 <!--    <div class="skip">-->
 <!--      <a href="http://localhost:8080/home#/userhome">跳转到用户页面</a>-->
@@ -351,7 +351,7 @@ export default {
   height: 100%;
   width: 100%;
   //background-image: url("/image/back.jpg");
-  background-image: url("/image/back3.png");
+  background-image: url("/image/back1.png");
   background-size: cover;
 }
 .login_box{

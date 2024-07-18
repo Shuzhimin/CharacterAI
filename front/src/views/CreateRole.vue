@@ -8,8 +8,8 @@
         <el-main>
           <div>
             <el-form :model="createForm" label-position="top" style="max-width: 30%; ; ">
-              <el-form-item label="角色分类" :prop="'selectedCategory'" required>
-                <el-select v-model="createForm.selectedCategory" placeholder="请选择角色分类">
+              <el-form-item label="智能体分类" :prop="'selectedCategory'" required>
+                <el-select v-model="createForm.selectedCategory" placeholder="请选择智能体分类">
                   <el-option label="美食" value="food"></el-option>
                   <el-option label="旅游" value="travel"></el-option>
                   <el-option label="科技" value="tech"></el-option>
@@ -20,10 +20,12 @@
                   <el-option label="智能报表" value="reporter"></el-option>
                 </el-select>
               </el-form-item>
-              <el-form-item label="创建角色名称" :prop="'bot_name'" required>
-                <el-input v-model="createForm.bot_name" ></el-input>
+              <el-form-item label="创建智能体名称" :prop="'bot_name'" required>
+                <el-input v-model="createForm.bot_name" placeholder="请输入名称">
+
+                </el-input>
               </el-form-item>
-              <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>
+              <el-form-item label="创建智能体的身份背景" :prop="'bot_info'" required>
                 <el-input v-model="createForm.bot_info" :rows="4" type="textarea"
                           :autosize="{ minRows: 6, maxRows: 8 }"
                           placeholder="请输入身份背景"></el-input>
@@ -41,7 +43,7 @@
               <!--          <el-form-item label="人物角色头像生成" class="a">-->
               <!--            <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
               <!--          </el-form-item>-->
-              <el-form-item label="人物角色头像生成"  style="width: 730px">
+              <el-form-item label="智能体头像生成"  style="width: 730px">
                 <GenerateAvatar :avatarUrl="createForm.avatarUrl" @returnUrl="getAvatarUrl"></GenerateAvatar>
               </el-form-item>
               <!-- 头像生成对话框 -->
@@ -237,13 +239,13 @@ export default {
         console.log(res)
         if (res.status === 200){
           // this.$message.success("创建成功！")
-          this.$confirm(`角色创建成功，可以选择与创建角色对话或回到首页查看角色`, {
-            confirmButtonText: '与创建角色对话',
-            cancelButtonText: '回到首页查看角色',
+          this.$confirm(`智能体创建成功，可以选择与创建的智能体对话或回到首页查看智能体`, {
+            confirmButtonText: '与创建智能体对话',
+            cancelButtonText: '回到首页查看智能体',
             type: 'success'
           }).then(() => {
             // 点击与创建角色对话按钮的逻辑
-            console.log('与创建角色对话');
+            console.log('与创建智能体对话');
             console.log(this.createForm)
             localStorage.setItem('roleCategory', this.createForm.selectedCategory)
             localStorage.setItem('roleMess_name', this.createForm.bot_name)
@@ -254,7 +256,7 @@ export default {
             this.$router.push('/dialogue');
           }).catch(() => {
             // 点击回到首页查看角色按钮的逻辑
-            console.log('回到首页查看角色');
+            console.log('回到首页查看智能体');
             // 跳转到首页的页面
             this.$router.push('/mainpage');
           }).finally(() => {

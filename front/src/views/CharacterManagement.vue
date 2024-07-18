@@ -4,13 +4,13 @@
       <el-breadcrumb-item :to="{path: '/userhome'}" style="">首页</el-breadcrumb-item>
 <!--      <el-breadcrumb-item style="color: white">系统管理</el-breadcrumb-item>-->
       <el-breadcrumb-item :to="{path: '/accountmanagement'}" style="">账号管理</el-breadcrumb-item>
-      <el-breadcrumb-item style="color: white">角色管理</el-breadcrumb-item>
+      <el-breadcrumb-item style="color: white">智能体管理</el-breadcrumb-item>
     </el-breadcrumb>
     <el-card style="margin-top: 15px">
       <el-row :gutter="20" style="padding-bottom: 20px">
         <el-col :span="7">
           <!--  搜索区  -->
-          <el-input placeholder="请输入角色名" v-model="character_name_search" @input="get_character" clearable>
+          <el-input placeholder="请输入智能体名称" v-model="character_name_search" @input="get_character" clearable>
             <!--            <el-button slot="append" icon="el-icon-search" @click="getBookList()"></el-button>-->
           </el-input>
 
@@ -27,10 +27,10 @@
       </el-row>
 
       <el-table :data="table_data" border fit :row-class-name="tableRowClassName">
-        <el-table-column label="角色id" prop="cid" align="center"></el-table-column>
-        <el-table-column label="角色名" prop="name" align="center"></el-table-column>
-        <el-table-column label="角色描述" prop="description" align="center" :show-overflow-tooltip="true"></el-table-column>
-        <el-table-column label="角色分类" prop="category" align="center"></el-table-column>
+        <el-table-column label="智能体id" prop="cid" align="center"></el-table-column>
+        <el-table-column label="智能体名称" prop="name" align="center"></el-table-column>
+        <el-table-column label="智能体描述" prop="description" align="center" :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column label="智能体分类" prop="category" align="center"></el-table-column>
         <el-table-column label="头像描述" prop="avatar_description" align="center"></el-table-column>
         <el-table-column label="头像" prop="avatar_url" align="center">
           <template v-slot:default="{row}">
@@ -66,8 +66,8 @@
         width="30%"
         :before-close="handleClose">
         <el-form :model="editForm" label-position="top" style="max-width: 400px; margin: 0 auto; ">
-          <el-form-item label="角色分类" :prop="'selectedCategory'" required>
-            <el-select v-model="editForm.selectedCategory" placeholder="请选择角色分类" style="border: 2px solid whitesmoke;background-color: white; ">
+          <el-form-item label="智能体分类" :prop="'selectedCategory'" required>
+            <el-select v-model="editForm.selectedCategory" placeholder="请选择智能体分类" style="border: 2px solid whitesmoke;background-color: white; ">
               <el-option label="美食" value="food"></el-option>
               <el-option label="旅游" value="travel"></el-option>
               <el-option label="科技" value="technology"></el-option>
@@ -76,7 +76,7 @@
               <el-option label="其他" value="other"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="角色名称" :prop="'bot_name'" required>
+          <el-form-item label="智能体名称" :prop="'bot_name'" required>
             <el-input v-model="editForm.bot_name" class="character_name_input" style="border: 2px solid whitesmoke;background-color: white"></el-input>
           </el-form-item>
           <!--              <el-form-item label="创建角色的身份背景" :prop="'bot_info'" required>-->
@@ -88,10 +88,10 @@
           <!--              <el-form-item label="人物角色头像生成" class="a">-->
           <!--                <el-button @click="showGenerateAvatarDialog">AI生成角色头像</el-button>-->
           <!--              </el-form-item>-->
-          <el-form-item label="角色描述">
+          <el-form-item label="智能体描述">
             <el-input v-model="editForm.description" :rows="4" type="textarea"
                       :autosize="{ minRows: 6, maxRows: 8 }"
-                      placeholder="请输入角色的描述"></el-input>
+                      placeholder="请输入智能体的描述"></el-input>
           </el-form-item>
           <el-form-item label="头像" >
             <GenerateAvatar :key="editForm.key" :avatarUrl="editForm.avatarUrl" :description="editForm.avatar_description" @returnUrl="getAvatarUrl"></GenerateAvatar>
@@ -127,7 +127,7 @@
         v-model="delDialogVisible"
         width="30%"
         :before-close="handleClose">
-        <span>是否确定删除此角色！(该操作无法恢复)</span>
+        <span>是否确定删除此智能体！(该操作无法恢复)</span>
         <template #footer>
            <span slot="footer" class="dialog-footer">
               <el-button @click="delDialogVisible = false">取 消</el-button>

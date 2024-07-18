@@ -67,7 +67,7 @@
             <div class="button-group mb-4">
               <el-button type="primary" :icon="Edit" @click="openEdit(row)" circle plain></el-button>
               <el-button type="danger" :icon="Delete" @click="delete_user_check(row)" circle plain/>
-              <el-button type="success" @click="character_management(row)" round style="margin-top: 5px; margin-left: 0px;" plain>角色管理</el-button>
+              <el-button type="success" @click="character_management(row)" round style="margin-top: 5px; margin-left: 0px;" plain>智能体管理</el-button>
             </div>
           </template>
         </el-table-column>
@@ -77,7 +77,7 @@
         v-model="delDialogVisible"
         width="30%"
         :before-close="handleClose">
-        <span>是否确定删除此角色！(该操作无法恢复)</span>
+        <span>是否确定删除此用户！(该操作无法恢复)</span>
         <template #footer>
         <span slot="footer" class="dialog-footer">
               <el-button @click="delDialogVisible = false">取 消</el-button>

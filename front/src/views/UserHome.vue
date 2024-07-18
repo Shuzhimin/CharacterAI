@@ -4,7 +4,7 @@
     <el-header>
       <div>
         <img src="src/assets/heima.png" alt="">
-        <span style="color: black">AI虚拟角色养成系统 V1.0</span>
+        <span style="color: black">基于GLM智能体虚拟角色养成系统</span>
       </div>
       <div>
         <el-avatar :size="50" :src="cur_account.avatar_url" @click.native="openDialog" style="margin-right: 20px" :key="cur_account.avatar_url"/>
