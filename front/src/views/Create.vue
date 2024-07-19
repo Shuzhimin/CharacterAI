@@ -5,11 +5,11 @@
       <div style="height: 500px; overflow-y: auto" id="bigBox">
         <div v-for="(item, index) in list" class="msgCss" :style="{textAlign: item.align}">
         <span v-if="item && item.align === 'left'">
-          <img
-            style="width: 50px;height: 50px;vertical-align: middle;border-radius: 50%;padding-right: 10px;"
-            src="../assets/human1.png"
-            alt=""
-          />
+<!--          <img-->
+<!--            style="width: 50px;height: 50px;vertical-align: middle;border-radius: 50%;padding-right: 10px;"-->
+<!--            src="../assets/human1.png"-->
+<!--            alt=""-->
+<!--          />-->
           <span v-if="item && item.link === ''">{{ item.text }}</span>
           <span v-if="item && item.link">: <a :href="item.link" target="_blank">{{ item.text }}</a></span>
         </span>
