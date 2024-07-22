@@ -3,7 +3,7 @@
     <!--   头部区域   -->
     <el-header>
       <div>
-<!--        <img src="src/assets/heima.png" alt="">-->
+<!--        <img src="src/assets/logo.png" alt="" style="height: 100px;padding-top: 10px">-->
         <span style="color: black">基于GLM智能体虚拟角色养成系统</span>
       </div>
       <div>
