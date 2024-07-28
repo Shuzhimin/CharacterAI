@@ -1,11 +1,11 @@
 <template>
   <el-dialog
     title="新增账号"
-    :visible.sync="dialog_data.dialogVisible"
+    v-model="dialog_data.dialogVisible"
     width="50%"
     :close-on-click-modal="false"
     :before-close="handleClose"
-  >
+  ><!--    :visible.sync="dialog_data.dialogVisible"-->
     <el-form ref="form" :model="dialog_data" label-width="80px" :rules="chooseRule">
       <el-form-item label="用户名" prop="username">
         <el-input v-model="dialog_data.username"></el-input>
@@ -34,10 +34,13 @@
       </el-form-item>
 
     </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="handleClose">取 消</el-button>
-      <el-button type="primary" @click="create()">确 认</el-button>
-    </div>
+    <template #footer>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="create()">确 认</el-button>
+      </div>
+    </template>
+
 <!--    <GenerateAvatarDialog v-if="generateAvatarDialogVisible" @closeDialog="closeGenerateAvatarDialog" :DialogShowFlag="generateAvatarDialogVisible" :avatarUrl="dialog_data.avatarUrl"></GenerateAvatarDialog>-->
 
   </el-dialog>
