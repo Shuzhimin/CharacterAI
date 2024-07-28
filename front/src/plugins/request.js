@@ -5,7 +5,7 @@ import global from './global'
 import vuex from '@/store/index'
 
 // 使用element-ui Message做消息提醒
-import { Message } from 'element-ui';
+import { ElMessage } from 'element-plus';
 
 
 //1. 创建新的axios实例，
@@ -72,51 +72,51 @@ service.interceptors.response.use(response => {
         // 2.根据响应码具体处理
         switch (error.response.status) {
             case 400:
-                Message.error('错误请求');
+                ElMessage.error('错误请求');
                 break;
             case 401:
-                Message.error('未授权，请重新登录');
+                ElMessage.error('未授权，请重新登录');
                 break;
             case 403:
-                Message.error('拒绝访问');
+                ElMessage.error('拒绝访问');
                 break;
             case 404:
-                Message.error('请求错误,未找到该资源');
+                ElMessage.error('请求错误,未找到该资源');
                 //window.location.href = "/NotFound"
                 break;
             case 405:
-                Message.error('请求方法未允许');
+                ElMessage.error('请求方法未允许');
                 break;
             case 408:
-                Message.error('请求超时');
+                ElMessage.error('请求超时');
                 break;
             case 500:
-                Message.error('服务器端出错');
+                ElMessage.error('服务器端出错');
                 break;
             case 501:
-                Message.error('网络未实现');
+                ElMessage.error('网络未实现');
                 break;
             case 502:
-                Message.error('网络错误');
+                ElMessage.error('网络错误');
                 break;
             case 503:
-                Message.error('服务不可用');
+                ElMessage.error('服务不可用');
                 break;
             case 504:
-                Message.error('网络超时');
+                ElMessage.error('网络超时');
                 break;
             case 505:
-                Message.error('http版本不支持该请求');
+                ElMessage.error('http版本不支持该请求');
                 break;
             default:
-                Message.error(`连接错误${error.response.status}`)
+                ElMessage.error(`连接错误${error.response.status}`)
         }
     } else {
         // 超时处理
         if (JSON.stringify(error).includes('timeout')) {
-            Message.error('服务器响应超时，请稍后再试');
+            ElMessage.error('服务器响应超时，请稍后再试');
         }else{
-            Message.error('连接服务器失败');
+            ElMessage.error('连接服务器失败');
         }
     }
 

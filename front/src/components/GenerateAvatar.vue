@@ -1,12 +1,13 @@
 <template>
   <div>
     <div class="avatar-dialog-content">
-      <el-input v-model="dialog_data.avatarDescription" :rows="4" type="textarea"
-                :autosize="{ minRows: 6, maxRows: 8 }"
-                placeholder="请输入头像的描述"
-                @change="handleChange()"></el-input>
-      <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ avatarDescriptionLength }}/100</span>
-
+      <div class="input-wrapper" style="width: 400px">
+        <el-input v-model="dialog_data.avatarDescription" :rows="4" type="textarea"
+                  :autosize="{ minRows: 6, maxRows: 8 }"
+                  placeholder="请输入头像的描述"
+                  @change="handleChange()"></el-input>
+        <span style="position: absolute; bottom: 10px; right: 10px; color: #999;">{{ avatarDescriptionLength }}/100</span>
+      </div>
       <el-button @click="generateAvatar" class="generate-avatar-button">生成头像</el-button>
       <el-image v-if="dialog_data.avatarUrl" :src="dialog_data.avatarUrl"
                 style="max-width: 150px; max-height: 150px; margin-top: 20px"></el-image>
@@ -40,7 +41,13 @@ export default {
   },
   computed: {
     avatarDescriptionLength() {
-      return this.dialog_data.avatarDescription.length;
+      if (this.dialog_data.avatarDescription !== undefined){
+        return this.dialog_data.avatarDescription.length;
+      }
+      else {
+        return 0;
+      }
+
     }
   },
   methods: {
@@ -53,19 +60,19 @@ export default {
       //   this.dialog_data.avatarUrl
       // }, 1000);
 
-        let params = {
-            "prompt": this.dialog_data.avatarDescription
+      let params = {
+        "prompt": this.dialog_data.avatarDescription
+      }
+      this.$message.info("正在生成，请等待...")
+      generation(params).then(res => {
+        if (res.status === 200){
+          console.log(res)
+          this.dialog_data.avatarUrl = res.data
+          this.$message.success("图像生成成功")
+          this.$emit("returnUrl", this.dialog_data.avatarUrl, this.dialog_data.avatarDescription)
         }
-        this.$message.info("正在生成，请等待...")
-        generation(params).then(res => {
-            if (res.status === 200){
-                console.log(res)
-                this.dialog_data.avatarUrl = res.data
-                this.$message.success("图像生成成功")
-                this.$emit("returnUrl", this.dialog_data.avatarUrl, this.dialog_data.avatarDescription)
-            }
 
-        })
+      })
 
     },
     saveAvatar() {
@@ -83,13 +90,18 @@ export default {
 </script>
 
 <style scoped>
+.input-wrapper {
+
+  position: relative; /* 设置相对定位 */
+  width: auto;
+}
 .avatar-dialog-content {
   text-align: center; /* 让内容居中显示 */
 }
 button {
   background-color: #4CAF50; /* 设置按钮背景颜色为绿色 */
   color: white; /* 设置按钮文字颜色为白色 */
-  padding: 15px 25px; /* 设置按钮的内边距 */
+  /*padding: 15px 25px; !* 设置按钮的内边距 *!*/
   border: none; /* 去除按钮边框 */
   border-radius: 8px; /* 设置按钮的圆角 */
   cursor: pointer; /* 设置鼠标样式为手型 */
